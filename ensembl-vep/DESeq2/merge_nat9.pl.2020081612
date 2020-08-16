@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+
+open FILE,"new_quant/10DG0934.tsv";
+<FILE>;
+my %hash;
+my %sort;
+while(<FILE>){
+	chomp;
+	if($_ =~ /NAT9/){
+		my ($id,undef,undef,$est_counts,$tpm) = split /\t/;
+		my ($trans_id) = split /\|/,$id;
+		$hash{$trans_id} = "$est_counts\t$tpm";
+		$sort{$trans_id} = $est_counts;
+	}
+}
+
+
+		
+open FILE,"new_quant/19DG2599F.tsv";
+<FILE>;
+my %hash1;
+while(<FILE>){
+	chomp;
+	if($_ =~ /NAT9/){
+		my ($id,undef,undef,$est_counts,$tpm) = split /\t/;
+		my ($trans_id) = split /\|/,$id;
+		$hash1{$trans_id} = "$est_counts\t$tpm";
+	}
+}
+
+foreach my $key (sort{$sort{$b}<=>$sort{$a}} keys %sort){
+	print "$key\t$hash{$key}\t$hash1{$key}\n";
+}
+		

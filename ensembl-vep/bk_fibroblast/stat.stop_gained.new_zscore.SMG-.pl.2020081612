@@ -1,0 +1,95 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+#my @sample = qw/18DG0147 10DG0840 19DG0555 19DG0060 15DG0371 15DG2234 09DG00934 15DG0918 18DG0120 15DG0678 16DG1048 14DG1661L 19DG0152L 19DG1391L 19DG1424L/;
+#my @sample = qw/18DG0147 10DG0840 19DG0555 19DG0060 15DG0371 14DG1661L 19DG0152L 19DG1391L 19DG1424L/;
+#my @sample = qw/18DG0147 15DG0918 16DG1333 10DG0840 10DG0792 14DG1661L 19DG0152L 19DG1391L 19DG1424L/;
+my @sample = qw/14DG2098 11DG0165 16DG0144 16DG0518 18DG0348 19DG1391F 19DG0152F/;
+my %targets;
+my %ori_tpm;
+my %ori_sample;
+my %gene;
+my %type;
+foreach my $sample (@sample){
+	open FILE,"stop_gained/$sample.tsv";
+	<FILE>;
+	<FILE>;
+	while(<FILE>){
+		chomp;
+		my ($gene_id,$gene_name,$tpm,$log2tpm,$zscore_tpm,$zscore_log2tpm,$variants,$sample,$type) = split;
+		$gene{$gene_id} = $gene_name;
+		$type{$sample} = $type;
+		$targets{$sample}->{$gene_id} = $variants;
+		push @{$ori_tpm{$gene_id}},$tpm;
+		push @{$ori_sample{$gene_id}},$sample;
+
+	}
+}
+
+
+
+my ($tpm,$log2tpm,$tpm_zscore,$log2tpm_zscore) = &getZscore();
+
+
+while(my($sample,$val) = each %$tpm_zscore){
+	&printInfo($sample);
+}
+
+
+sub getZscore{
+	my %tpm;
+	my %log2tpm;
+	my %tpm_zscore;
+	my %log2tpm_zscore;
+	while(my ($gene_id,$val) = each %ori_tpm){
+		my @tpm = @$val;
+		my @header = @{$ori_sample{$gene_id}};
+		my @log2tpm;
+		for(my$i=0;$i<@tpm;$i++){
+			$log2tpm[$i] = log($tpm[$i]+0.001)/log(2);   ######Log2 Scale
+		}
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@tpm);
+		my $mean = $stat->mean();
+		my $standard_deviation=$stat->standard_deviation();
+		my $median=$stat->median();
+		for(my$j=0;$j<@tpm;$j++){
+			my $zscore = ($tpm[$j]-$mean)/$standard_deviation;  #####calculate zscore
+			$tpm{$header[$j]}->{$gene_id} = $tpm[$j];
+			$tpm_zscore{$header[$j]}->{$gene_id} = $zscore;
+		}
+		my $log2stat = Statistics::Descriptive::Full->new();
+		$log2stat->add_data(@log2tpm);
+		my $log2mean = $log2stat->mean();
+		my $log2standard_deviation=$log2stat->standard_deviation();
+		for(my$j=0;$j<@log2tpm;$j++){
+			my $zscore = ($log2tpm[$j]-$log2mean)/$log2standard_deviation;  #####calculate zscore
+			$log2tpm{$header[$j]}->{$gene_id} = $log2tpm[$j];
+			$log2tpm_zscore{$header[$j]}->{$gene_id} = $zscore;
+		}
+	}
+	return (\%tpm,\%log2tpm,\%tpm_zscore,\%log2tpm_zscore);
+}
+
+
+sub printInfo{
+	my ($sample) = @_;
+	open OUT,">stop_gained-new_zscore-SMG-/$sample.tsv";
+	print OUT "gene_id\tgene_name\ttpm\tlog2tpm\tzscore_tpm\tzscore_log2tpm\tvariants\tsample\ttype\n";
+
+	my $type = $type{$sample};
+	my $targets_ref = $targets{$sample};
+	my $tpm_ref = $tpm->{$sample};
+	my $log2tpm_ref = $log2tpm->{$sample};
+	my $tpm_zscore_ref = $tpm_zscore->{$sample};
+	my $log2tpm_zscore_ref = $log2tpm_zscore->{$sample};
+	while(my ($gene_id,$zygo) = each %$tpm_zscore_ref){
+		my $variant  = $targets_ref->{$gene_id};
+		print OUT "$gene_id\t$gene{$gene_id}\t$tpm_ref->{$gene_id}\t$log2tpm_ref->{$gene_id}\t$tpm_zscore_ref->{$gene_id}\t$log2tpm_zscore_ref->{$gene_id}\t$variant\t$sample\t$type\n";
+	}
+}
+

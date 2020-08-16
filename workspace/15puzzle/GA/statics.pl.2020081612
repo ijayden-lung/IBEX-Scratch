@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+
+my %man;
+my %fit;
+foreach my $file (glob "Out/15_outs.*.100.0.6.100.0.1.txt"){
+	open FILE,$file;
+	<FILE>;
+	my ($num) = (split /\./,$file)[1];
+	while(<FILE>){
+		chomp;
+		my ($gen,$man,$fit) = (split)[0,3,6];
+		$man{$num}->{$gen} = $man;
+		$fit{$num}->{$gen} = $fit;
+	}
+
+}
+
+
+open OUT,">All_Man.txt";
+while(my ($key,$val) = each %man){
+	foreach my $gen (sort{$a<=>$b} keys %$val){
+		print OUT "$val->{$gen}\t";
+	}
+	print OUT "\n";
+}
+
+
+open OUT,">All_Fit.txt";
+while(my ($key,$val) = each %fit){
+	foreach my $gen (sort{$a<=>$b} keys %$val){
+		print OUT "$val->{$gen}\t";
+	}
+	print OUT "\n";
+}

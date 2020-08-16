@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use List::Util qw(first max maxstr min minstr reduce shuffle sum shuffle) ;
+use Statistics::Descriptive;
+
+my %hash;
+my %nmd_num;
+my %nmd_zscore;
+foreach my $file (glob "sgfs/*tsv"){
+	next if $file =~ /pvalue/;
+	my @zscore;
+	my @high_impact_zscore;
+	open FILE,"$file" or die ;
+	<FILE>;
+	while(<FILE>){
+		chomp;
+		my ($gene_id,$zscore,$variants) = (split)[0,5,6];
+		#my ($gene_id,$zscore,$variants) = (split)[0,3,-3];
+		#if($variants ne "Invalid"){
+		push @zscore, $zscore;
+		if($variants eq "NMD"){
+			push @high_impact_zscore,$zscore;
+		}
+		#}
+	}
+	my $stat2 = Statistics::Descriptive::Full->new();
+	$stat2->add_data(@zscore);
+	my $mean = $stat2->mean();
+	my $median=$stat2->median();
+
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@high_impact_zscore);
+	my $high_impact_mean = $stat->mean();
+	my $high_impact_median=$stat->median();
+	$hash{$file} = $mean;
+	my $number = @high_impact_zscore;
+	$nmd_num{$file} = $number;
+	$nmd_zscore{$file} = $high_impact_mean;	
+}
+
+
+foreach my $key (sort{$hash{$a}<=>$hash{$b}} keys %hash){
+	print "$key\t$hash{$key}\t$nmd_zscore{$key}\t$nmd_num{$key}\n";
+}

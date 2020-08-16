@@ -1,0 +1,14 @@
+#!/usr/bin/perl -w
+
+open FILE,"loss_wc_promoter.txt";
+open OUT,">Plot.loss.txt";
+print OUT "epoch\tloss\n";
+
+while(<FILE>){
+	chomp;
+	if($.%2 ==1){
+		my (undef,$loss) = split /\ |\,/;
+		my $epoch = int($./2);
+		print OUT "$epoch\t$loss\n";
+	}
+}

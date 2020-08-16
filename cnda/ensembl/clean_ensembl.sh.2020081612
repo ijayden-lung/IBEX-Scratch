@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#sed 's/^/chr/g' Mus_musculus.GRCm38.95.gtf | sed 's/chrMT/chrM/g' | awk '/^chr[1-9XaXYM]/' | awk '($3 ~ /exon|transcript|gene/)' | grep -E -v 'snoRNA|snRNA|miRNA|rRNA|pseudogene|misc_RNA|_decay|-ps[1-9]|"Rpl[1-9]|"Rps[1-9]' >$UCSC.ensemblv$VERSION.nopsuedo.gtf
+sed 's/^/chr/g' Homo_sapiens.GRCh38.95.gtf | sed 's/chrMT/chrM/g' | awk '/^chr[1-9XaXYM]/'  | grep -E -v 'TEC|snoRNA|snRNA|miRNA|rRNA|pseudogene|misc_RNA|_decay|-ps[1-9]|"Rpl[1-9]|"Rps[1-9]' >hg38.ensemblv95.nopsuedo.gtf
+#sed 's/^/chr/g' Mus_musculus_c57bl6nj.C57BL_6NJ_v1.95.gtf | sed 's/chrMT/chrM/g' | awk '/^chr[1-9XaXYM]/'  | grep -E -v 'TEC|snoRNA|snRNA|miRNA|rRNA|pseudogene|misc_RNA|_decay|-ps[1-9]|"Rpl[1-9]|"Rps[1-9]' >bl6.ensemblv95.nopsuedo.gtf
+
+
+#grep -E -v 'snoRNA|snRNA|miRNA|rRNA|pseudogene|misc_RNA|_decay|-ps[1-9]' Homo_sapiens.GRCh38.95.gtf >hg38v95_ensembl.gtf
+#grep -E -v 'snoRNA|snRNA|miRNA|rRNA|pseudogene|misc_RNA|_decay|-ps[1-9]|processed_transcript' Mus_musculus.GRCm38.95.gtf >mm10v95_ensembl.gtf
+
+#./ensembl_ID2name.pl $GRC.$VERSION.gtf $UCSC
+
+#sed 's/^chr//g' spret.gtf | sed 's/^M/^MT/g' | awk '/^[1-9XaXYM]/'  | grep -E -v 'TEC|snoRNA|snRNA|miRNA|rRNA|pseudogene|misc_RNA|_decay|-ps[1-9]|"Rpl[1-9]|"Rps[1-9]' >spret_ensembl.gtf

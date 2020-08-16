@@ -1,0 +1,50 @@
+#!/usr/bin/env Rscript
+library("DESeq2")
+library("tximportData")
+library("tximport")
+library(readr)
+dir <- system.file("extdata", package = "tximportData")
+#tx2gene <- read_csv(file.path(dir, "tx2gene.gencode.v27.csv"))
+tx2gene <- read_csv(file.path("tx2gene.csv"))
+head(tx2gene)
+samples <- read.table(file.path("./", "blood_samples.tsv"), header = TRUE)
+samples
+files <- file.path("quant", samples$run)
+names(files) = samples$run
+files
+txi.kallisto.tsv <- tximport(files, type = "kallisto",tx2gene = tx2gene, ignoreAfterBar = TRUE)
+head(txi.kallisto.tsv$counts)
+
+cts =  txi.kallisto.tsv$counts
+for (i in 1:length(colnames(cts))){
+	cts[,i] = as.integer(cts[,i])
+}
+head(cts)
+
+
+pdf('DESeq2.blood.Result.pdf')
+#cts = read.table("quant/blood.counts.txt",header=TRUE,sep="\t",row.names=1)
+
+coldata <- data.frame(row.names = colnames(cts),condition = c("SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG+","SMG8/9-","SMG8/9-","SMG8/9-","SMG8/9-"))
+dds <- DESeqDataSetFromMatrix(countData = cts,colData = coldata, design = ~ condition)
+###Alternative Step;
+
+dds <- dds[ rowSums(counts(dds)) > 10, ]
+
+dds$condition <- factor(dds$condition, levels=c("SMG+","SMG8/9-"))
+
+dds <- DESeq(dds)
+foo <- counts(dds, normalized = TRUE)
+write.csv(foo, file="blood.norm_counts.csv")
+
+res <- results(dds,alpha=0.01,lfcThreshold=0.5, altHypothesis="greaterAbs")
+
+#resLFC <- lfcShrink(dds, coef=2, res=res)
+summary(res)
+#res <- resLFC
+resOrdered <- res[order(res$padj),]   ####Alternative Step;
+write.table(resOrdered, "DESeq2_blood.Result.tsv",quote=FALSE,sep="\t",col.names=TRUE,row.names=TRUE )
+
+plotDispEsts(dds)
+hist(res$padj, breaks=100,col="skyblue", border="slateblue", main="")
+plotMA(res)

@@ -1,0 +1,109 @@
+#!/usr/bin/perl -w
+
+sub obtained_gene{
+	######Extract NMD gene
+	my ($file) = @_;
+	my %gene;
+	open FILE,"$file";
+	while(<FILE>){
+		chomp;
+		my ($gene_id) = (split)[3];
+		$gene{$gene_id} = '';
+	}
+	return \%gene;
+}
+
+
+my $gene_14DG1661  = &obtained_gene("../WES/output/14DG1661_exome.stop_gained.txt");
+my $gene_08DG00413 = &obtained_gene("../WES/output/18-0276.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.csv.filteredM4M.stop_gained.txt");
+my $gene_09DG00934 = &obtained_gene("../WES/output/MDL2019-02417-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0464 = &obtained_gene("../WES/output/MDL2018-02023-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_19DG0555 = &obtained_gene("../WES/output/18-0715.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_19DG1391 = &obtained_gene("../WES/output/MDL2018-05117-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+
+my $gene_19DG1424 = &obtained_gene("../WES/output/MDL2017-4033-2.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_15DG0371 = &obtained_gene("../WES/output/18-0411.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_15DG1349 = &obtained_gene("../WES/output/MDL2018-03498-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_16DG0328 = &obtained_gene("../WES/output/17-8233.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_16DG1186 = &obtained_gene("../WES/output/17-8456.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_16DG1333 = &obtained_gene("../WES/output/MDL2019-00346-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_17DG0832 = &obtained_gene("../WES/output/MDL2018-02416-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_17DG0969 = &obtained_gene("../WES/output/17-6938.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_17DG0977 = &obtained_gene("../WES/output/17-7564.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0120 = &obtained_gene("../WES/output/18-1650.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0147 = &obtained_gene("../WES/output/18-2658.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0454 = &obtained_gene("../WES/output/MDL2019-02790-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0638 = &obtained_gene("../WES/output/MDL2018-02882-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0646 = &obtained_gene("../WES/output/MDL2018-03093-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0717 = &obtained_gene("../WES/output/17-6487.Filtered.Variants.avoutput.ext2.csv.hds2.csv.mdl.stop_gained.txt");
+my $gene_18DG0734 = &obtained_gene("../WES/output/MDL2018-03784-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG0778 = &obtained_gene("../WES/output/17-7728.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG1029 = &obtained_gene("../WES/output/MDL2018-01916-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_18DG1094 = &obtained_gene("../WES/output/MDL2018-02012-1.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_19DG0060 = &obtained_gene("../WES/output/18-0295.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_19DG0591 = &obtained_gene("../WES/output/18-1235.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt");
+my $gene_19DG0152 = &obtained_gene("../WES/output/19DG0152_17-5563.stop_gained.txt");
+
+
+open FILE,"tpm.zscore.tsv";
+#open FILE,"tpm.cutoff.max1.tsv";
+open OUT,">zscore.boxinput.group1.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+#print OUT "gene\tzscore\tsample\n";
+print OUT "gene\tzscore\tsample\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my $gene_id = $data[4];
+	($gene_id) = split /\./,$gene_id;
+	#&printInfo($gene_id,\@data,$gene_19DG0555,'19DG0555');
+	#&printInfo($gene_id,\@data,$gene_09DG00934,'09DG00934');
+	&printInfo($gene_id,\@data,$gene_18DG0464,'18DG0464');
+	
+	#&printInfo($gene_id,\@data,$gene_15DG0371,'15DG0371');
+	#&printInfo($gene_id,\@data,$gene_15DG1349,'15DG1349');
+	#&printInfo($gene_id,\@data,$gene_16DG0328,'16DG0328');
+	
+	#&printInfo($gene_id,\@data,$gene_16DG1186,'16DG1186');
+	#&printInfo($gene_id,\@data,$gene_16DG1333,'16DG1333');
+	#&printInfo($gene_id,\@data,$gene_17DG0832,'17DG0832');
+	
+	#&printInfo($gene_id,\@data,$gene_17DG0969,'17DG0969');
+	#&printInfo($gene_id,\@data,$gene_17DG0977,'17DG0977');
+	#&printInfo($gene_id,\@data,$gene_18DG0120,'18DG0120');
+	
+	#&printInfo($gene_id,\@data,$gene_18DG0147,'18DG0147');
+	&printInfo($gene_id,\@data,$gene_18DG0454,'18DG0454');
+	&printInfo($gene_id,\@data,$gene_18DG0638,'18DG0638');
+	
+	&printInfo($gene_id,\@data,$gene_18DG0646,'18DG0646');
+	#&printInfo($gene_id,\@data,$gene_18DG0717,'18DG0717');
+	#&printInfo($gene_id,\@data,$gene_18DG0734,'18DG0734');
+
+	#&printInfo($gene_id,\@data,$gene_18DG0778,'18DG0778');
+	##&printInfo($gene_id,\@data,$gene_18DG1029,'18DG1029');
+	##&printInfo($gene_id,\@data,$gene_18DG1094,'18DG1094');
+
+	#&printInfo($gene_id,\@data,$gene_19DG0060,'19DG0060');
+	#&printInfo($gene_id,\@data,$gene_19DG0591,'19DG0591');
+
+	#&printInfo($gene_id,\@data,$gene_19DG0152,'19DG0152');
+	&printInfo($gene_id,\@data,$gene_19DG0152,'19DG0152L');
+	&printInfo($gene_id,\@data,$gene_19DG1424,'19DG1424L');
+	&printInfo($gene_id,\@data,$gene_19DG1391,'19DG1391L');
+	&printInfo($gene_id,\@data,$gene_14DG1661,'14DG1661L');
+}
+
+
+sub printInfo{
+	my ($gene_id,$data_ref,$sample_ref,$sample) = @_;
+	if(exists $sample_ref->{$gene_id}){
+		for(my $i=0;$i<@header;$i++){
+			if($header[$i] eq "$sample"){
+				print OUT "$gene_id\t$data_ref->[$i]\t$sample\n";
+			}
+		}
+	}
+}

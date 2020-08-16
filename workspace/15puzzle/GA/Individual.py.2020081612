@@ -1,0 +1,40 @@
+#!/usr/bin/python
+from random import choice
+from copy import deepcopy
+import numpy as np
+
+class Chromsome:
+	def __init__(self,puzzle,chrom_len):
+		self.puzzle = deepcopy(puzzle)
+		self.chrom_len = chrom_len
+		self.steps =np.array(['N' for _ in range(chrom_len)])
+		self.positions = np.full(chrom_len,-1)
+		self.positions[0] = self.puzzle.position
+		self.states = {0:self.puzzle.state.copy()}
+		
+		#####Initilize manhattanDist Max man<size*width*2
+		self.manhattanDists = np.full(chrom_len,self.puzzle.manhattanDist)
+		#self.fitnesses = sele.manhattanDists+self.positions
+		self.initialChr()
+		#self.puzzle.display()
+
+	def get_fitness(self):
+		fitnesses = self.manhattanDists# + np.arange(0,self.chrom_len,1)
+		minsteps = np.argmin(fitnesses)
+		return fitnesses[minsteps]+0.01*minsteps,fitnesses[minsteps]
+		#return fitnesses[minsteps],fitnesses[minsteps]
+	
+	def initialChr(self):
+		for i in range(1,self.chrom_len):
+			moves = self.puzzle.availMove(self.steps[i-1])
+			move = choice(moves)
+			self.steps[i] = move
+			self.puzzle.move(move)
+			self.states[i] = self.puzzle.state.copy()
+			self.positions[i] = self.puzzle.position
+			self.manhattanDists[i] = self.puzzle.manhattanDist
+
+			#print('self.puzzle state in step ',i)
+			#self.puzzle.display()
+			#print("inversionNum:",self.puzzle.inversionNum)
+			#print("manhattanDist:",self.puzzle.manhattanDist)

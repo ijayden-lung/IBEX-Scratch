@@ -1,0 +1,54 @@
+#!/bin/bash
+#SBATCH --job-name=VEP
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --output=log.%J
+#SBATCH --time=02:00:00
+#SBATCH --mem=40G
+#SBATCH --gres=gpu:1
+#SBATCH -a 0
+
+cd /home/longy/apps/ensembl-vep/WES
+i=0
+for input in new_input/C2*inp
+do
+	echo $input
+	inputs[$i]=$input
+	output=$input
+	output=${output//new_input/output} 
+	output=${output//inp/txt}
+	outputs[$i]=$output
+	((i=$i+1))
+	#perl convert_vcf.pl "$input"
+done 
+
+input=${inputs[$SLURM_ARRAY_TASK_ID]}
+output=${outputs[$SLURM_ARRAY_TASK_ID]}
+echo $input
+echo $output
+../vep --force_overwrite --input_file new_input/C2_79-ensemble-annotated-decomposed.vcf.inp --offline --output_file output/C2_79-ensemble-annotated-decomposed.txt
+
+:<<BL
+i=0
+for input in input3/14DG2019*inp
+do
+	echo $input
+	output=$input
+	output=${output//input3/output} 
+	output=${output//inp/txt}
+	#echo $output
+	inputs[$i]=$input
+	outputs[$i]=$output
+	((i=$i+1)) 
+	#echo $i
+	../vep --force_overwrite --input_file "$input" --offline --output_file "$output"
+	#stop_gain=${output//txt/stop_gained.txt}
+	#echo $stop_gain
+	#echo $output
+	#grep stop_gained $output >$stop_gain
+#done
+BL
+

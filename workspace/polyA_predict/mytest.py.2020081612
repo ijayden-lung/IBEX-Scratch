@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+import os
+import numpy as np
+from supporting import *
+
+data_file_pos = '/home/longy/workspace/polyA_predict/data/bl6.pAs.zhangbin.fibroblast.txt'
+data_file_neg = '/home/longy/workspace/polyA_predict/data/bl6.pAs.random.negative.trimmean0.txt'
+#data_file_pos = '/home/longy/workspace/polyA_predict/data/bl6.pAs.positive.txt'
+#data_file_neg = '/home/longy/workspace/polyA_predict/data/bl6.pAs.negative.txt'
+data = []
+############ Parameters ############
+ALPHABET = np.array(['A', 'G', 'T', 'C'])
+NUM_FOLDS = 5
+SPLIT_DICT = {
+	'train': [i for i in range(NUM_FOLDS-2)],
+	'valid': [NUM_FOLDS-2],
+	'test': [NUM_FOLDS-1]
+}
+############ Parameters ############
+def get_data(data_path, label,alphabet):
+	"""
+	Process all files in the input directory to read sequences.
+	Sequences are encoded with one-hot.
+	data_root: input directory
+	label: the label (True or False) for the sequences in the input directory
+	"""
+	data = []
+	labels = []
+	pasid = []
+	seq_len=0
+
+	with open(data_path, 'r') as f:
+		next(f)
+		for cnt,line in enumerate(f):
+			line = line.strip('\n')
+			array = line.split('\t')
+			base = list(array[7])
+			seq_len = len(base)
+			seq = np.array(base, dtype = '|U1').reshape(-1, 1)
+			seq_data = (seq == alphabet).astype(np.float32)
+			data.append(seq_data)
+			pasid.append(label[0:3]+array[0])
+			if cnt > 20:
+				break
+	seq_dim = alphabet.shape[0]
+	data = np.stack(data).reshape([-1, seq_len, 1, seq_dim])
+	pasid=np.array(pasid)
+	if label == "Positive":
+		labels = np.zeros(data.shape[0])
+	else:
+		labels = np.ones(data.shape[0])
+	print('Read %d %s sequences from %s'%(labels.shape[0],label, data_path))
+	print('Sequences length is %d,Sequences dimension is %d'%(seq_len,seq_dim))
+	return data, labels, pasid
+
+
+pos_data, pos_labels, pos_pasid = get_data(data_file_pos, 'Positive',ALPHABET)
+neg_data, neg_labels, neg_pasid = get_data(data_file_neg, 'Negative',ALPHABET)
+randomState = np.random.RandomState(0)
+pos_data, pos_labels, pos_pasid = shuffle(pos_data, pos_labels, pos_pasid, randomState)
+neg_data, neg_labels, neg_pasid = shuffle(neg_data, neg_labels, neg_pasid, randomState)
+
+
+dataset = data_split(pos_data, pos_labels, pos_pasid,  neg_data, neg_labels, neg_pasid, NUM_FOLDS, SPLIT_DICT)
+
+
+valid_labels = dataset['valid_labels']
+valid_pasid = dataset['valid_pasid']
+for i in range(3):
+	print(valid_labels[i],valid_pasid[i])
+print('Size of training dataset: %d'%dataset['train_labels'].shape[0])
+print('Size of validation dataset: %d'%dataset['valid_labels'].shape[0])
+print('Size of test dataset: %d\n'%dataset['test_labels'].shape[0])
+
+np.savez('bl6_test_dataset', **dataset)
+
+
+

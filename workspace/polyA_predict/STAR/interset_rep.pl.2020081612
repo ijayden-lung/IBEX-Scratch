@@ -1,0 +1,38 @@
+#!/usr/bin/perl -w
+
+my %rep1;
+open FILE,"BL6_REP1/Signal.Unique.str1.out.chr3.wig";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pos,$cov) = split;
+	$rep1{$pos} = $cov;
+}
+
+
+my %rep2;
+open FILE,"BL6_REP2/Signal.Unique.str1.out.chr3.wig";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pos,$cov) = split;
+	if(exists $rep1{$pos}){
+		$rep2{$pos} = $rep1{$pos} + $cov;
+	}
+}
+
+
+open FILE,"BL6_REP3/Signal.Unique.str1.out.chr3.wig";
+my $header = <FILE>;
+open OUT,">BL6_INT/Signal.Unique.str1.out.chr3.wig";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($pos,$cov) = split;
+	if(exists $rep2{$pos}){
+		my $new_cov = $rep2{$pos} + $cov;
+		print OUT "$pos\t$new_cov\n";
+	}
+}
+
+

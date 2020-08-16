@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+
+my %pas_gene;
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/pas_dataset/Parental/bl.pAs.sequence.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$coordinate) = split;
+	my ($gene_id) = split /\./,$pas_id;
+	my ($bl6,$spr) = split /,/,$coordinate;
+	my ($chr,$srd,$spe,$mid) = split /\|/,$bl6;
+	if($spe eq "BL"){
+		$pas_gene{$gene_id}->{$mid} = $_;
+	}
+}
+
+
+my %gene;
+my %cleavage_site;
+#open GTF,"awk '(\$3 == \"transcript\")' /ibex/scratch/longy/cnda/ensembl/mm10.ensemblv95.nopsuedo.gtf | grep protein_coding |";
+open GTF,"/ibex/scratch/longy/workspace/apa_predict/pas_dataset/mouse.PAS.mm10.txt";
+while(<GTF>){
+	chomp;
+	my ($pas_id,$chr,$end,$srd,undef,undef,$gene_id,$tran_id,$symbol,undef,undef,$pas_type) = split /\t/;
+	next if $chr eq "chrM";
+	$symbol = "unknown" if !defined $symbol;
+	if($srd eq "+"){
+		$cleavage_site{"$chr|+|BL|$end"} = "$gene_id\t$tran_id\t$symbol";
+		$gene{$gene_id}->{$end} = $pas_type;
+	}
+	else{
+		$cleavage_site{"$chr|-|BL|$end"} = "$gene_id\t$tran_id\t$symbol";
+		$gene{$gene_id}->{$end} = $pas_type;
+	}
+
+}
+
+
+open OUT2,">/ibex/scratch/longy/workspace/apa_predict/overlaptianbin_pas.txt";
+open OUT,">/ibex/scratch/longy/workspace/apa_predict/overlaptianbin_pastype.txt";
+print OUT2 "pas_id\tpas_type\tcoordinate\tsequence\n";
+while(my($gene_id,$val) = each %pas_gene){
+	if(exists $gene{$gene_id}){
+		my $mm10_coor = $gene{$gene_id};
+		foreach my $key (keys %$val){
+			foreach my $ele (keys %$mm10_coor){
+				if(abs($key - $ele)<10){
+					print OUT2 "$val->{$key}\n";
+					print OUT "$gene{$gene_id}->{$ele}\t$val->{$key}\n";
+					last;
+				}
+			}
+		}
+	}
+}

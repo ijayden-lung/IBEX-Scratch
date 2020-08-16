@@ -1,0 +1,38 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"Table_s3.csv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($symbol,$type) = (split /,/)[0,-1];
+	if($type =~ /siUPF1-Stab/){
+		$hash{$symbol} = '';
+	}
+}
+
+
+my $i = 0;
+open FILE,"DE.DESeq2.skin.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene,$sig) = (split)[1,5];
+	if(exists $hash{$gene} && $sig eq "Up"){
+		$i++;
+	}
+}
+print "$i\n";
+
+
+open FILE,"zscore.skin.tsv";
+my $header = <FILE>;
+open OUT,">zscore.skin.tables3.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene) = split;
+	if(exists $hash{$gene}){
+		print OUT "$_\n";
+	}
+}

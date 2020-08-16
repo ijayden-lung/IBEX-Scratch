@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"model/Test_bl6.pAs.fibroblast.SeqRCIn.txt";
+while(<FILE>){
+	chomp;
+	my ($pas_id,$result) = split;
+	$hash{$pas_id} = $result;
+}
+
+
+open FILE,"model/Test_bl6.pAs.fibroblast.SeqRCIn1.txt";
+while(<FILE>){
+	chomp;
+	my ($pas_id,$result) = split;
+	if($hash{$pas_id} ne $result){
+		print "$pas_id\n";
+	}
+}
+
+

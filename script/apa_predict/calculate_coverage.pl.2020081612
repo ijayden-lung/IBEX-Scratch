@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+
+use CalCov;
+
+my ($PAS,$WIG1,$WIG2,$COV) = @ARGV;
+my $window = 100;
+
+
+my %pas_fwd;
+my %pas_rev;
+my %type_fwd;
+my @type_fwd;
+my %type_rev;
+my @type_rev;
+open FILE,$PAS;
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$srd) = split;
+	my $beg = $pos-$window;
+	my $end = $pos+$window;
+	if($srd eq "-"){
+		$type_rev{"$pas_id\t$pas_type\t$srd"} = "$chr:$beg-$end";
+		$pas_rev{$chr}->{$pos} = '';
+		push @type_rev, "$pas_id\t$pas_type\t$srd";
+	}
+	else{
+		$type_fwd{"$pas_id\t$pas_type\t$srd"} = "$chr:$beg-$end";
+		$pas_fwd{$chr}->{$pos} = '';
+		push @type_fwd, "$pas_id\t$pas_type\t$srd";
+	}
+}
+
+
+my $cov_fwd = &calCov($WIG1,\%pas_fwd,$window,"+");
+open OUT,">$COV";
+my $avaible = 0;
+foreach my $id (@type_fwd){
+	my $key = $type_fwd{$id};
+	next if !exists $cov_fwd->{$key};
+	my $val = $cov_fwd->{$key};
+	$avaible++;
+	my @data = split /\t/,$val;
+	if (@data <2*$window+2){
+		my $len = 2*$window+2-@data;
+		my @new = (0)x$len;
+		print OUT "$id\t$key";
+		print OUT join "\t",$val,@new;
+		print OUT "\n";
+	}
+	else{
+		print OUT "$id\t$key";
+		print OUT "$val\n";
+	}
+}
+
+my $cov_rev = &calCov($WIG2,\%pas_rev,$window,"-");
+foreach my $id (@type_rev){
+	my $key = $type_rev{$id};
+	next if !exists $cov_rev->{$key};
+	my $val = $cov_rev->{$key};
+	$avaible++;
+	my @data = split /\t/,$val;
+	if (@data <2*$window+2){
+		my $len = 2*$window+2-@data;
+		my @new = (0)x$len;
+		print OUT "$id\t$key";
+		print OUT join "\t",$val,@new;
+		print OUT "\n";
+	}
+	else{
+		print OUT "$id\t$key";
+		print OUT "$val\n";
+	}
+}
+
+my $total1 = keys %type_fwd;
+my $total2 = keys %type_rev;
+my $total=$total1+$total2;
+my $percentage = sprintf("%.2f",$avaible/$total*100);
+print "pas with read: $avaible\ntotal pas: $total\npercentage:$percentage\n";

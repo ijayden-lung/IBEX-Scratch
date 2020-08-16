@@ -1,0 +1,19 @@
+#!/bin/bash
+
+## Submit First job
+
+#First_ID=$(sbatch -a 0-3 --partition=amd --job-name=random_number_generation --time=30:00 --output=First-job%J.out --nodes=1 --cpus-per-task=1 --parsable --wrap="sh ./random.sh");
+First_ID=`sbatch random.sh`
+
+echo "First Job(random_number_generation) submitted and the job id is " ${First_ID};
+
+
+## Execute the Second job only when First job is successful
+
+#Second_Job="sbatch --partition=batch --job-name=Second_Step --time=30:00 --output=Second-%J.out --error=Second-%J.err --nodes=1";
+
+Second_ID=$(sbatch --partition=amd --job-name=find_existance --time=30:00 --output=Second-job%J.out --error=Second-job%J.err --nodes=1 --cpus-per-task=1 --parsable --dependency=afterok:${First_ID} --wrap="sh ./existance.sh");
+
+#Second_ID=`sbatch --time=30:00 --dependency=afterok:${First_ID} --parsable --wrap="./existance.sh"`
+Second_ID=`sbatch existance.sh`
+echo " Second Job (find_existance)  was submitted (Job_ID=${Second_ID}) and it will execute when the First Job_ID=${First_ID} is successful"

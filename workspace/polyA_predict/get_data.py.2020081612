@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+import numpy as np
+from supporting import *
+
+data = []
+data_path='data/bl6.pAs.zhangbin.fibroblast.txt'
+alphabet = np.array(['A', 'G', 'T', 'C'])
+utr = []
+pasid = []
+with open(data_path,'r') as f:
+	next(f)
+	i=0
+	merge_data = []
+	for line in f:
+		line = line.strip('\n')
+		array = line.split('\t')
+		read_count = np.array(array[8:]).astype(np.float32)
+		base = list(array[7])
+		seq = np.array(base, dtype = '|U1').reshape(-1, 1)
+		seq_data = (seq == alphabet).astype(np.float32)
+		for (idx,val) in enumerate(seq_data):
+			merge = val*read_count[idx]
+			merge_data.append(merge)
+		merge_data = np.array(merge_data)
+		data.append(merge_data)
+		pasid.append(array[0])
+		i +=1
+		if i>0:
+			break
+
+seq_len = len(base)
+seq_dim = merge_data.shape[1]
+data = np.stack(data).reshape([-1, seq_len, 1, seq_dim])
+print(data)
+
+pasid=np.array(pasid)

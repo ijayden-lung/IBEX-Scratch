@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+#
+my ($BAM,$OUT,$OUT1,$thread) = @ARGV;
+open OUT,">$OUT";
+open FILE,"samtools view -H $BAM |";
+while(<FILE>){
+	chomp;
+	print OUT "$_\n";
+}
+
+
+#open FILE,"samtools view -q 255 $BAM |";
+open FILE,"samtools view  $BAM |";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	if($data[1] == 83){
+		$data[1] = 0;
+		$data[6] = "*";
+		$data[7] = 0;
+		$data[8] = 0;
+	}
+	elsif($data[1] == 99){
+		$data[1] = 16;
+		$data[6] = "*";
+		$data[7] = 0;
+		$data[8] = 0;
+	}
+	else{
+		next;
+	}
+	print OUT join("\t",@data),"\n";
+}
+
+system("samtools sort -@ $thread $OUT -o $OUT1");
+system("samtools index -@ $thread $OUT1");
+system("rm $OUT");

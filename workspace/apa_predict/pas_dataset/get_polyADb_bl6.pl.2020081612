@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+#
+#
+#
+my %conventer;
+open FILE,"/ibex/scratch/longy/cnda/ensembl/mm10_ID2Name.txt";
+while(<FILE>){
+	chomp;
+	my ($id,$name) = split;
+	$conventer{$name} = $id;
+}
+
+
+my %mm10;
+open FILE,"mouse.PAS.mm10.bed";
+while(<FILE>){
+	chomp;
+	my ($chr,undef,$pos,$id,undef,$srd) = split;
+	#if(exists $mm10{$id}){
+		#print "$_\n";
+		#}
+	$mm10{$id} = "$chr\t$pos\t$srd";
+}
+
+open FILE,"mouse.PAS.txt";
+<FILE>;
+open OUT,">bl6.pAs.tianbin.txt";
+print OUT "pas_id\tpas_type\tchr\tposition\tstrand\tsymbol\n";
+my %ens;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$ens_id,$symbol,$pas_type) = (split /\t/)[0,6,8,11];
+	next if $pas_type eq "intergenic" || $pas_type eq "Pseudogene" || $pas_type eq "ncRNA";
+	next if $_ =~ "predicted";
+	if($ens_id eq "NO" || $ens_id eq "na"){
+		next;
+		if(exists $conventer{$symbol}){
+			$ens_id = $conventer{$symbol};
+		}
+		else{
+			#$ens_id = "$symbol";
+		}
+	}
+	if(exists $mm10{$pas_id}){
+		$ens{$ens_id}++;
+		print OUT "$ens_id\.$ens{$ens_id}\t$pas_type\t$mm10{$pas_id}\t$symbol\n";
+	
+}

@@ -1,0 +1,86 @@
+import sys
+from random import randint
+
+
+class Board:
+    def __init__(self, size):
+        self.size = size
+        self.board_tiles = []
+        self.zero_position = (0, 0)
+        self.moves = ["U", "D", "L", "R"]
+        count = 1
+        for i in range(0, size):
+            self.board_tiles.append([])
+            for j in range(0, size):
+                self.board_tiles[i].append(count)
+                count += 1
+        self.board_tiles[size - 1][size - 1] = 0
+        self.zero_position = (size - 1, size - 1)
+
+    def read_board(self, string):
+        a = string.split(" ")
+        count = 0
+        for i in range(0, self.size):
+            for j in range(0, self.size):
+                if int(a[count]) == 0:
+                    self.zero_position = (i, j)
+                self.board_tiles[i][j] = int(a[count])
+                count += 1
+
+    def is_target(self):
+        count = 1
+        for i in range(0, self.size):
+            for j in range(0, self.size):
+                if self.board_tiles[i][j] != (count % (self.size * self.size)):
+                    return False
+                count += 1
+        return True
+
+    def swap(self, (x1, y1), (x2, y2)):
+        temp = self.board_tiles[x1][y1]
+        self.board_tiles[x1][y1] = self.board_tiles[x2][y2]
+        self.board_tiles[x2][y2] = temp
+
+    def up(self):
+        if (self.zero_position[0] != 0):
+            self.swap((self.zero_position[0] - 1, self.zero_position[1]), self.zero_position)
+            self.zero_position = (self.zero_position[0] - 1, self.zero_position[1])
+
+    def down(self):
+        if (self.zero_position[0] != self.size - 1):
+            self.swap((self.zero_position[0] + 1, self.zero_position[1]), self.zero_position)
+            self.zero_position = (self.zero_position[0] + 1, self.zero_position[1])
+
+    def left(self):
+        if (self.zero_position[1] != 0):
+            self.swap((self.zero_position[0], self.zero_position[1] - 1), self.zero_position)
+            self.zero_position = (self.zero_position[0], self.zero_position[1] - 1)
+
+    def right(self):
+        if (self.zero_position[1] != self.size - 1):
+            self.swap((self.zero_position[0], self.zero_position[1] + 1), self.zero_position)
+            self.zero_position = (self.zero_position[0], self.zero_position[1] + 1)
+
+    def print_board(self):
+        for i in range(0, self.size):
+            for j in range(0, self.size):
+                print self.board_tiles[i][j],
+            print ""
+
+    def move_tile(self, move):
+        if move == "U":
+            self.up()
+        if move == "D":
+            self.down()
+        if move == "L":
+            self.left()
+        if move == "R":
+            self.right()
+
+    def permute(self, num_of_permutation):
+        for i in range(0, num_of_permutation):
+            self.move_tile(self.moves[randint(0, 3)])
+
+    def parse_move_sequence(self, string):
+        for m in string:
+            self.move_tile(m)

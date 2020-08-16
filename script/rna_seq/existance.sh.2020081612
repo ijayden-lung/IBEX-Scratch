@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --job-name=existence
+#SBATCH --partition=amd
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=24:00:00
+#SBATCH --output=firstjob.%J
+#SBATCH --dependency=afterok:1356472
+
+echo "Finding the existance of 9999 number in the file: random.numbers.out"
+sleep 29s
+
+#cat random.numbers.1.out | grep $SLURM_ARRAY_TASK_ID

@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+
+my %stop_gain_gene;
+open FILE,"output/MDL2017-4033-2.Filtered.Variants.avoutput.ext2.csv.hds.csv.mdl.stop_gained.txt";
+while(<FILE>){
+	chomp;
+	my ($gene_id) = (split)[3];
+	$stop_gain_gene{$gene_id} = '';
+}
+
+
+open FILE,"../SMG8-NMD/tpm.tsv";
+my $header = <FILE>;
+my @head = split /\t/,$header;
+open OUT,">tpm.blood.boxinput.tsv";
+print OUT "gene\ttpm\tSMG8_type\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my $gene_id = $data[4];
+	($gene_id) = split /\./,$gene_id;
+	if(exists $stop_gain_gene{$gene_id}){
+		my $sum = 0;
+		my $count = 0;
+		for(my$i=6;$i<@data;$i++){
+			$sum += $data[$i];
+			$count++;
+		}
+		my $ave = $sum/$count;
+		next if $ave <0.1;
+		my $index = index(@header,"19DG1424L");
+		print "$index\n";
+		my $new_ave = ($sum-$data[23])/($count-1);
+		print OUT "$gene_id\t$data[23]\t19DG1424\n";
+		print OUT "$gene_id\t$new_ave\tSMG8_Wt\n";
+	}
+}

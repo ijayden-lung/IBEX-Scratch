@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+
+my ($exp,$i2n_exp) = @ARGV;
+my @ontology = qw/CC BP MF KEGG/;
+
+my %convert;
+open FILE,$i2n_exp;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$gene_name) = split;
+	$convert{$gene_id} = $gene_name;
+}
+
+foreach my $ont (@ontology){
+	my %hash;
+	open CAT,"GO/cat$ont\_$exp";
+	my $header = <CAT>;
+	while(<CAT>){
+		my (undef,$category,$gene_id) = split;
+		$hash{$category}->{$gene_id} = $convert{$gene_id}; 
+	}
+	open TAB,"GO/tab$ont\_$exp";
+	<TAB>;
+	open OUT,">GO/cat$ont\_$exp";
+	print OUT "category\tterm\tpval\tgene_id\tgene_name\n";
+	while(<TAB>){
+		my ($category,$term,$pval) = split /\t/;
+		$category = substr($category,3) if $ont eq "KEGG";
+		my $gene = $hash{$category};
+		while(my ($gene_id,$gene_name) = each %$gene){
+			print OUT "$category\t$term\t$pval\t$gene_id\t$gene_name\n";
+		}
+	}
+}
+
+

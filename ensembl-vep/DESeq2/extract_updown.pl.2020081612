@@ -1,0 +1,47 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"DE.DESeq2.skin.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($symbol,$l2fc,$sig) = (split)[1,3,5];
+	if($sig ne "No"){
+		$hash{$symbol} = $l2fc;
+	}
+}
+
+
+my %filter;
+my $i = 0;
+open FILE,"DE.DESeq2.skin.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene,$pvalue,$sig) = (split)[1,4,5];
+	if(exists $hash{$gene} && $sig eq "Up"){
+		$i++;
+	}
+	if($pvalue ne "NA"){
+		$filter{$gene} = '';
+	}
+}
+print "$i\n";
+
+
+my %sig_gene;
+open FILE,"zscore.skin.tsv";
+my $header = <FILE>;
+open OUT,">zscore.skin.significant_dysregulation.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene) = split;
+	if(exists $hash{$gene}){
+		$sig_gene{$gene} = $_;
+	}
+}
+
+foreach my $key (sort{$hash{$a}<=>$hash{$b}} keys %hash){
+	print OUT "$sig_gene{$key}\n";
+}

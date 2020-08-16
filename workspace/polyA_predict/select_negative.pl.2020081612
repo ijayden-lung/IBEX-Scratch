@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+use List::Util qw/shuffle sum/;
+
+my %cov;
+open COV1,"Coverage_BL6_REP1.negative.txt";
+<COV1>;
+while(<COV1>){
+	chomp;
+	my @data = split;
+	my @cov = @data[4..$#data];
+	@cov = reverse @cov if $data[2] eq "-";
+	my $trimmedMean = &TrimmedMean(@cov);
+	$cov{$data[0]} = \@cov if $trimmedMean>0;
+}
+
+
+
+open FILE,"bl6.pAs.random.negative.txt";
+my $header = <FILE>;
+open OUT,">data/bl6.pAs.random.negative.trimmean0.txt";
+print OUT $header;
+my @array = shuffle <FILE>;
+
+my %count = ('exon_noMotif'=>0,'exon_hasMotif'=>0,'tandemUTR_noMotif'=>0,'tandemUTR_hasMotif'=>0);
+my $number = 21576/4;
+
+####total 22050, enm=5000 ehm=5000 tnm=5000 thm=7050
+foreach my $ele (@array){
+	chomp $ele;
+	my ($pas_id,$pas_type) = split /\t/,$ele;
+	next if !exists $cov{$pas_id};
+	my $cov_ref = $cov{$pas_id};
+	$count{$pas_type}++;
+	if($pas_type eq 'exon_noMotif' && $count{'exon_noMotif'}<=$number){ 
+		print OUT join("\t",$ele,@$cov_ref),"\n";
+	}
+	elsif($pas_type eq 'exon_hasMotif' && $count{'exon_hasMotif'}<=$number){
+		print OUT join("\t",$ele,@$cov_ref),"\n";
+	}
+	elsif($pas_type eq 'tandemUTR_noMotif' && $count{'tandemUTR_noMotif'}<=$number){
+		print OUT join("\t",$ele,@$cov_ref),"\n";
+	}
+	elsif($pas_type eq 'tandemUTR_hasMotif' && $count{'tandemUTR_hasMotif'}<=$number){
+		print OUT join("\t",$ele,@$cov_ref),"\n";
+	}
+}
+
+
+while(my($key,$val) = each %count){
+	print "$key\t$val\n";
+}
+
+sub TrimmedMean{
+	my @sort = sort{$a<=>$b} @_;
+	my $len = @sort;
+	my $ltrim = int($len*0.2);
+	my $utrim = $len-$ltrim-1;
+	my $ave =  &sum(@sort[$ltrim..$utrim])/($utrim-$ltrim+1);
+	return $ave;
+}

@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+use Statistics::Descriptive;
+
+open FILE,"count.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+my %hash;
+
+while(<FILE>){
+	chomp;
+	my @data = split /\t/;
+	for(my $i=6;$i<@header;$i++){
+		push @{$hash{$header[$i]}},$data[$i];
+	}
+}
+
+my %median;
+my $sum = 0;
+my $count = 0;
+while (my ($sample,$val) = each %hash){
+	my @tpm = @$val;
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@tpm);
+	#my $median = $stat->mean();
+	my $median=$stat->median();
+	$median{$sample} = $median;
+	$sum += $median;
+	$count++;
+}
+
+my $average = $sum/$count;
+
+open FILE,"count.tsv";
+<FILE>;
+open OUT,">count.norm.tsv";
+print OUT "$header\n";
+while(<FILE>){
+	chomp;
+	my @data = split /\t/;
+	for(my $i=6;$i<@header;$i++){
+		$data[$i] = $data[$i]/$median{$header[$i]}*$average;
+	}
+	print OUT join("\t",@data),"\n";
+}

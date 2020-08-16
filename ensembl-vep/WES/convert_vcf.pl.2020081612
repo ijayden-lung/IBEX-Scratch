@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+my ($file) = @ARGV;
+
+#open FILE,"zcat $file |";
+open FILE,"$file";
+<FILE>;
+<FILE>;
+#<FILE>;
+#$file =~ s/raw/input/g;
+#$file =~ s/csv.gz$/inp/g;
+$file =~ s/raw/new_input/g;
+$file =~ s/csv$/inp/g;
+open OUT,">$file";
+while(<FILE>){
+	chomp;
+	my ($chr,$start,$end,$ref,$alt,$qual,$filter,$gene,$id,$info) = (split /\"\,\"/)[0,1,2,6,7,8,10,13,19,-3]; #raw1 #raw2
+	#my ($chr,$start,$end,$ref,$alt,$qual,$gene,$id) = (split /,/)[0,1,2,3,4,6,10,11]; ###raw3
+	#my ($chr,$start,$end,$ref,$alt,$qual,$filter,$gene,$id,$info) = (split /,/)[0,1,2,6,7,8,10,13,19,-3];  ##raw4
+	#my ($chr,$start,$end,$ref,$alt,$qual,$filter,$gene,$id,$info) = (split /\"\,\"/)[1,2,3,7,8,9,11,14,20,-3];
+	$chr =~ s/chr0/chr/g;
+	$chr =~ s/chr//g;
+	$chr =~ s/\"//g;
+	if($ref eq "-"){
+		my $len = length($alt);
+		$end = $start-1;
+	}
+	#if($alt eq "-"){
+	#	my $len = length($ref);
+	#	$end += $len;
+	#}
+
+	print OUT "$chr\t$start\t$end\t$ref/$alt\t1\n";
+}

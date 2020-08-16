@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -q fat
+#PBS -N genomeGenerate
+#PBS -l nodes=1:ppn=36
+#PBS -j oe 
+#PBS -l walltime=12:00:00
+
+
+dir='/home/longy/cnda/STAR_INDEX/spllength100'
+mkdir $dir
+STAR --runMode genomeGenerate --runThreadN 18 --genomeDir $dir --genomeFastaFiles /home/longy/cnda/ensembl/Mus_spretus.SPRET_EiJ_v1.dna.toplevel.fa --sjdbGTFfile ~/cnda/ensembl/Mus_spretus.SPRET_EiJ_v1.95.gtf --sjdbOverhang 100
+
+
+#dir='/home/bio-longyk/cnda/STAR_INDEX/mm10v92len100/'
+#mkdir $dir
+#STAR --runMode genomeGenerate --runThreadN 18 --genomeDir $dir --genomeFastaFiles /home/biology/genome/mm10/mm10.fa --sjdbGTFfile /home/bio-longyk/cnda/ensembl/mm10.ensemblv92.nopsuedo.gtf --sjdbOverhang 100
+

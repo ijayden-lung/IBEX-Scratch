@@ -1,0 +1,17 @@
+
+
+my %hash;
+open FILE,"test.meat.txt";
+while(<FILE>){
+	my ($gene_id) = split;
+	$hash{$gene_id} = '';
+}
+
+open FILE,"test.txt";
+while(<FILE>){
+	my ($gene_id) = split;
+	if(!exists $hash{$gene_id}){
+		print "$gene_id\n";
+	}
+}
+

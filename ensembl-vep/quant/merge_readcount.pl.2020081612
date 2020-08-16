@@ -1,0 +1,38 @@
+#!/usr/bin/perl -w
+
+my %blood_sample;
+foreach my $file (glob "../blood/sgfs/*tsv"){
+	next if $file =~ /pvalue/;
+	my ($sample) = (split /\.|\//,$file)[-2];
+	$blood_sample{$sample} = '';
+}
+
+my %hash;
+my @sample;
+my %pos;
+foreach my $file (glob "*DG*tsv"){
+	open FILE,"$file";
+	<FILE>;
+	my ($sample) = split/\./,$file;
+	next if !exists $blood_sample{$sample};
+	push @sample,$sample;
+	while(<FILE>){
+		chomp;
+		my ($chr,$strand,$start,$end,$gene_id,$gene_symbol,$effective_length,$count) =  (split)[0,1,2,3,4,8,-2,-1];
+		$hash{"$gene_id\t$gene_symbol"}->{$sample} += $count;
+		$pos{"$gene_id\t$gene_symbol"} = "$chr\t$strand\t$start\t$end";
+	}
+}
+
+print "finish\n";
+open OUT,">tpm.count.tsv";
+print OUT join("\t","chr","strand","start","end","gene_id","gene_symbol",@sample),"\n";;
+while(my ($gene,$val) = each %hash){
+	print OUT "$pos{$gene}\t$gene";
+	foreach my $sample (@sample){
+		print OUT "\t$val->{$sample}";
+	}
+	print OUT "\n";
+}
+
+

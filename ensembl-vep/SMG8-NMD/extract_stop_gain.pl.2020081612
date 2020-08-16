@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+my %stop_gain_gene;
+open FILE,"output.stop_gained.txt";
+while(<FILE>){
+	chomp;
+	my ($gene_id) = (split)[3];
+	$stop_gain_gene{$gene_id} = '';
+}
+
+open FILE,"rate.tsv";
+my $header = <FILE>;
+open OUT,">rate.stop_gained.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene_id) = (split)[4];
+	($gene_id) = split /\./,$gene_id;
+	if(exists $stop_gain_gene{$gene_id}){
+		print OUT "$_\n";
+	}
+}

@@ -1,0 +1,83 @@
+#!/usr/bin/perl -w
+
+use Statistics::Descriptive;
+
+=pod
+my %hash = ("UBC"=>'',"HMBS"=>'',
+	"TBP"=>'',
+	"GAPDH"=>'',
+	"HPRT1"=>'',
+	"RPL13A"=>'',
+	"ACTB"=>'');
+=cut
+
+my %hash;
+open FILE,"HK_genes.txt";
+while(<FILE>){
+	chomp;
+	my ($gene)  = split;
+	$hash{$gene} = '';
+}
+
+open FILE,"blood.cpm.tsv";
+<FILE>;
+my %cpm;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	#if(exists $hash{$data[5]}){
+	
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@data[6..$#data]);
+		my $mean = $stat->mean();
+		next if $mean < 50;
+		my $min = $stat->min();
+		next if $min == 0;
+		my @cpm = @data[6..$#data];
+		$cpm{$data[5]} = \@cpm;
+		#}
+}
+
+open FILE,"../tpm/blood_tpm.tsv";
+<FILE>;
+my %cv;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	if(exists $cpm{$data[5]}){
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@data[6..$#data]);
+		my $mean = $stat->mean();
+		my $standard_deviation = $stat->standard_deviation();
+		my $cv = $standard_deviation/$mean;
+		$cv{$data[5]} = $cv;
+	}
+}
+
+my $gene_num = keys %cpm;
+
+open OUT,">blood.cpm50.MiVsCV.txt";
+print OUT "gene\tM_i\tCV\n";
+foreach my $gene1 (keys %cpm){
+	my $sum = 0;
+	foreach my $gene2 (keys %cpm){
+		next if $gene2 eq $gene1;
+		my $val1 = $cpm{$gene1}; #Ri
+		my $val2 = $cpm{$gene2}; #Rj
+		my @Aij;
+		for (my $k=0;$k<@$val1;$k++){
+			my $Rijk = ($val1->[$k])/($val2->[$k]); #Rijk
+			push @Aij, log($Rijk)/log(2);
+
+		}
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@Aij);
+		my $Vij = $stat->standard_deviation();
+		$sum += $Vij;
+	}
+	my $Mi = $sum/($gene_num-1);
+	print OUT "$gene1\t$Mi\t$cv{$gene1}\n";
+}
+
+
+

@@ -1,0 +1,69 @@
+#!/usr/bin/perl -w
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+
+open FILE,"tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+print join "\n",@header,"\n";
+
+my %hash;
+my @variant;
+open OUT,">tpm.cutoff.max1.tsv";
+print OUT "$header\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my @tpm = @data[6..$#data];
+	my $max = &max(@tpm);
+	next if $max <1;
+	print OUT "$_\n";
+	for(my$i=6;$i<@data;$i++){
+		$data[$i] = log($data[$i]+0.1)/log(2);
+		push @{$hash{$header[$i]}}, $data[$i];
+	}
+	push @variant, "$data[0]\t$data[1]\t$data[2]\t$data[3]\t$data[4]\t$data[5]";	
+}
+
+
+open OUT,">tpm.stat.eachSample.tsv";
+print OUT "sample\tmean\tmedian\tmin\tmax\tstandrd_deviation\n";
+my %zscore;
+for(my$i=6;$i<@header;$i++){
+	my $data_ref = $hash{$header[$i]};
+	my @stat_data = @$data_ref;
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@stat_data);
+	my $mean = $stat->mean();#平均值
+	my $variance = $stat->variance();#方差
+	my $num = $stat->count();#data的数
+	my $standard_deviation=$stat->standard_deviation();#标准差
+	my $sum=$stat->sum();#求和
+	my $min=$stat->min();#最小值
+	my $max=$stat->max();#最大值
+	my $median=$stat->median();
+	print OUT "$header[$i]\t$mean\t$median\t$min\t$max\t$standard_deviation\n";
+	for(my$j=0;$j<@stat_data;$j++){
+		my $zscore = "NaN";
+		if($standard_deviation != 0){
+			$zscore = ($stat_data[$j]-$mean)/$standard_deviation;
+		}
+		push @{$zscore{$header[$i]}}, $zscore;
+	}
+}
+
+
+
+open OUT2,">tpm.zscore.tsv";
+print OUT2 "$header\n";
+for(my$i=0;$i<@variant;$i++){
+	print OUT2 "$variant[$i]";
+	#print "$variant[$i]\n";
+	for(my$j=6;$j<@header;$j++){
+		print OUT2 "\t$zscore{$header[$j]}->[$i]";
+	}
+	print OUT2 "\n";
+}
+

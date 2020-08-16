@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"WES_database.txt";
+while(<FILE>){
+	chomp;
+	my ($sample) = split;
+	$hash{$sample} = '';
+}
+
+open OUT,">>WES_database.txt";
+open FILE,"tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+for(my$i=6;$i<@header;$i++){
+	if(!exists $hash{$header[$i]}){
+		print OUT "$header[$i]\t../WES/output/$header[$i]\n";
+	}
+}
+

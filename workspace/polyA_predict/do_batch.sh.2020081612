@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name=CALCOV
+#SBATCH --partition=debug
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=2:00:00
+#SBATCH --output=log.%J
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --dependency=afterok:2499340
+
+#####Modify parameter
+cd /ibex/scratch/longy/workspace/polyA_predict/
+perl prepare_positive_sequence.pl

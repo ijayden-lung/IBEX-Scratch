@@ -1,0 +1,33 @@
+#!/usr/bin/env Rscript
+library(edgeR)
+library("tximportData")
+library("tximport")
+library(readr)
+library(pheatmap)
+
+dir <- system.file("extdata", package = "tximportData")
+tx2gene <- read_csv(file.path("tx2gene-hiro.csv"))
+head(tx2gene)
+
+
+######write samples to new_samples.txt
+samples <- read.table(file.path("./", "samples.txt"), header = TRUE)
+samples
+files <- file.path("new_quant", samples$run)
+names(files) = samples$run
+files
+
+quant <- tximport(files, type = "kallisto",tx2gene = tx2gene, ignoreAfterBar = TRUE)
+counts.df <- quant$counts;
+edger.dge.list <- DGEList(counts=counts.df, group= factor(c(rep("SMG+",17),rep("SMG8/9-",3))))
+edger.dge.list<-calcNormFactors(edger.dge.list, method="TMM")
+edger.dge.list<-estimateCommonDisp(edger.dge.list)
+edger.dge.list<-estimateTagwiseDisp(edger.dge.list, trend="movingave")
+deg <- exactTest(edger.dge.list, dispersion="tagwise", pair=c("SMG+","SMG8/9-")) # Exact test
+res<-topTags(deg, nrow(deg$table), sort.by="none")$table
+
+
+summary(res)
+resOrdered <- res[order(res$PValue),]   ####Alternative Step;
+write.table(resOrdered, "Edger_skin.Result.tsv",quote=FALSE,sep="\t",col.names=TRUE,row.names=TRUE )
+

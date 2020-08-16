@@ -1,0 +1,110 @@
+#!/usr/bin/perl -w
+
+use Statistics::Descriptive;
+
+=pod
+my %hash = ("UBC"=>'',"HMBS"=>'',
+	"TBP"=>'',
+	"GAPDH"=>'',
+	"HPRT1"=>'',
+	"RPL13A"=>'',
+	"ACTB"=>'');
+=cut
+my @sample = qw/10DG0934    11DG0060    11DG0268
+11DG0165	11DG0840	12DG1794	14DG2098	15DG2154	15DG2530	16DG0559
+16DG0676	16DG0790	16DG1353	18DG0180	18DG0295	19DG0151
+13DG2283	14DG2019	16DG0144	16DG0518	16DG0932	17DG0349
+18DG0348    18DG0464F   18DG0603F   19DG0230
+19DG0152F 19DG1391F 19DG2599F
+/;
+
+my %sample;
+foreach my $sam (@sample){
+	$sample{$sam} = '';
+}
+
+my %hash;
+open HK,"HK_genes.txt";
+while(<HK>){
+	chomp;
+	my ($gene)  = split;
+	$hash{$gene} = '';
+}
+
+open CPM,"skin_cpm.tsv";
+my $header = <CPM>;
+chomp $header;
+my @header = split /\t/,$header;
+my %cpm;
+while(<CPM>){
+	chomp;
+	my @data = split;
+	my @cpm;
+	for(my$i=6;$i<@data;$i++){
+		if(exists $sample{$header[$i]}){
+			push @cpm,$data[$i];
+		}
+	}
+	#if(exists $hash{$data[5]}){
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@cpm);
+		my $mean = $stat->mean();
+		next if $mean < 50;
+		my $min = $stat->min();
+		next if $min == 0;
+		$cpm{$data[5]} = \@cpm;
+		#}
+}
+
+open FILE,"../Anova/tpm/skin_tpm.tsv";
+$header = <FILE>;
+chomp $header;
+@header = split /\t/,$header;
+my %cv;
+my %tpm;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my @tpm;
+	for(my$i=6;$i<@data;$i++){
+		if(exists $sample{$header[$i]}){
+			push @tpm,$data[$i];
+		}
+	}
+	if(exists $cpm{$data[5]}){
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@tpm);
+		my $mean = $stat->mean();
+		my $standard_deviation = $stat->standard_deviation();
+		my $cv = $standard_deviation/$mean;
+		$cv{$data[5]} = $cv;
+		$tpm{$data[5]} = \@tpm;
+	}
+}
+
+my $gene_num = keys %cpm;
+
+open OUT,">skin.cpm50.tpm.MiVsCV.txt";
+print OUT "gene\tM_i\tCV\n";
+foreach my $gene1 (keys %cpm){
+	my $sum = 0;
+	foreach my $gene2 (keys %cpm){
+		next if $gene2 eq $gene1;
+		#my $val1 = $cpm{$gene1}; #Ri
+		#my $val2 = $cpm{$gene2}; #Rj
+		my $val1 = $tpm{$gene1}; #Ri
+		my $val2 = $tpm{$gene2}; #Rj
+		my @Aij;
+		for (my $k=0;$k<@$val1;$k++){
+			my $Rijk = ($val1->[$k])/($val2->[$k]); #Rijk
+			push @Aij, log($Rijk)/log(2);
+
+		}
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@Aij);
+		my $Vij = $stat->standard_deviation();
+		$sum += $Vij;
+	}
+	my $Mi = $sum/($gene_num-1);
+	print OUT "$gene1\t$Mi\t$cv{$gene1}\n";
+}

@@ -1,0 +1,17 @@
+#!/usr/bin/perl -w
+
+open FILE,"Rank_all.txt";
+open OUT,">>Rand_all_label";
+my $header = <FILE>;
+chomp $header;
+#print OUT "$header\n";
+while(<FILE>){
+	chomp;
+	my (undef,undef,$c1,$c2,$c3) = split;
+	if($c1<300 && $c2<300 && $c3>1000){
+		#print OUT "$_\n";
+	}
+	else{
+		print OUT "$_\n";
+	}
+}

@@ -1,0 +1,15 @@
+#!/usr/bin/perl -w
+
+foreach my $file (glob "input*/*inp"){
+
+#$file = "input/17DG0444_v6_3_16NGS-0286.rawVariants_CSGPA.csv.ext2.csv.hds2.csv.mdl.inp";
+open FILE,"$file";
+my (undef,$sample) = split /\//,$file;
+my $out = "new_input/$sample";
+open OUT,">$out";
+while(<FILE>){
+	chomp;
+	my ($chr,$start,$end,$var,$strand) = split /\t/;
+	print OUT "$chr\t$start\t$end\t$var\t1\n";
+}
+}

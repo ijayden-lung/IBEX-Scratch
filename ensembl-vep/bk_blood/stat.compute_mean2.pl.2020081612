@@ -1,0 +1,260 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+my $cutofftpm = 0.5;
+
+
+my %low_snr;
+open FILE,"blood-low-snr-genes.tsv";
+while(<FILE>){
+	chomp;
+	my ($gene_id) = (split)[4];
+	($gene_id) = split /\./,$gene_id;
+	$low_snr{$gene_id} = '';
+}
+
+my %mapping;
+open FILE,"WES_database.txt";
+while(<FILE>){
+	chomp;
+	my ($sample,$file) = split /\t/;
+	$mapping{$sample} = $file;
+}
+
+my %lastExonJucn;
+my %trans_num;
+open ENS,"zcat /home/longy/cnda/ensembl/Homo_sapiens.GRCh37.87.gtf.gz | awk '(\$3 == \"exon\" || \$3 == \"transcript\")' |";
+my $preTrans = "None\t0";
+my $pre2Trans = "None\t0";
+while(<ENS>){
+	chomp;
+	my ($type,$start,$end,$strand,$gene_id,$trans_id) = (split)[2,3,4,6,9,13];
+	$gene_id =~ s/\"|\;//g;
+	$trans_id =~ s/\"|\;//g;
+	$trans_num{$gene_id}->{$trans_id} = '';
+	if($strand eq "-"){
+		$end = $start;
+	}       
+	if($type eq "transcript"){
+		my ($transcript,$position) = split /\t/,$pre2Trans;
+		$lastExonJucn{$transcript} = $position;
+	}       
+
+	$pre2Trans = $preTrans;
+	$preTrans = "$trans_id\t$end";
+}
+
+
+
+my %targets;
+my %stop_gained;
+my %frameshift;
+my %splice_acceptor_variant;
+my %start_lost;
+my %NMDtranscript;
+my %splice_donor_variant;
+my %stop_lost;
+
+open FILE,"tpm.tsv";
+$header = <FILE>;
+chomp $header;
+@header = split /\t/,$header;
+my %ori_tpm;
+my %ori_sample;
+
+for(my$i=6;$i<@header;$i++){
+	my $sample = $header[$i];
+	my $sample_tmp = $sample;
+	$sample =~ s/L//g;
+	$sample =~ s/MG//g;
+	if(!exists $mapping{$sample}){
+		print "No WES: $sample\n";
+		next;
+	}
+	my $file = $mapping{$sample};
+	$sample = $sample_tmp;
+	open FILE2,"$file";
+	my %nmd_gene;
+	my %low_impact_gene;
+	my %high_impact_gene;
+	$sample = $sample_tmp;
+	while(<FILE2>){
+		next if $_ =~ /^\#/;
+		chomp;
+		my ($location,$gene_id,$trans_id,$consequence,$extra) = (split /\t/)[0,3,4,6,-1];
+		my $val2 = $trans_num{$gene_id};
+		my $trans_num = keys %$val2;
+		#next if $trans_num>1;
+		#next if exists $low_snr{$gene_id};
+		my ($chr,$position) = split /\_/,$location;
+        if($extra =~ /IMPACT=HIGH/){
+			my $threshold =10000000000000000000000;
+			if($consequence =~ /NMD/){
+				$NMDtranscript{$sample}->{$gene_id} = '';
+				next;
+			}
+			if($consequence =~ /splice_acceptor_variant/){
+				$splice_acceptor_variant{$sample}->{$gene_id} = '';
+			}
+			if($consequence =~ /start_lost/){
+				$start_lost{$sample}->{$gene_id} = '';
+			}
+			if($consequence =~ /splice_donor_variant/){
+				$splice_donor_variant{$sample}->{$gene_id} = '';
+			}
+			if($consequence =~ /stop_lost/){
+				$stop_lost{$sample}->{$gene_id} = '';
+			}
+			if($consequence =~ /stop_gained/){
+				$threshold = 50;
+				if($extra =~ /STRAND=1/){####Positive Strand
+					if($position-$lastExonJucn{$trans_id}<-$threshold){
+						$stop_gained{$sample}->{$gene_id} = '';
+					}
+				}
+				else{   #####Negative Strand
+					if($position-$lastExonJucn{$trans_id}>$threshold){
+						$stop_gained{$sample}->{$gene_id} = '';
+					}
+				}
+			}
+			if($consequence =~ /frameshift_variant/){
+				$threshold = 50;
+				if($extra =~ /STRAND=1/){####Positive Strand
+					if($position-$lastExonJucn{$trans_id}<-$threshold){
+						$frameshift{$sample}->{$gene_id} = '';
+					}
+				}
+				else{   #####Negative Strand
+					if($position-$lastExonJucn{$trans_id}>$threshold){
+						$frameshift{$sample}->{$gene_id} = '';
+					}
+				}
+			}
+		}
+	}
+}
+
+###
+my ($gene,$tpm,$log2tpm,$tpm_zscore,$log2tpm_zscore) = &getZscore("tpm.tsv",$cutofftpm);
+
+
+open OUT,">mean_table.remove_low_snr.blood.tsv";
+print OUT "sample\tstop_gained\tframeshift\tsplice_acceptor_variant\tstart_lost\tsplice_donor_variant\tstop_lost\tNMDtranscript\ttarget\n";
+while(my($sample,$val) = each %$log2tpm_zscore){
+	my $stop_gained = 0;
+	my $frameshift =0;
+	my $splice_acceptor_variant =0;
+	my $start_lost =0;
+	my $NMDtranscript =0;
+	my $splice_donor_variant =0;
+	my $stop_lost =0;
+	my $target =0;
+	my $stop_gained_c = 0;
+	my $frameshift_c =0;
+	my $splice_acceptor_variant_c =0;
+	my $start_lost_c =0;
+	my $NMDtranscript_c =0;
+	my $splice_donor_variant_c =0;
+	my $stop_lost_c =0;
+	my $target_c =0;
+	while(my($gene_id,$log2tpm_zscore) = each %$val){
+		my $log2tpm = $log2tpm->{$sample}->{$gene_id};
+		if(exists $stop_gained{$sample}->{$gene_id}){
+			$stop_gained += $log2tpm_zscore;
+			$stop_gained_c++;
+		}
+		if(exists $frameshift{$sample}->{$gene_id}){
+			$frameshift += $log2tpm_zscore;
+			$frameshift_c++;
+		}
+		if(exists $stop_gained{$sample}->{$gene_id} || exists $frameshift{$sample}->{$gene_id}){
+			#print "$gene_id\t$log2tpm_zscore\n" if $sample eq "14DG1661L";
+			$target += $log2tpm_zscore;
+			$target_c++;
+		}
+		if(exists $splice_acceptor_variant{$sample}->{$gene_id}){
+			$splice_acceptor_variant += $log2tpm_zscore;
+			$splice_acceptor_variant_c++;
+		}
+		if(exists $start_lost{$sample}->{$gene_id}){
+			$start_lost += $log2tpm_zscore;
+			$start_lost_c++;
+		}
+		if(exists $NMDtranscript{$sample}->{$gene_id}){
+			$NMDtranscript += $log2tpm_zscore;
+			$NMDtranscript_c++;
+		}
+		if(exists $splice_donor_variant{$sample}->{$gene_id}){
+			$splice_donor_variant += $log2tpm_zscore;
+			$splice_donor_variant_c++;
+		}
+		if(exists $stop_lost{$sample}->{$gene_id}){
+			$stop_lost += $log2tpm_zscore;
+			$stop_lost_c++;
+		}
+	}
+	$stop_gained = $stop_gained_c>0 ? $stop_gained/$stop_gained_c : "NaN";
+	$frameshift = $frameshift_c >0 ? $frameshift/$frameshift_c  : "NaN" ;
+	$splice_acceptor_variant = $splice_acceptor_variant_c >0 ? $splice_acceptor_variant/$splice_acceptor_variant_c  : "NaN";
+	$start_lost = $start_lost_c>0 ? $start_lost/$start_lost_c  : "NaN";
+	$NMDtranscript = $NMDtranscript_c >0 ? $NMDtranscript/$NMDtranscript_c  : "NaN";
+	$splice_donor_variant = $splice_donor_variant_c >0 ? $splice_donor_variant/$splice_donor_variant_c  : "NaN";
+	$stop_lost = $stop_lost_c >0 ? $stop_lost/$stop_lost_c  : "NaN";
+	$target = $target_c>0 ? $target/$target_c  : "NaN";
+	print OUT "$sample\t$stop_gained\t$frameshift\t$splice_acceptor_variant\t$start_lost\t$splice_donor_variant\t$stop_lost\t$NMDtranscript\t$target\n";
+	
+}
+
+
+sub getZscore{
+	my ($file,$cutoff) = @_;
+	my %gene;
+	my %tpm;
+	my %log2tpm;
+	my %tpm_zscore;
+	my %log2tpm_zscore;
+	open FILE,"$file";
+	$header = <FILE>;
+	chomp $header;
+	@header = split /\t/,$header;
+	while(<FILE>){
+		chomp;
+		my @data = split;
+		my ($gene_id,$gene_name) = @data[4,5];
+		($gene_id) = split /\./,$gene_id;
+		$gene{$gene_id} = $gene_name;
+		my @tpm = @data[6..$#data];   #####spice tpm/tpm value
+		my $max = &max(@tpm);
+		my @log2tpm;
+		for(my$i=0;$i<@tpm;$i++){
+			$log2tpm[$i] = log($tpm[$i]+0.001)/log(2);   ######Log2 Scale
+		}
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@tpm);
+		my $mean = $stat->mean();
+		my $standard_deviation=$stat->standard_deviation();
+		my $median=$stat->median();
+		next if $median < $cutoff;  ###### cutoff medain
+		for(my$j=0;$j<@tpm;$j++){
+			my $zscore = ($tpm[$j]-$mean)/$standard_deviation;  #####calculate zscore
+			$tpm{$header[$j+6]}->{$gene_id} = $tpm[$j];
+			$tpm_zscore{$header[$j+6]}->{$gene_id} = $zscore;
+		}
+		my $log2stat = Statistics::Descriptive::Full->new();
+		$log2stat->add_data(@log2tpm);
+		my $log2mean = $log2stat->mean();
+		my $log2standard_deviation=$log2stat->standard_deviation();
+		for(my$j=0;$j<@log2tpm;$j++){
+			my $zscore = ($log2tpm[$j]-$log2mean)/$log2standard_deviation;  #####calculate zscore
+			$log2tpm{$header[$j+6]}->{$gene_id} = $log2tpm[$j];
+			$log2tpm_zscore{$header[$j+6]}->{$gene_id} = $zscore;
+		}
+	}
+	return (\%gene,\%tpm,\%log2tpm,\%tpm_zscore,\%log2tpm_zscore);
+}
+

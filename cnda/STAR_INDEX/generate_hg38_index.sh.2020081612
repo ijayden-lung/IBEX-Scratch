@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH --job-name=STAR
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --time=24:00:00
+#SBATCH --output=log.hg38_amdallmemory64core
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --mem=310G
+
+#module load star
+
+dir='/ibex/scratch/longy/cnda/STAR_INDEX/hg38len100'
+mkdir $dir
+STAR --runMode genomeGenerate --runThreadN 16 --genomeDir $dir --genomeFastaFiles /ibex/scratch/longy/cnda/ensembl/Homo_sapiens.GRCh38.dna.primary_assembly.fa --sjdbGTFfile /ibex/scratch/longy/cnda/ensembl/hg38v95_ensembl.gtf --sjdbOverhang 100 --limitGenomeGenerateRAM 310000000000
+
+
+#dir='/home/bio-longyk/cnda/STAR_INDEX/mm10v92len100/'
+#mkdir $dir
+#STAR --runMode genomeGenerate --runThreadN 18 --genomeDir $dir --genomeFastaFiles /home/biology/genome/mm10/mm10.fa --sjdbGTFfile /home/bio-longyk/cnda/ensembl/mm10.ensemblv92.nopsuedo.gtf --sjdbOverhang 100
+

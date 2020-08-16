@@ -1,0 +1,41 @@
+#!/usr/bin/perl -w
+
+my %hash;
+my @sample;
+foreach my $file (glob "*.tsv"){
+	open $file,$file or die;
+	<$file>;
+	my ($sample) = split /\./,$file;
+	push @sample,$sample;
+	while(<$file>){
+		my ($target_id,$counts) = (split /\t/)[0,3];
+		$counts = sprintf("%.0f",$counts);
+		my ($gene_id,$type) = (split /\|/,$target_id)[1,7];
+		if($type eq "protein_coding"){
+			$hash{$gene_id}->{$sample} += $counts;
+		}
+	}
+}
+
+my @samples=qw/10DG0934 12DG1794 15DG2530 11DG0060 13DG2283 15DG2154 16DG0518 18DG0180 18DG0464F  19DG0230 15DG2154MG 16DG0144 16DG1353 18DG0348 11DG0165 14DG2098 14DG2019 19DG0152F 19DG1391F/;
+
+
+open OUT,">skin.counts.txt";
+print OUT "gene_id";
+for(my$i=0;$i<@samples;$i++){
+	print OUT "\t$samples[$i]";
+}
+print OUT "\n";
+
+while(my ($gene_id,$val) = each %hash){
+	print OUT "$gene_id";
+	foreach my $sample (@samples){
+		if(exists $val->{$sample}){
+			print OUT "\t$val->{$sample}";
+		}
+		else{
+			print "$gene_id\t$sample\n";
+		}
+	}
+	print OUT "\n";
+}

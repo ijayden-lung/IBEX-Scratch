@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w
+my ($file) = @ARGV;
+
+#open $file, "../19DG0152 17-5563.Filtered.Variants.avinput.ext2.csv.hds2.csv";
+#$file = "../WES/raw4/17DG0444_v6_3_16NGS-0286.rawVariants_CSGPA.csv.ext2.csv.hds2.csv.mdl.csv";
+open $file,"zcat $file |";
+#open $file,"$file";
+<$file>;
+#<$file>;
+#<$file>;
+my %hom;
+while(<$file>){
+	chomp;
+	#my ($chr,$start,$end,$ref,$alt,$qual,$zygosity) = (split /\"\,\"/)[0,1,2,6,7,8,10];
+	#my ($chr,$start,$end,$ref,$alt,$zygosity) = (split /,/)[0,1,2,6,7,11];
+	#my ($chr,$start,$end,$ref,$alt,$zygosity) = (split /\t/)[0,1,2,3,4,5];
+	my ($chr,$start,$end,$ref,$alt,$zygosity) = (split /\"\,\"/)[1,2,3,7,8,12];
+	$chr =~ s/chr0/chr/g;
+	$chr =~ s/chr//g;
+	$chr =~ s/\"//g;
+	if($zygosity eq "hom"){
+		$hom{"$chr\_$start\_$ref/$alt"} = '';
+	}
+}
+
+
+$file =~ s/raw4/output/g;
+$file =~ s/input/output/g;
+#$file =~ s/csv$/stop_gained.txt/g;
+$file =~ s/csv.gz$/stop_gained.txt/g;
+#$file = "../WES/output/19DG0152_17-5563.stop_gained.txt";
+#$file  = "../WES/output/16DG1620_exome.stop_gained.txt";
+print "$file\n";
+open $file,"$file";
+open OUT,">$file.hom";
+while(<$file>){
+	chomp;
+	my ($id,$coor) = split;
+	if (exists $hom{$id}){
+		print OUT "$_\n";
+	}
+}

@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+#
+#
+
+my %hash;
+
+open FILE,"stop_gained/14DG1661L.tsv" or die ;
+<FILE>;
+my $sum = 0;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$zscore,$variants) = (split)[0,5,6];
+	if($variants eq "NMD"){
+		$hash{$gene_id} = '';
+		$sum += $zscore;
+	}
+}
+
+open FILE,"14DG1661L.tsv";
+while(<FILE>){
+	chomp;
+	if(!exists $hash{$_}){
+		print "$_\n";
+	}
+}
+print "$sum\n";

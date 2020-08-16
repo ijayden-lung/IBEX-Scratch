@@ -1,0 +1,49 @@
+#!/usr/bin/perl -w
+
+my %seq;
+my @seq;
+open FILE,"/home/longy/workspace/apa_predict/pas_dataset/bl6.sequence.zhangbin.fibroblast.txt";
+while(<FILE>){
+	chomp;
+	$seq{$.} = $_;
+	push @seq,$_;
+}
+
+my %predict;
+open RES,"bl6.result.txt";
+while(<RES>){
+	chomp;
+	$predict{$seq{$.}} = $_;
+}
+
+
+
+my $i=0;
+my $success;
+open FILE,"/home/longy/workspace/apa_predict/pas_dataset/bl6.pAs.zhangbin.fibroblast.txt";
+<FILE>;
+open OUT,">bl6.pAs.predict_sequence.txt";
+while(<FILE>){
+	chomp;
+	my ($id,$seq) = (split)[0,7];
+	if($seq =~ /$seq[$i]/){
+		print OUT "$id\tyes\t$predict{$seq[$i]}\t$seq[$i]\n";
+		$success = $i;
+	}
+	else{
+		while($seq !~ /$seq[$i+1]/){
+			$i++;
+			last if $i >= $#seq;
+		}
+		if($i+1<@seq){
+			$success = $i+1;
+			print OUT "$id\tyes\t$predict{$seq[$i]}\n";
+		}
+		else{
+			print OUT "$id\tno\tNA\n";
+		}
+	}
+	$i = $success+1;
+}
+
+

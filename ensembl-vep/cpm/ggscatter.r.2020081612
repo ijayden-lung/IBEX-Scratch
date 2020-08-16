@@ -1,0 +1,105 @@
+#!/usr/bin/env Rscript
+
+library(ggpubr)
+
+pdf("blood.HK.MiVsCV.pdf")
+df = read.table("blood.HK.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+sp <- ggscatter(df, x = "M_i", y = "CV",
+				add = "reg.line",  # Add regressin line
+				add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+				conf.int = TRUE, # Add confidence interval
+				xlab = "M_i(CPM)",ylab = "CV(TPM)" 
+				)
+# Add correlation coefficient
+sp + stat_cor(method = "spearman", label.x = 0.6, label.y = 1.20)
+
+#> `geom_smooth()` using formula 'y ~ x'
+
+dev.off()
+
+
+
+pdf("skin.HK.MiVsCV.pdf")
+df = read.table("skin.HK.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+p <- ggscatter(df, x = "M_i", y = "CV",
+			   add = "reg.line",  # Add regressin line
+			   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+			   conf.int = TRUE, # Add confidence interval
+			   xlab = "M_i(CPM)",ylab = "CV(TPM)" 
+			   )
+# Add correlation coefficient
+sp + stat_cor(method = "spearman", label.x = 0.6, label.y = 1.27)
+
+#> `geom_smooth()` using formula 'y ~ x'
+dev.off()
+
+
+
+pdf("blood.cpm50.MiVsCV.pdf")
+df = read.table("blood.cpm50.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+sp <- ggscatter(df, x = "M_i", y = "CV",
+				add = "reg.line",  # Add regressin line
+				shape = 21,
+				add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+				conf.int = TRUE, # Add confidence interval
+				xlab = "Internal control gene-stability measure",
+				ylab = "Coefficient of variation with normalized count"   
+				)
+# Add correlation coefficient
+sp + stat_cor(method = "spearman", cor.coef.name = "rho",label.x = 1, label.y = 2.5)
+
+#> `geom_smooth()` using formula 'y ~ x'
+
+dev.off()
+
+
+
+pdf("skin.cpm50.MiVsCV.pdf")
+df = read.table("skin.cpm50.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+sp <- ggscatter(df, x = "M_i", y = "CV",
+				shape = 21,
+				add = "reg.line",  # Add regressin line
+				add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+				conf.int = TRUE, # Add confidence interval
+				xlab = "Internal control gene-stability measure",
+				ylab = "Coefficient of variation with normalized count"   
+				)
+# Add correlation coefficient
+sp + stat_cor(method = "spearman", cor.coef.name = "rho",label.x = 1.2, label.y = 3.2)
+
+#> `geom_smooth()` using formula 'y ~ x'
+dev.off()
+
+
+
+pdf("skin.cpm50.tpm.MiVsCV.pdf")
+df = read.table("blood.cpm50.tpm.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+sp <- ggscatter(df, x = "M_i", y = "CV",
+				shape = 21,
+				add = "reg.line",  # Add regressin line
+				add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+				conf.int = TRUE, # Add confidence interval
+				xlab = "Internal control gene-stability measure",
+				ylab = "Coefficient of variation with normalized count"          
+				)
+# Add correlation coefficient
+sp + stat_cor(method = "spearman", cor.coef.name = "rho",label.x = 1, label.y = 2.5)
+
+#> `geom_smooth()` using formula 'y ~ x'
+dev.off()
+
+
+pdf("blood.cpm50.tpm.MiVsCV.pdf")
+df = read.table("blood.cpm50.tpm.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+sp <- ggscatter(df, x = "M_i", y = "CV",
+				shape = 21,
+				add = "reg.line",  # Add regressin line
+				add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+				conf.int = TRUE, # Add confidence interval
+				xlab = "Internal control gene-stability measure",
+				ylab = "Coefficient of variation with normalized count"          
+				)
+# Add correlation coefficient
+sp + stat_cor(method = "spearman", cor.coef.name = "rho",label.x = 1, label.y = 2.5)
+
+#> `geom_smooth()` using formula 'y ~ x'

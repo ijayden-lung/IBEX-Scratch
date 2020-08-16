@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+
+my %blood_sample;
+foreach my $file (glob "../blood/sgfs/*tsv"){
+	next if $file =~ /pvalue/;
+	my ($sample) = (split /\.|\//,$file)[-2];
+	$blood_sample{$sample} = '';
+}
+
+
+
+
+
+my %hash;
+my %pos;
+my @sample;
+foreach my $file (glob "*DG*tsv"){
+	open FILE,"$file";
+	<FILE>;
+	my $rpk_sum = 0;
+	while(<FILE>){
+		chomp;
+		my ($effective_length,$count) =  (split)[-2,-1];
+		$rpk_sum += $count/$effective_length/1000;
+	}
+
+	my $scaling_factor = $rpk_sum/1000000;
+
+	
+	my ($sample) = split/\./,$file;
+	next if !exists $blood_sample{$sample};
+	push @sample,$sample;
+	open FILE,"$file";
+	<FILE>;
+	while(<FILE>){
+		chomp;
+		my ($chr,$strand,$start,$end,$trans_id,$trans_symbol,$effective_length,$count) =  (split)[0,1,2,3,5,7,-2,-1];
+		my $rpk= $count/$effective_length/1000;
+		my $tpm = $rpk/$scaling_factor;
+		$hash{"$trans_id\t$trans_symbol"}->{$sample} = $tpm;
+		$pos{"$trans_id\t$trans_symbol"} = "$chr\t$strand\t$start\t$end";
+	}
+}
+
+open OUT,">tpm.trans.tsv";
+print OUT join("\t","chr","strand","start","end","trans_id","trans_symbol",@sample),"\n";;
+while(my ($trans,$val) = each %hash){
+	print OUT "$pos{$trans}\t$trans";
+	foreach my $sample (@sample){
+		print OUT "\t$val->{$sample}";
+	}
+	print OUT "\n";
+}
+
+

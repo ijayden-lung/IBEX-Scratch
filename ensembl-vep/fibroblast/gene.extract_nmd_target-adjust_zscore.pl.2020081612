@@ -1,0 +1,204 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+my $cutofftpm = 0.5;
+
+
+my %mapping;
+open FILE,"WES_database.txt";
+while(<FILE>){
+	chomp;
+	my ($sample,$file) = split /\t/;
+	$mapping{$sample} = $file;
+}
+
+my %lastExonJucn;
+open ENS,"zcat /home/longy/cnda/ensembl/Homo_sapiens.GRCh37.87.gtf.gz | awk '(\$3 == \"exon\" || \$3 == \"transcript\")' |";
+my $preTrans = "None\t0";
+my $pre2Trans = "None\t0";
+while(<ENS>){
+	chomp;
+	my ($type,$start,$end,$strand,$trans_id) = (split)[2,3,4,6,13];
+	$trans_id =~ s/\"|\;//g;
+	if($strand eq "-"){
+		$end = $start;
+	}       
+	if($type eq "transcript"){
+		my ($transcript,$position) = split /\t/,$pre2Trans;
+		$lastExonJucn{$transcript} = $position;
+	}       
+	$pre2Trans = $preTrans;
+	$preTrans = "$trans_id\t$end";
+
+
+}
+
+
+
+my %targets;
+open FILE,"tpm.tsv";
+$header = <FILE>;
+chomp $header;
+@header = split /\t/,$header;
+for(my$i=6;$i<@header;$i++){
+	my $sample = $header[$i];
+	my $sample_tem = $sample;
+	$sample =~ s/F//g;
+	$sample =~ s/MG//g;
+	if(!exists $mapping{$sample}){
+		print "No WES: $sample\n";
+		next;
+	}
+	my $file = $mapping{$sample};
+	$sample = $sample_tem;
+	open FILE2,"$file" or die "No such file $file\n"; ;
+	my %nmd_gene;
+	my %low_impact_gene;
+	my %high_impact_gene;
+	my %frameshift_variant;
+	while(<FILE2>){
+		next if $_ =~ /^\#/;
+		chomp;
+		my ($location,$gene_id,$trans_id,$consequence,$extra) = (split /\t/)[0,3,4,6,-1];
+		my ($chr,$position) = split /\_/,$location;
+		$targets{$sample}->{$gene_id} = 'Invalid';
+		#next if exists $low_snr{$gene_id};
+		next if $consequence =~ /NMD/;
+        if($extra =~ /IMPACT=HIGH/){
+			$high_impact_gene{$gene_id}->{$trans_id} = '';
+			my $threshold =10000000000000000000000;
+			if($consequence =~ /stop_gained/){
+				$threshold = 50;
+			}
+			#elsif($consequence =~ /frameshift_variant/){
+			#	$threshold = 50;
+			
+			#}
+			if($extra =~ /STRAND=1/){####Positive Strand
+				if($position-$lastExonJucn{$trans_id}<-$threshold){
+					$nmd_gene{$gene_id}->{$trans_id} = ''; 
+				}
+			}
+			else{   #####Negative Strand
+				if($position-$lastExonJucn{$trans_id}>$threshold){
+					$nmd_gene{$gene_id}->{$trans_id} = ''; 
+				}
+			}
+		}
+		elsif($extra =~ /IMPACT=LOW/){
+			$low_impact_gene{$gene_id}->{$trans_id} = '';
+		}
+	}
+	foreach my $gene_id (keys %low_impact_gene){
+		if(!exists $high_impact_gene{$gene_id}){	
+			$targets{$sample}->{$gene_id} = 'Control';
+		}
+	}
+	foreach my $gene_id (keys %nmd_gene){
+		$targets{$sample}->{$gene_id} = 'NMD';
+	}
+}
+
+###
+my ($gene,$tpm,$score,$tpm_zscore,$score_zscore) = &getZscore("tpm.tsv",$cutofftpm);
+
+
+while(my($sample,$val) = each %$tpm_zscore){
+	&printInfo($sample);
+}
+
+
+sub getZscore{
+	my ($file,$cutoff) = @_;
+	my %gene;
+	my %tpm;
+	my %score;
+	my %tpm_zscore;
+	my %score_zscore;
+	open FILE,"$file";
+	$header = <FILE>;
+	chomp $header;
+	@header = split /\t/,$header;
+	while(<FILE>){
+		chomp;
+		my @data = split;
+		my ($gene_id,$gene_name) = @data[4,5];
+		($gene_id) = split /\./,$gene_id;
+		$gene{$gene_id} = $gene_name;
+		my @tpm = @data[6..$#data];   #####spice tpm/tpm value
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@tpm);
+		my $mean = $stat->mean();
+		my $standard_deviation=$stat->standard_deviation();
+		my $median=$stat->median();
+		next if $median < $cutoff;  ###### cutoff medain
+
+
+		#####Calculate z-score of score;
+		for(my$i=0;$i<@tpm;$i++){
+			$score = log(($tpm[$i]+0.001)/$median)/log(2);   ######Log2 Scale
+			$score{$header[$i+6]}->{$gene_id} = $score;
+		}
+
+		for(my$j=0;$j<@tpm;$j++){
+			my $zscore = ($tpm[$j]-$mean)/$standard_deviation;  #####calculate zscore
+			$tpm{$header[$j+6]}->{$gene_id} = $tpm[$j];
+			$tpm_zscore{$header[$j+6]}->{$gene_id} = $zscore;
+		}
+	}
+	
+
+	#####Calculate z-score of score;
+	while(my ($sample,$val) = each %score){
+		my %valid_gene;
+		while(my($gene_id,$score) = each %$val){
+			if(!exists $targets{$sample}->{$gene_id}){ ######No Variant Genes
+				$valid_gene{$gene_id} = $score;
+			}
+			elsif($targets{$sample}->{$gene_id} ne "Invalid"){ ####Exclude Invalid Genes
+				$valid_gene{$gene_id} = $score;
+			}
+		}
+		my @valid_gene_score = values %valid_gene;
+		my $scorestat = Statistics::Descriptive::Full->new();
+		$scorestat->add_data(@valid_gene_score);
+		my $scoremean = $scorestat->mean();
+		my $scorestandard_deviation=$scorestat->standard_deviation();
+		while(my($gene_id,$score) = each %valid_gene){
+			my $zscore = ($score-$scoremean)/$scorestandard_deviation;  #####calculate zscore
+			$score_zscore{$sample}->{$gene_id} = $zscore;
+		}
+	}
+
+	return (\%gene,\%tpm,\%score,\%tpm_zscore,\%score_zscore);
+}
+
+
+sub printInfo{
+	my ($sample) = @_;
+	open OUT,">adjust_zscore-sg/$sample.tsv";
+	print OUT "gene_id\tgene_name\ttpm\tscore\tzscore_tpm\tzscore_score\tvariants\tsample\ttype\n";
+
+	my $type = "SMG+";
+	if($sample =~ /F/ && $sample =~ /19/) {
+		$type = "SMG8/9-";
+	}
+	my $targets_ref = $targets{$sample};
+	my $tpm_ref = $tpm->{$sample};
+	my $score_ref = $score->{$sample};
+	my $tpm_zscore_ref = $tpm_zscore->{$sample};
+	my $score_zscore_ref = $score_zscore->{$sample};
+	while(my ($gene_id,$zscore) = each %$score_zscore_ref){
+		my $variant = "NoVariant";
+		if(exists $targets_ref->{$gene_id}) {
+			$variant = $targets_ref->{$gene_id};
+		}
+		#$variant = "Invalid" if exists $low_snr{$gene_id};
+		print OUT "$gene_id\t$gene->{$gene_id}\t$tpm_ref->{$gene_id}\t$score_ref->{$gene_id}\t$tpm_zscore_ref->{$gene_id}\t$score_zscore_ref->{$gene_id}\t$variant\t$sample\t$type\n";
+	}
+}
+

@@ -1,0 +1,98 @@
+#!/usr/bin/env Rscript
+
+library("ggplot2")
+pdf("sgfs/Boxplot_LCL.NMD_active.pdf")
+data1 = read.table('sgfs/19DG1424L.tsv',sep="\t",header=TRUE)
+data2 = read.table('sgfs/19DG1391L.tsv',sep="\t",header=TRUE)
+data3 = read.table('sgfs/19DG0152L.tsv',sep="\t",header=TRUE)
+data4 = read.table('sgfs/14DG1661L.tsv',sep="\t",header=TRUE)
+data5 = read.table('sgfs/16DG1333.tsv',sep="\t",header=TRUE)
+data6 = read.table('sgfs/18DG0638.tsv',sep="\t",header=TRUE)
+data7 = read.table('sgfs/10DG0840.tsv',sep="\t",header=TRUE)
+data8 = read.table('sgfs/14DG1171.tsv',sep="\t",header=TRUE)
+data9 = read.table('sgfs/18DG0120.tsv',sep="\t",header=TRUE)
+data10 = read.table('sgfs/16DG0662.tsv',sep="\t",header=TRUE)
+data = rbind(data1,data2,data3,data4,data5,data6,data7,data8,data9,data10)
+data = data[ which(data$variants=='NMD'),]
+ggplot(data=data,aes(x=sample,y=zscore_log2tpm))+geom_boxplot(width=0.5,aes(fill=type))+
+scale_fill_discrete(breaks=c("SMG8/9-", "SMG+"),labels=c("SMG8/9-", "Active NMD"))+
+theme_bw()+
+theme(axis.title=element_text(size =20))+
+theme(axis.text.x=element_text(size =9,angle = 45, hjust =1))+
+theme(axis.text.y=element_text(size =15))+
+theme(plot.title = element_text(,size=20,hjust = 0.5))+
+theme(legend.title=element_blank(),legend.position = c(0.89,0.93),legend.text = element_text(size=10))+
+ylab('zscore' )
+dev.off()
+
+
+pdf("sgfs-trans/Boxplot_LCL.NMD_active.pdf")
+data1 = read.table('sgfs-trans/19DG1424L.tsv',sep="\t",header=TRUE)
+data2 = read.table('sgfs-trans/19DG1391L.tsv',sep="\t",header=TRUE)
+data3 = read.table('sgfs-trans/19DG0152L.tsv',sep="\t",header=TRUE)
+data4 = read.table('sgfs-trans/14DG1661L.tsv',sep="\t",header=TRUE)
+data5 = read.table('sgfs-trans/18DG0147.tsv',sep="\t",header=TRUE)
+data6 = read.table('sgfs-trans/09DG00934.tsv',sep="\t",header=TRUE)
+data7 = read.table('sgfs-trans/18DG0120.tsv',sep="\t",header=TRUE)
+data8 = read.table('sgfs-trans/16DG1333.tsv',sep="\t",header=TRUE)
+data9 = read.table('sgfs-trans/10DG0840.tsv',sep="\t",header=TRUE)
+data = rbind(data1,data2,data3,data4,data5,data6,data7,data8,data9)
+data = data[ which(data$variants=='NMD'),]
+ggplot(data=data,aes(x=sample,y=zscore_log2tpm))+geom_boxplot(width=0.5,aes(fill=type))+
+scale_fill_discrete(breaks=c("SMG8/9-", "SMG+"),labels=c("SMG8/9-", "Active NMD"))+
+theme_bw()+
+theme(axis.title=element_text(size =20))+
+theme(axis.text.x=element_text(size =9,angle = 45, hjust =1))+
+theme(axis.text.y=element_text(size =15))+
+theme(plot.title = element_text(,size=20,hjust = 0.5))+
+theme(legend.title=element_blank(),legend.position = c(0.89,0.93),legend.text = element_text(size=10))+
+ylab('zscore' )
+dev.off()
+
+pdf("adjust_zscore-sg/Boxplot_LCL.NMD_active.pdf")
+data1 = read.table('adjust_zscore-sg/19DG1424L.tsv',sep="\t",header=TRUE)
+data2 = read.table('adjust_zscore-sg/19DG1391L.tsv',sep="\t",header=TRUE)
+data3 = read.table('adjust_zscore-sg/19DG0152L.tsv',sep="\t",header=TRUE)
+data4 = read.table('adjust_zscore-sg/14DG1661L.tsv',sep="\t",header=TRUE)
+data5 = read.table('adjust_zscore-sg/16DG1333.tsv',sep="\t",header=TRUE)
+data6 = read.table('adjust_zscore-sg/10DG0840.tsv',sep="\t",header=TRUE)
+data7 = read.table('adjust_zscore-sg/19DG0060.tsv',sep="\t",header=TRUE)
+data = rbind(data1,data2,data3,data4,data5,data6,data7)
+data = data[ which(data$variants=='NMD'),]
+ggplot(data=data,aes(x=sample,y=zscore_score))+geom_boxplot(width=0.5,aes(fill=type))+
+scale_fill_discrete(breaks=c("SMG8/9-", "SMG+"),labels=c("SMG8/9-", "Active NMD"))+
+theme_bw()+
+theme(axis.title=element_text(size =20))+
+theme(axis.text.x=element_text(size =9,angle = 45, hjust =1))+
+theme(axis.text.y=element_text(size =15))+
+theme(plot.title = element_text(,size=20,hjust = 0.5))+
+theme(legend.title=element_blank(),legend.position = c(0.89,0.93),legend.text = element_text(size=10))+
+ylab('zscore' )
+dev.off()
+
+
+
+
+pdf("nmd_trans/Boxplot_LCL.NMD_active.pdf")
+data1 = read.table('nmd_trans/19DG1424L.tsv',sep="\t",header=TRUE)
+data2 = read.table('nmd_trans/19DG1391L.tsv',sep="\t",header=TRUE)
+data3 = read.table('nmd_trans/19DG0152L.tsv',sep="\t",header=TRUE)
+data4 = read.table('nmd_trans/14DG1661L.tsv',sep="\t",header=TRUE)
+data5 = read.table('nmd_trans/09DG00934.tsv',sep="\t",header=TRUE)
+data6 = read.table('nmd_trans/15DG2234.tsv',sep="\t",header=TRUE)
+data7 = read.table('nmd_trans/19DG0555.tsv',sep="\t",header=TRUE)
+data8 = read.table('nmd_trans/10DG0792.tsv',sep="\t",header=TRUE)
+data9 = read.table('nmd_trans/16DG1048.tsv',sep="\t",header=TRUE)
+data10 = read.table('nmd_trans/10DG0840.tsv',sep="\t",header=TRUE)
+data = rbind(data1,data2,data3,data4,data5,data6,data7,data8,data9,data10)
+data = data[ which(data$variants=='NMD'),]
+ggplot(data=data,aes(x=sample,y=zscore_log2tpm))+geom_boxplot(width=0.5,aes(fill=type))+
+scale_fill_discrete(breaks=c("SMG8/9-", "SMG+"),labels=c("SMG8/9-", "Active NMD"))+
+theme_bw()+
+theme(axis.title=element_text(size =20))+
+theme(axis.text.x=element_text(size =9,angle = 45, hjust =1))+
+theme(axis.text.y=element_text(size =15))+
+theme(plot.title = element_text(,size=20,hjust = 0.5))+
+theme(legend.title=element_blank(),legend.position = c(0.89,0.93),legend.text = element_text(size=10))+
+ylab('zscore' )
+dev.off()

@@ -1,0 +1,29 @@
+#!/bin/bash
+#SBATCH --job-name=random_number_generatio
+#SBATCH --partition=amd
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=24:00:00
+#SBATCH --output=firstjob.%J
+#SBATCH --dependency=afterok:1356473
+#SBATCH -a 0-1
+
+
+
+
+sam=$SLURM_ARRAY_TASK_ID
+echo "1000 Random numbers generation ... started";
+
+rm -Rf random.numbers.out
+
+RANDOM=$$
+
+for i in `seq 50`;
+
+do 
+	echo $RANDOM >> Random.$sam\.out ;
+	sleep $SLURM_ARRAY_TASK_ID
+done 
+
+echo "1000 Random numbers generation ... completed";

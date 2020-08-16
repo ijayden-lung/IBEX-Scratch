@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+
+my @sample;
+my %all_mut;
+foreach my $file (glob "input/*"){
+	my (undef,$base) = split /\/|\./,$file;
+	#$base =~ s/.inp//g;
+	print "$base\n";
+	my $output = `wc -l "$file"`;
+	my ($line_num) = split /\s/,$output;
+	print "$line_num\n";
+	$all_mut{$base} = $line_num;
+	push @sample,$base;
+}
+
+
+my %all_gene;
+my %all_nmd;
+foreach my $file (glob "output/*stop_gained.txt"){
+	my (undef,$base) = split /\/|\./,$file;
+	#$base =~ s/.stop_gained.txt//g;
+	print "$base\n";
+	my $output = `wc -l "$file"`;
+	my ($line_num) = split /\s/,$output;
+	open FILE,"$file";
+	my %stop_gain_gene;
+	my %stop_gain_var;
+	while(<FILE>){
+		chomp;
+		my ($variant,$pos,$alt,$gene_id) = split;
+		$stop_gain_gene{$gene_id} = '';
+		$stop_gain_var{$variant} = '';
+	}
+	my $gene_num = keys %stop_gain_gene;
+	my $variant_num = keys %stop_gain_var;
+	print "$gene_num\t$variant_num\n";
+
+	$all_gene{$base} = $gene_num;
+	$all_nmd{$base} = $variant_num;
+}
+
+open OUT,">Stat/WES.stat.txt";
+print OUT "sample\tall_variants_num\tnmd_variants_num\tnmd_genes_num\tnmd%\n";
+foreach my $key (@sample){
+	my $percent = sprintf("%.2f",$all_nmd{$key}/$all_mut{$key}*100);
+	print OUT "$key\t$all_mut{$key}\t$all_nmd{$key}\t$all_gene{$key}\t$percent%\n";
+	
+}

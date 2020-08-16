@@ -1,0 +1,82 @@
+#!/usr/bin/perl -w
+use Statistics::ANOVA 0.14;
+#
+
+my @control_sample = qw/11DG0060 13DG2283 15DG2154 16DG0518 18DG0180 18DG0464F  19DG0230 15DG2154MG 16DG0144 16DG1353 18DG0348 11DG0165 14DG2098 14DG2019/;
+my @test_sample = qw/19DG0152F 19DG1391F/;
+my %control;
+foreach my $sample (@control_sample){
+	$control{$sample} = '';
+}
+my %test;
+foreach my $sample (@test_sample){
+	$test{$sample} = '';
+}
+
+
+open FILE,"tpm/skin_tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+open OUT,">skin.anova.log.tsv";
+print OUT "gene_id\tlog_mean\tdiff_logmean\tp_value";
+foreach my $sample (@control_sample){
+	print OUT "\t$sample";
+}
+foreach my $sample (@test_sample){
+	print OUT "\t$sample";
+}
+print OUT "\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my @control;
+	my @test;
+	my $sum = 0;
+	my %print_control;
+	my %print_test;
+	my $control_sum = 0;
+	my $test_sum = 0;
+	for(my$i=6;$i<@header;$i++){
+		$data[$i] += 1;
+		$data[$i] = log($data[$i])/log(2);
+		if(exists $control{$header[$i]}){
+			$sum += $data[$i] ;
+			push @control,$data[$i];
+			$print_control{$header[$i]} = $data[$i];
+			$control_sum += $data[$i];
+		}
+		elsif(exists $test{$header[$i]}){
+			$sum += $data[$i] ;
+			push @test,$data[$i];
+			$print_test{$header[$i]} = $data[$i];
+			$test_sum += $data[$i];
+		}
+	}
+	next if $sum <= 0;
+	my $control_ave = $control_sum/@control;
+	my $test_ave = $test_sum/@test;
+	my $ave = ($control_sum+$test_sum)/(@control+@test);
+	my $log2fc = $test_ave-$control_ave;
+	my $aov = Statistics::ANOVA->new();
+
+	# Load the data:
+	$aov->load_data({control => \@control, test => \@test});
+
+	my %res = $aov->anova(independent => 1, parametric => 0,ordinal => 0);
+	while(my($key,$val) = each %res){
+		#print "$key\t$val\n";
+	}
+
+	print  OUT "$data[4]\t$ave\t$log2fc\t$res{'p_value'}";
+	foreach my $sample (@control_sample){
+		print OUT "\t$print_control{$sample}";
+	}
+	foreach my $sample (@test_sample){
+		print OUT "\t$print_test{$sample}";
+	}
+	print OUT "\n";
+}
+
+
+

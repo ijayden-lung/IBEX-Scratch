@@ -1,0 +1,48 @@
+#!/usr/bin/env Rscript
+
+library(ggplot2)
+
+pdf("blood.HK.MiVsCV.pdf")
+
+data = read.table("blood.HK.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+
+ggplot(data=data,aes(x=M_i,y=CV))+geom_point()+
+theme_bw()+
+xlab("M_i(CPM)")+ylab("CV(TPM)")+
+xlim(0.05,1.1)+ylim(0.05,1.1)
+dev.off()
+
+
+
+pdf("skin.HK.MiVsCV.pdf")
+
+data = read.table("skin.HK.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+
+ggplot(data=data,aes(x=M_i,y=CV))+geom_point()+
+theme_bw()+
+xlab("M_i(CPM)")+ylab("CV(TPM)")+
+xlim(0.05,1.1)+ylim(0.05,1.1)
+dev.off()
+
+
+
+pdf("blood.cpm50.MiVsCV.pdf")
+
+data = read.table("blood.cpm50.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+
+ggplot(data=data,aes(x=M_i,y=CV))+geom_point()+
+theme_bw()+
+xlab("M_i(CPM)")+ylab("CV(TPM)")+
+xlim(0,2)+ylim(0,2)
+dev.off()
+
+
+
+pdf("skin.cpm50.MiVsCV.pdf")
+
+data = read.table("skin.cpm50.MiVsCV.txt",sep="\t",header=TRUE,row.names = 1)
+
+ggplot(data=data,aes(x=M_i,y=CV))+geom_point()+
+theme_bw()+
+xlab("M_i(CPM)")+ylab("CV(TPM)")
+dev.off()

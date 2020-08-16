@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+use Statistics::ANOVA 0.14;
+#
+
+my @control=qw/17DG0444 18DG0778 09DG00934 15DG2630 17DG0832 
+14DG1171 16DG0662 18DG0120 19DG0060 17DG0977 
+16DG0744 18DG0147 15DG2234 16DG0328 10DG0840 
+16DG0991 18DG0454 19DG0555 18DG1094 18DG0734 
+14DG1686 16DG1048 18DG0464 19DG0591 17DG0969 
+15DG0371 16DG1068 18DG0638 16DG0064 10DG0792 
+15DG0678 16DG1186 18DG0646 18DG1029 15DG0918 
+16DG1333 18DG0717 15DG1349/;
+
+my @test = qw/19DG0152L 14DG1661L 19DG1391L 19DG1424L/;
+my %control;
+foreach my $sample (@control){
+	$control{$sample} = '';
+}
+my %test;
+foreach my $sample (@test){
+	$test{$sample} = '';
+}
+
+
+open FILE,"tpm/blood_tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+open OUT,">blood.anova.tsv";
+print OUT "gene_id\th_value\tp_value\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my @control;
+	my @test;
+	my $sum = 0;
+	for(my$i=6;$i<@header;$i++){
+		if(exists $control{$header[$i]}){
+			$sum += $data[$i] ;
+			push @control,$data[$i];
+		}
+		elsif(exists $test{$header[$i]}){
+			$sum += $data[$i] ;
+			push @test,$data[$i];
+		}
+	}
+	next if $sum == 0;
+	my $aov = Statistics::ANOVA->new();
+
+	# Load the data:
+	$aov->load_data({control => \@control, test => \@test});
+
+	my %res = $aov->anova(independent => 1, parametric => 0,ordinal => 0);
+	while(my($key,$val) = each %res){
+		print "$key\t$val\n";
+	}
+
+
+	my %res2 = $aov->anova(independent => 1, parametric => 1,ordinal => 0);
+	while(my($key,$val) = each %res2){
+		print "$key\t$val\n";
+	}
+	print  OUT "$data[4]\t$res{'z_value'}\t$res{'p_value'}\t$res2{'p_value'}\n";
+}
+
+
+

@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"tableS5.csv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($symbol,$type) = (split /,/)[0,-1];
+	if($type =~ /siUPF1-Up/){
+		$hash{$symbol} = '';
+	}
+}
+my $i = 0;
+open FILE,"DE.DESeq2.skin.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene,$sig) = (split)[1,5];
+	if(exists $hash{$gene} && $sig eq "Up"){
+		$i++;
+		print "$sig\n";
+	}
+}
+print "$i\n";
+
+open FILE,"zscore.skin.tsv";
+my $header = <FILE>;
+open OUT,">zscore.skin.tables5.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene) = split;
+	if(exists $hash{$gene}){
+		print OUT "$_\n";
+	}
+}

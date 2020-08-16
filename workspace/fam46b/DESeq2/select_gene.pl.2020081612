@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+
+my %degene;
+open FILE,"DESeq2_geneName_fam46b.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$gene_name,$tag) = (split)[0,1,-2];
+	if($tag eq "Up" || $tag eq "Down"){
+		$degene{$gene_id} = $gene_name;
+	}
+}
+
+open FILE,"table_fpkm.txt";
+<FILE>;
+open OUT,">Input_heatmap.tsv";
+print OUT "gene_name\tcontrol\tshRNA1\tshRNA2\n";
+while(<FILE>){
+	chomp;
+	my ($gene_id,undef,$ctrl,$sh1,$sh2) = split;
+	if(exists $degene{$gene_id}){
+		print OUT "$degene{$gene_id}\t$ctrl\t$sh1\t$sh2\n";
+	}
+}

@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"tableS1.csv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene) = split /,/;
+	$hash{$gene} = '';
+}
+
+open FILE,"zscore.skin.tsv";
+my $header = <FILE>;
+open OUT,">Results.tableS1.skin.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene_id,$gene_symbol) = split;
+	if(exists $hash{$gene_symbol}){
+		print OUT "$_\n";
+	}
+}

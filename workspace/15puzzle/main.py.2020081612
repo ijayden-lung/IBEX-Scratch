@@ -1,0 +1,9 @@
+import puzzle
+import sys
+import searches
+
+initial_board_tiles=puzzle.Board(4)
+initial_board_tiles.permute(16)
+initial_board_tiles.print_board()
+s=searches.Search(initial_board_tiles)
+print s.a_star_search()

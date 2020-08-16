@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+#my ($dif,$out,$usage) = @ARGV;
+my $out = shift @ARGV;
+my $usage = shift @ARGV;
+
+my %usage;
+open FILE,$usage;
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($id,$usage) = (split)[0,6];
+	$usage{$id} = $usage;
+}
+
+open OUT,">$out";
+print OUT "pas_id\tpas_type\tstrand\tcoordinate\tave_diff\treplicates\tUsage\n";
+
+
+foreach my $dif (@ARGV){
+	open FILE,$dif;
+	$dif =~ s/Different_//;
+	my ($sample) = split /\./,$dif;
+	<FILE>;
+	while(<FILE>){
+		chomp;
+		my ($pas_id,$pas_type,$srd,$coor,$ave,$diff) = (split)[0,1,2,3,6,8];
+		next  if !exists $usage{$pas_id};
+		next if $ave < 10;
+		print OUT "$pas_id\t$pas_type\t$srd\t$coor\t$diff\t$sample\t$usage{$pas_id}\n"
+	}
+}

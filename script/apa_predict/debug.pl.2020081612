@@ -1,0 +1,40 @@
+#!/usr/bin/perl -w
+
+my ($COV,$OUT) = @ARGV;
+my %gene;
+open FILE,$COV;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my ($gene_id) = split /\./,$data[0];
+	my ($chr,$str) = split /\:|\-/,$data[3];
+	$gene{"$chr\t$data[2]"}->{$str} = \@data;
+}
+
+while(my($key,$val) = each %gene){
+	my @pos = sort {$a<=>$b} keys %$val;
+	for(my $i=1;$i<@pos;$i++){
+		my $diff = $pos[$i]-$pos[$i-1];
+		if($diff < 201){
+			my $supp = 201-$diff-1;
+			my $pre = $val->{$pos[$i-1]};
+			my $suf = $val->{$pos[$i]};
+			my @pre = @$pre;
+			my @suf = @$suf;
+			my $suf_idx = 4+$supp;
+			my $pre_idx = 204-$supp;
+			@suf[4..$suf_idx] = @pre[$pre_idx..204];
+			$val->{$pos[$i]} = \@suf;
+		}
+	}
+}
+
+open OUT,">$OUT";
+foreach my $key (sort keys %gene){
+	my $val = $gene{$key};
+	foreach my $key2 (sort keys %$val){
+		my $val2 = $val->{$key2};
+		my @data = @$val2;
+		print OUT join("\t",@data),"\n";
+	}
+}

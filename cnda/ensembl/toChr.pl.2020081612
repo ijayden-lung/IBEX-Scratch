@@ -1,0 +1,17 @@
+#!/usr/bin/perl -w
+open FILE, "Mus_musculus.GRCm38.dna.primary_assembly.fa";
+my $sequence;
+my $chr;
+while(<FILE>){
+	chomp;
+	if($_ =~ />/){
+		($chr) = split;
+		print "$chr\n";
+		$chr =~ s/\>//g;
+		open OUT,">chromsome/mm10.$chr.fa";
+		print OUT "$_\n";
+	}
+	else{
+		print OUT "$_\n";
+	}
+}

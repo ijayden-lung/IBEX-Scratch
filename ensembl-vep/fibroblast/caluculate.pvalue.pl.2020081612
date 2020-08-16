@@ -1,0 +1,58 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use List::Util qw(first max maxstr min minstr reduce shuffle sum shuffle) ;
+use Statistics::Descriptive;
+my ($folder,$sample,$times) = @ARGV;
+my $random_times = 100000;
+
+my @zscore;
+my @high_impact_zscore;
+open FILE,"$folder/$sample.tsv" or die ;
+<FILE>;
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$zscore,$variants) = (split)[0,5,6];
+	#my ($gene_id,$zscore,$variants) = (split)[0,3,-3];
+	if($variants ne "Invalid"){
+		push @zscore, $zscore;
+		if($variants eq "NMD"){
+			push @high_impact_zscore,$zscore;
+		}
+	}
+}
+
+my $n = @high_impact_zscore;
+my $stat = Statistics::Descriptive::Full->new();
+$stat->add_data(@high_impact_zscore);
+my $high_impact_mean = $stat->mean();
+my $high_impact_median=$stat->median();
+
+
+
+open OUT,">$folder/$sample.tsv.pvalue.$times.tsv";
+print OUT "mean\tmedian\n";
+my $mean_count = 0;
+my $median_count = 0;
+print OUT "$high_impact_mean\t$high_impact_median\n";
+print  "$high_impact_mean\t$high_impact_median\n";
+for(my$i=0;$i<$random_times;$i++){
+	my @shuffle = &shuffle(@zscore);
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@shuffle[1..$n]);
+	my $mean = $stat->mean();
+	my $median=$stat->median();
+	if($mean<=$high_impact_mean){
+		$mean_count++;
+	}
+	if($median<=$high_impact_median){
+		$median_count++;
+	}
+	#print OUT "$mean\t$median\n";
+}
+
+my $mean_pval = $mean_count/$random_times;
+my $median_pval = $median_count/$random_times;
+print OUT "$mean_pval\t$median_pval\n";

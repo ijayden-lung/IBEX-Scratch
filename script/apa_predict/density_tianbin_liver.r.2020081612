@@ -1,0 +1,71 @@
+#!/usr/bin/env Rscript
+library(ggplot2)
+library(scales)
+library(grid)
+args<-commandArgs(T)
+data = read.table(args[1],header=TRUE)
+pdf(args[2])
+#data=subset(data,data$Usage>0.3)
+
+
+plotDensity <- function(diff,pas_type){
+	total1=length(subset(diff,diff$replicates==args[3])$ave_diff)
+	abnor1 = length(subset(diff,diff$replicates==args[3] & diff$ave_diff>0)$ave_diff)
+	total2=length(subset(diff,diff$replicates==args[4])$ave_diff)
+	abnor2 = length(subset(diff,diff$replicates==args[4] & diff$ave_diff>0)$ave_diff)
+	per1=paste("REP1>0: ",percent(abnor1/total1),sep="")
+	per2=paste("REP2>0: ",percent(abnor2/total2),sep="")
+	grob <- grobTree(textGrob(c(per1,per2), x=0.1,  y=c(0.90,0.86), hjust=0,gp=gpar(col=c("#F8766D","#00BA38"), fontsize=13, fontface="italic")))
+	ggplot(diff,aes(x=ave_diff,colour=replicates))+geom_density()+
+	geom_vline(aes(xintercept=0), colour="#BB0000", linetype="dashed")+theme_bw()+
+	annotation_custom(grob)+
+	labs(title=pas_type)+
+	theme(plot.title = element_text(size=30,hjust = 0.5)) 
+}
+
+print(plotDensity(data,"All"))
+data1=subset(data,data$pas_type=="3'UTR(F)")
+data2=subset(data,data$pas_type=="3'UTR(M)")
+data3=subset(data,data$pas_type=="3'UTR(L)")
+data4=subset(data,data$pas_type=="3'UTR(S)")
+data5=subset(data,data$pas_type=="Intron")
+data6=subset(data,data$pas_type=="CDS")
+data7=subset(data,data$pas_type=="5UTR")
+print(plotDensity(data1,"3'UTR(F)"))
+print(plotDensity(data2,"3'UTR(M)"))
+print(plotDensity(data3,"3'UTR(L)"))
+print(plotDensity(data4,"3'UTR(S)"))
+print(plotDensity(data5,"Intron"))
+print(plotDensity(data6,"CDS"))
+print(plotDensity(data7,"5UTR"))
+
+
+data=subset(data,data$Usage>0.3)
+print(plotDensity(data,"All,usage>0.3"))
+data1=subset(data,data$pas_type=="3'UTR(F)")
+data2=subset(data,data$pas_type=="3'UTR(M)")
+data3=subset(data,data$pas_type=="3'UTR(L)")
+data4=subset(data,data$pas_type=="3'UTR(S)")
+data5=subset(data,data$pas_type=="Intron")
+data6=subset(data,data$pas_type=="CDS")
+data7=subset(data,data$pas_type=="5UTR")
+print(plotDensity(data1,"3'UTR(F),usage>0.3"))
+print(plotDensity(data2,"3'UTR(M),usage>0.3"))
+print(plotDensity(data3,"3'UTR(L),usage>0.3"))
+print(plotDensity(data4,"3'UTR(S),usage>0.3"))
+print(plotDensity(data5,"Intron,usage>0.3"))
+print(plotDensity(data6,"CDS,usage>0.3"))
+print(plotDensity(data7,"5UTR,usage>0.3"))
+
+#data1=subset(data,data$Usage>0.8)
+#data2=subset(data,data$Usage<=0.8 & data$Usage>0.6)
+#data3=subset(data,data$Usage<=0.6 & data$Usage>0.4)
+#data4=subset(data,data$Usage<=0.4 & data$Usage>0.2)
+#data5=subset(data,data$Usage<=0.2 & data$Usage>0)
+#print(plotDensity(data1,"0.8<Usage<=1"))
+#print(plotDensity(data2,"0.6<Usage<=0.8"))
+#print(plotDensity(data3,"0.4<Usage<=0.6"))
+#print(plotDensity(data4,"0.2<Usage<=0.4"))
+#print(plotDensity(data5,"0<Usage>=0.2"))
+
+

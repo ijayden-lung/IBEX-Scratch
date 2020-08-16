@@ -1,0 +1,78 @@
+#!/usr/bin/env Rscript
+library("DESeq2")
+library("tximportData")
+library("tximport")
+library(readr)
+library(pheatmap)
+library("RColorBrewer")
+
+dir <- system.file("extdata", package = "tximportData")
+tx2gene <- read_csv(file.path("tx2gene-hiro.csv"))
+head(tx2gene)
+
+
+######write samples to new_samples.txt
+samples <- read.table(file.path("./", "samples.txt"), header = TRUE)
+samples
+files <- file.path("new_quant", samples$run)
+names(files) = samples$run
+files
+
+txi.kallisto.tsv <- tximport(files, type = "kallisto",tx2gene = tx2gene, ignoreAfterBar = TRUE)
+head(txi.kallisto.tsv$counts)
+
+pdf('DESeq2.skin.Result.pdf')
+#cts = read.table("quant/skin.counts.txt",header=TRUE,sep="\t",row.names=1)
+cts =  txi.kallisto.tsv$counts
+for (i in 1:length(colnames(cts))){
+	cts[,i] = as.integer(cts[,i])
+}
+#head(cts)
+
+
+coldata <- data.frame(row.names = colnames(cts),condition = c(rep("SMG+",17),rep("SMG8/9-",3)))
+#dds <- DESeqDataSetFromMatrix(countData = cts,colData = coldata, design = ~ condition)
+dds <- DESeqDataSetFromTximport(txi = txi.kallisto.tsv, colData = coldata, design = ~ condition)
+###Alternative Step;
+
+
+
+#######Filter Read Count
+dds <- dds[ rowSums(counts(dds)) > 10, ]
+
+##Sample distances
+rld <- rlog(dds, blind = FALSE)
+sampleDists <- dist(t(assay(rld)))
+sampleDistMatrix <- as.matrix( sampleDists )
+#rownames(sampleDistMatrix) <- paste(vsd$condition, vsd$type, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(sampleDistMatrix,
+		 clustering_distance_rows = sampleDists,
+		 clustering_distance_cols = sampleDists,
+		 col = colors)
+
+plotPCA(rld)
+
+
+
+
+dds$condition <- factor(dds$condition, levels=c("SMG+","SMG8/9-"))
+
+dds <- DESeq(dds)
+foo <- counts(dds, normalized = TRUE)
+foo2 <- counts(dds, normalized = FALSE)
+write.table(foo, "skin.norm_counts.tsv",quote=FALSE,sep="\t",col.names=TRUE,row.names=TRUE )
+write.table(foo2, "skin.raw_counts.tsv",quote=FALSE,sep="\t",col.names=TRUE,row.names=TRUE )
+
+res <- results(dds,alpha=0.1,lfcThreshold=0.5, altHypothesis="greaterAbs")
+
+#resLFC <- lfcShrink(dds, coef=2, res=res)
+summary(res)
+#res <- resLFC
+resOrdered <- res[order(res$padj),]   ####Alternative Step;
+write.table(resOrdered, "DESeq2_skin.Result.tsv",quote=FALSE,sep="\t",col.names=TRUE,row.names=TRUE )
+
+plotDispEsts(dds)
+hist(res$padj, breaks=100,col="skyblue", border="slateblue", main="")
+plotMA(res)

@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+
+my %pas;
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/Different_BL6_REP1.zhangbin.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$srd,$coor,$ave,$ave_diff,$usage) = (split)[0,2,3,6,8,9];
+	my $cal = $ave_diff>0 ? "T" : "F";
+	$pas{$pas_id} = "$ave\t$ave_diff\t$usage\t$cal\t$coor\t$srd";
+}
+
+
+open FILE,"bl6.pAs.predict_sequence.txt";
+open OUT, ">bl6.combined.txt";
+print OUT "pas_id\texitst\tpredict\tcoverage\tdiff\tusage\tcal\tcoor\tstrand\n";
+while(<FILE>){
+	chomp;
+	my ($pas_id) = split;
+	$pas{$pas_id} = "0\t0\t0\tF" if !exists $pas{$pas_id};
+	print OUT "$_\t$pas{$pas_id}\n";
+}
+
+

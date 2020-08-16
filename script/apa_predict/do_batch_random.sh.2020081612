@@ -1,0 +1,62 @@
+#!/bin/bash
+#SBATCH --job-name=CALCOV
+#SBATCH --partition=amd
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=2:00:00
+#SBATCH --output=log.%J
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --dependency=afterok:2070350
+#SBATCH -a 0-2
+source ~/.bash_slurm
+#module load anaconda3
+#source activate rna_seq3
+
+#####Modify parameter
+threads=64
+#input=(BL6_REP1 BL6_REP2 BL6_REP3) ####Sample name
+input=(BL6_Liver_REP1 BL6_Liver_REP2) ####Sample name
+SPE="BL6"
+sam=${input[$SLURM_ARRAY_TASK_ID]} #####Get Sample Name
+
+dir='/ibex/scratch/longy/workspace/apa_predict' ####Parental Directory
+cd $dir
+
+
+#WIG1="$dir/STAR/$sam/Signal.Unique.str2.out.wig"
+#WIG2="$dir/STAR/$sam/Signal.Unique.str1.out.wig"
+WIG1="STAR/$sam/ThreePrimeRead.Forward.wig"
+WIG2="STAR/$sam/ThreePrimeRead.Reverse.wig"
+PAS="pas_dataset/bl6.pAs.random.negative1.txt"
+USAGE="pas_dataset/bl6.pasusage.tianbin.liver.txt"
+COV="Coverage_${sam}.negative1.txt"
+DIF="Different_${sam}.negative1.txt"
+
+
+BASE=${input[0]%_*}
+DIFALL="Different_$BASE\_REP*.negative1.txt"
+MERGE="Merge_${BASE}.negative1.txt"
+PDF="Density_${BASE}.negative1.pdf"
+
+time_start=$(date +"%s")
+echo "job start at" `date "+%Y-%m-%d %H:%M:%S"`
+echo "This is job #${SLURM_ARRAY_JOB_ID}, with parameter ${input[$SLURM_ARRAY_TASK_ID]}"
+echo "My hostname is: $(hostname -s)"
+echo "My task ID is $SLURM_ARRAY_TASK_ID"
+echo
+
+####use sbatch do_batch.sh
+
+#calculate_coverage.pl $PAS $WIG1 $WIG2 $COV
+#linedrop.pl  $COV $DIF
+
+##use ./do_batch.sh
+merge_diff_rep.pl $MERGE $USAGE $DIFALL
+density_tianbin_liver.r $MERGE $PDF ${input[0]} ${input[1]} ${input[2]}  
+
+echo "job  end  at" `date "+%Y-%m-%d %H:%M:%S"`
+time_end=$(date +"%s")
+duration=$(($time_end-$time_start))
+echo "Run time: $(($duration/3600)):$((($duration/60)%60)):$(($duration % 60))"

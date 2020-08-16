@@ -1,0 +1,15 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"train.dna.iobes1";
+while(<FILE>){
+	chomp;
+	my ($seq,$label) = split /\t/;
+	my @motif = split / /,$seq;
+	foreach my $ele (@motif){
+		$hash{$ele} = 0;
+	}
+}
+
+my $motif_num = keys %hash;
+print "$motif_num\n";

@@ -1,0 +1,4 @@
+#!/bin/bash
+#nohup parallel-fastq-dump --sra-id ERR899316 --threads 4 -I --split-files --gzip --tmpdir tmp >log.6 2>&1 &
+nohup fastq-dump -I --split-files --gzip  /home/longy/workspace/apa_predict/fastq/ERR597280.1 >log.1 2>&1 &
+nohup fastq-dump -I --split-files --gzip  /home/longy/workspace/apa_predict/fastq/ERR899311.1 >log.2 2>&1 &

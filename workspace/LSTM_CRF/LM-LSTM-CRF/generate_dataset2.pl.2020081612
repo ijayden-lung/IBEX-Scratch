@@ -1,0 +1,149 @@
+#!/usr/bin/perl -w
+
+my $window = 80;
+my %chr;
+foreach my $file (glob "/ibex/scratch/longy/cnda/ensembl/oneLine/mm10.*.fa"){
+	open $file,"$file";
+	my ($chr) = (split /\./,$file)[-2];
+	$chr{"chr$chr"} = <$file>;
+}
+
+
+my %hash = ('U+'=>'U','D+'=>'D','U-'=>'D','D-'=>'U');
+my %info;
+open FILE,"/home/longy/project/DeeReCT-PolyARC_zhangnbinallprecision/train_data/bl6.pAs.positive.REP1.newround0.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$strand,$symbol) = split;
+	next if $symbol ne "Origin";
+	for($i=-40;$i<40;$i++){
+		if(exists $info{"$chr:$strand"}->{$pos+$i}){
+			my %pre;
+			my @old = split //,$info{"$chr:$strand"}->{$pos+$i};
+			foreach $ele (@old){
+				$pre{$ele} = '';
+			}
+			if($i<-35){
+				$pre{"O"} = '';
+			}
+			elsif($i<-6){
+				$pre{$hash{"U$strand"}} = '';
+			}
+			elsif($i<6){
+				$pre{"P"} = '';
+			}
+			elsif($i<35){
+				$pre{$hash{"D$strand"}} = '';
+			}
+			else{
+				$pre{"O"} = '';
+			}
+			my $append;
+			foreach my $key (sort{$a cmp $b} keys %pre){
+				$append .= "$key";
+			}
+			$info{"$chr:$strand"}->{$pos+$i} =  $append;
+		}
+		else{
+			if($i<-35){
+				$info{"$chr:$strand"}->{$pos+$i} = "O";
+			}
+			elsif($i<-6){
+				$info{"$chr:$strand"}->{$pos+$i} = $hash{"U$strand"};
+			}
+			elsif($i<6){
+				$info{"$chr:$strand"}->{$pos+$i} = 'P';
+			}
+			elsif($i<35){
+				$info{"$chr:$strand"}->{$pos+$i} = $hash{"D$strand"};
+			}
+			else{
+				$info{"$chr:$strand"}->{$pos+$i} = "O";
+			}
+		}
+	}
+}
+
+open FILE,"/home/longy/project/DeeReCT-PolyARC_zhangnbinallprecision/train_data/bl6.pAs.positive.REP1.newround0.txt";
+my $header = <FILE>;
+chomp $header;
+open OUT,">train.dna.iobes1";
+open OUT2,">testa.dna.iobes1";
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$strand,$symbol) = split;
+	next if $symbol ne "Origin";
+	my $rand1 = rand();
+	my $rand2 = rand();
+	my @array = qw/-10000 -100 -10 0 10 100 10000/;
+	foreach my $ele (@array){
+		my $add = 0;
+		if($ele != 0){
+			$add =  sprintf("%.0f",$ele*$rand2)+1;
+		}
+		if($rand1<0.8){
+			&print_info($chr,$pos+$add,$strand);
+		}
+		else{
+			&print_info2($chr,$pos+$add,$strand);
+		}
+	}
+}	
+
+sub print_info{
+	my ($chr,$pos,$strand) = @_;
+	my $sequence;
+	if($strand eq "+"){
+		$sequence = substr($chr{$chr},$pos-40-1,$window);
+	}
+	else{
+		$sequence = substr($chr{$chr},$pos-40-1,$window);
+		$sequence =~ tr/ATCG/TAGC/;
+		$sequence = reverse $sequence;
+	}
+	for(my $i=0;$i<$window-6;$i++){
+		my $motif = substr($sequence,$i,6);
+		print OUT "$motif ";
+	}
+	print OUT "\t";
+	for(my $i=0;$i<$window-6;$i++){
+		my $motif = substr($sequence,$i,6);
+		if(!exists $info{"$chr:$strand"}->{$pos+$i-40-3}){
+			print OUT "O ";
+		}
+		else{
+			my $label = $info{"$chr:$strand"}->{$pos+$i-40-3};
+			print OUT "$label ";
+		}
+	}
+	print OUT "\n";
+}
+sub print_info2{
+	my ($chr,$pos,$strand) = @_;
+	my $sequence;
+	if($strand eq "+"){
+		$sequence = substr($chr{$chr},$pos-40-1,$window);
+	}
+	else{
+		$sequence = substr($chr{$chr},$pos-40-1,$window);
+		$sequence =~ tr/ATCG/TAGC/;
+		$sequence = reverse $sequence;
+	}
+	for(my $i=0;$i<$window-6;$i++){
+		my $motif = substr($sequence,$i,6);
+		print OUT2 "$motif ";
+	}
+	print OUT2 "\t";
+	for(my $i=0;$i<$window-6;$i++){
+		my $motif = substr($sequence,$i,6);
+		if(!exists $info{"$chr:$strand"}->{$pos+$i-40-3}){
+			print OUT2 "O ";
+		}
+		else{
+			my $label = $info{"$chr:$strand"}->{$pos+$i-40-3};
+			print OUT2 "$label ";
+		}
+	}
+	print OUT2 "\n";
+}

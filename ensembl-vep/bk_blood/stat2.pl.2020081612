@@ -1,0 +1,47 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 13, 2020
+
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+
+
+#####Open tpm or tpm file
+open FILE,"tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+print join "\n",@header,"\n";
+
+
+###### Write zscore
+open OUT,">tpm.zscore.tsv";
+print OUT "$header\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my @tpm = @data[6..$#data];   #####spice tpm/tpm value
+	my $max = &max(@tpm);
+	#next if $max <1;   ######cutoff Max tpm/tpm
+	for(my$i=0;$i<@tpm;$i++){
+		$tpm[$i] = log($tpm[$i]+0.001)/log(2);   ######Log2 Scale
+	}
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@tpm);
+	my $mean = $stat->mean();
+	my $variance = $stat->variance();
+	my $num = $stat->count();
+	my $standard_deviation=$stat->standard_deviation();
+	my $sum=$stat->sum();
+	my $min=$stat->min();
+	my $max=$stat->max();
+	my $median=$stat->median();
+	next if $median < 3.16;  ###### cutoff medain tpm/tpm (log2 scale)
+	print OUT "$data[0]\t$data[1]\t$data[2]\t$data[3]\t$data[4]\t$data[5]";
+	for(my$j=0;$j<@tpm;$j++){
+		my $zscore = ($tpm[$j]-$mean)/$standard_deviation;  #####calculate zscore
+		print OUT "\t$zscore";
+	}
+	print OUT "\n";
+}

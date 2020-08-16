@@ -1,0 +1,65 @@
+#!/usr/bin/env Rscript
+library(ggplot2)
+library(scales)
+library(grid)
+args<-commandArgs(T)
+data = read.table(args[1],header=TRUE)
+pdf(args[2])
+#data=subset(data,data$Usage>0.3)
+data1=subset(data,data$pas_type=="tandemUTR")
+data2=subset(data,data$pas_type=="terminal")
+data3=subset(data,data$pas_type=="intronicPAS")
+data4=subset(data,data$pas_type=="internalExon")
+data5=subset(data,data$pas_type=="altLastExon")
+
+plotDensity <- function(diff,pas_type){
+	total1=length(subset(diff,diff$replicates==args[3])$ave_diff)
+	abnor1 = length(subset(diff,diff$replicates==args[3] & diff$ave_diff>0)$ave_diff)
+	total2=length(subset(diff,diff$replicates==args[4])$ave_diff)
+	abnor2 = length(subset(diff,diff$replicates==args[4] & diff$ave_diff>0)$ave_diff)
+	total3=length(subset(diff,diff$replicates==args[5])$ave_diff)
+	abnor3 = length(subset(diff,diff$replicates==args[5] & diff$ave_diff>0)$ave_diff)
+	per1=paste("REP1>0: ",percent(abnor1/total1),sep="")
+	per2=paste("REP2>0: ",percent(abnor2/total2),sep="")
+	per3=paste("REP3>0: ",percent(abnor3/total3),sep="")
+	grob <- grobTree(textGrob(c(per1,per2,per3), x=0.1,  y=c(0.90,0.86,0.82), hjust=0,gp=gpar(col=c("#F8766D","#00BA38","#619CFF"), fontsize=13, fontface="italic")))
+	ggplot(diff,aes(x=ave_diff,colour=replicates))+geom_density()+
+	geom_vline(aes(xintercept=0), colour="#BB0000", linetype="dashed")+theme_bw()+
+	annotation_custom(grob)+
+	labs(title=pas_type)+
+	theme(plot.title = element_text(size=30,hjust = 0.5)) 
+}
+
+print(plotDensity(data,"All"))
+print(plotDensity(data1,"tandemUTR"))
+print(plotDensity(data2,"terminal"))
+print(plotDensity(data3,"intronicPAS"))
+print(plotDensity(data4,"internalExon"))
+print(plotDensity(data5,"altLastExon"))
+
+
+data=subset(data,data$Usage>0.3)
+data1=subset(data,data$pas_type=="tandemUTR")
+data2=subset(data,data$pas_type=="terminal")
+data3=subset(data,data$pas_type=="intronicPAS")
+data4=subset(data,data$pas_type=="internalExon")
+data5=subset(data,data$pas_type=="altLastExon")
+print(plotDensity(data,"All,usage>0.3"))
+print(plotDensity(data1,"tandemUTR,usage>0.3"))
+print(plotDensity(data2,"terminal,usage>0.3"))
+print(plotDensity(data3,"intronicPAS,usage>0.3"))
+print(plotDensity(data4,"internalExon,usage>0.3"))
+print(plotDensity(data5,"altLastExon,usage>0.3"))
+
+#data1=subset(data,data$Usage>0.8)
+#data2=subset(data,data$Usage<=0.8 & data$Usage>0.6)
+#data3=subset(data,data$Usage<=0.6 & data$Usage>0.4)
+#data4=subset(data,data$Usage<=0.4 & data$Usage>0.2)
+#data5=subset(data,data$Usage<=0.2 & data$Usage>0)
+#print(plotDensity(data1,"0.8<Usage<=1"))
+#print(plotDensity(data2,"0.6<Usage<=0.8"))
+#print(plotDensity(data3,"0.4<Usage<=0.6"))
+#print(plotDensity(data4,"0.2<Usage<=0.4"))
+#print(plotDensity(data5,"0<Usage>=0.2"))
+
+

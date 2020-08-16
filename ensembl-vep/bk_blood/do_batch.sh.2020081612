@@ -1,0 +1,42 @@
+#!/bin/bash
+#SBATCH --job-name=VEP
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --output=log.%J
+#SBATCH --time=01:00:00
+#SBATCH --mem=40G
+#SBATCH -a 0-2
+
+#for input in raw3/*csv
+#do
+#	echo $input
+#	perl convert_vcf.pl $input
+
+#done 
+
+cd ../WES/
+i=0
+for input in raw3/*
+do
+	#echo $input
+	perl ../blood/homogenous_gene.pl  "$input"
+	output=$input
+	output=${output//input/output} 
+	output=${output//inp/txt}
+	#echo $output
+	inputs[$i]=$input
+	outputs[$i]=$output
+	((i=$i+1)) 
+	#echo $i
+done
+
+
+#input=${inputs[$SLURM_ARRAY_TASK_ID]}
+#output=${outputs[$SLURM_ARRAY_TASK_ID]}
+#echo $input
+#echo $output
+#../vep --force_overwrite --input_file "$input" --offline --output_file "$output"
+#stop_gain=${output//txt/stop_gained.txt}
+#grep stop_gained $output >$stop_gain

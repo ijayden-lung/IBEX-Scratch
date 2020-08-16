@@ -1,0 +1,4 @@
+
+my @arr = qw/1 2 3 4/;
+my @a = @arr[0-2];
+print "$a[0]\n";

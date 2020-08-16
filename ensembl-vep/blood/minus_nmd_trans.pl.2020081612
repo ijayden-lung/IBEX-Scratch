@@ -1,0 +1,49 @@
+#!/usr/bin/perl -w
+#
+
+my %nmd_trans;
+open ENS,"zcat /home/longy/cnda/ensembl/Homo_sapiens.GRCh37.87.gtf.gz | awk '(\$3 == \"transcript\")' | grep nonsense_mediated_decay | ";
+while(<ENS>){
+	chomp;
+	my ($type,$start,$end,$strand,$gene_id,$trans_id) = (split)[2,3,4,6,9,13];
+	$trans_id =~ s/\"|\;//g;
+	$gene_id =~ s/\"|\;//g;
+	$nmd_trans{$gene_id}->{$trans_id} = '';
+}
+
+
+open TRANS,"tpm.trans.tsv";
+<TRANS>;
+my %trans_tpm;
+while(<TRANS>){
+	chomp;
+	my @data = split;
+	my ($trans_id,$trans_name) = @data[4,5];
+	($trans_id) = split /\./,$trans_id;
+	my @tpm = @data[6..$#data];   #####spice tpm/tpm value
+	$trans_tpm{$trans_id} = \@tpm;
+}
+
+open FILE,"tpm.tsv";
+my $header = <FILE>;
+open OUT,">tpm.minusnmd.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my ($gene_id,$gene_name) = @data[4,5];
+	($gene_id) = split /\./,$gene_id;
+	my @pos = @data[0..5];
+	my @tpm = @data[6..$#data];   #####spice tpm/tpm value
+	my $trans_ref = $nmd_trans{$gene_id};
+	foreach my $trans_id (keys %$trans_ref){
+		if(exists $trans_tpm{$trans_id}){
+			my $trans_tpm_ref = $trans_tpm{$trans_id};
+			for(my$i=0;$i<@tpm;$i++){
+				$tpm[$i] -= $trans_tpm_ref->[$i];
+				$tpm[$i] = 0 if $tpm[$i]<0;
+			}
+		}
+	}
+	print OUT join("\t",@pos,@tpm),"\n";
+}

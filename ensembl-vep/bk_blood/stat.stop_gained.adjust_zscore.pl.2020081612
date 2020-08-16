@@ -1,0 +1,77 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+#my @sample = qw/18DG0147 10DG0840 19DG0555 19DG0060 15DG0371 15DG2234 09DG00934 15DG0918 18DG0120 15DG0678 16DG1048 14DG1661L 19DG0152L 19DG1391L 19DG1424L/;
+#my @sample = qw/18DG0147 10DG0840 19DG0555 19DG0060 15DG0371 14DG1661L 19DG0152L 19DG1391L 19DG1424L/;
+my @sample = qw/18DG0147 15DG0918 16DG1333 10DG0840 10DG0792 14DG1661L 19DG0152L 19DG1391L 19DG1424L/;
+my %targets;
+my %ori_tpm;
+my %ori_sample;
+my %gene;
+my %type;
+foreach my $sample (@sample){
+	open FILE,"stop_gained/$sample.tsv";
+	<FILE>;
+	<FILE>;
+	while(<FILE>){
+		chomp;
+		my ($gene_id,$gene_name,$tpm,$log2tpm,$zscore_tpm,$zscore_log2tpm,$variants,$sample,$type) = split;
+		$gene{$gene_id} = $gene_name;
+		$type{$sample} = $type;
+		$targets{$sample}->{$gene_id} = $variants;
+		push @{$ori_tpm{$gene_id}},$zscore_log2tpm;
+		push @{$ori_sample{$gene_id}},$sample;
+
+	}
+}
+
+
+
+my ($zscore,$adjust_zscore) = &getZscore();
+
+
+while(my($sample,$val) = each %$zscore){
+	&printInfo($sample);
+}
+
+
+sub getZscore{
+	my %tpm;
+	my %adjust_zscore;
+	while(my ($gene_id,$val) = each %ori_tpm){
+		my @tpm = @$val;
+		my @header = @{$ori_sample{$gene_id}};
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@tpm);
+		my $mean = $stat->mean();
+		my $standard_deviation=$stat->standard_deviation();
+		my $median=$stat->median();
+		for(my$j=0;$j<@tpm;$j++){
+			my $zscore = ($tpm[$j]-$mean)/$standard_deviation;  #####calculate zscore
+			$tpm{$header[$j]}->{$gene_id} = $tpm[$j];
+			$adjust_zscore{$header[$j]}->{$gene_id} = $zscore;
+		}
+	}
+	return (\%tpm,\%adjust_zscore);
+}
+
+
+sub printInfo{
+	my ($sample) = @_;
+	open OUT,">stop_gained-new_zsocre-SMG-/$sample.tsv";
+	print OUT "gene_id\tgene_name\tzscore\tadjust_zscore\tvariants\tsample\ttype\n";
+
+	my $type = $type{$sample};
+	my $targets_ref = $targets{$sample};
+	my $zscore_ref = $zscore->{$sample};
+	my $adjust_zscore_ref = $adjust_zscore->{$sample};
+	while(my ($gene_id,$zygo) = each %$zscore_ref){
+		my $variant  = $targets_ref->{$gene_id};
+		print OUT "$gene_id\t$gene{$gene_id}\t$zscore_ref->{$gene_id}\t$adjust_zscore_ref->{$gene_id}\t$variant\t$sample\t$type\n";
+	}
+}
+

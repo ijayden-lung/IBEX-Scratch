@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+
+my $i = 0;
+open FILE,"dna.testb.iobes5";
+<FILE>;
+while(<FILE>){
+	chomp;
+	if($_ eq ""){
+		$i++;
+	}
+	else{
+		my ($motif,$label) = split;
+		if($label eq "S"){
+			$hash{$i} = $label;
+		}
+		elsif($label eq "P"){
+			$hash{$i} = $label;
+		}
+	}
+}
+
+
+
+
+my %test;
+my $j = 0;
+open FILE,"output.w_promoter.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	if($_ eq ""){
+		$j++;
+	}
+	else{
+		my ($motif,$label) = split;
+		$test{$j} .= "$label";
+	}
+}
+
+
+my $correct = 0;
+my $total = 0;
+my $p_total = 0;
+while ( my ($key,$val) = each %hash){
+	if($test{$key} =~ /$val/){
+		$correct++;
+	}
+	$total++;
+}
+my $per = $correct/$total;
+print "$total\t$correct\t$per\n";
+
+print "$i\n$j\n";

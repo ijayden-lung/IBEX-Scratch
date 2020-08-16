@@ -1,0 +1,143 @@
+#!/usr/bin/python
+import numpy as np
+from Puzzle import Puzzle
+from Individual import Chromsome
+import time
+from copy import copy,deepcopy
+#from Operation import *
+from random import choice
+import argparse
+
+#parser = argparse.ArgumentParser()
+#parser.add_argument('popsize', help='')
+#parser.add_argument('crossrate', help='')
+#parser.add_argument('chrlen', help='')
+#parser.add_argument('mutrate', help='')
+#opts = parser.parse_args()
+#POPULATION_SIZE=int(opts.popsize)
+#CROSS_RATE=float(opts.crossrate)
+#CHROM_LEN=int(opts.chrlen)
+#MUTATION_RATE=float(opts.mutrate)
+#PARENT_SIZE=int(POPULATION_SIZE*CROSS_RATE)-int(POPULATION_SIZE*CROSS_RATE)%2
+#DROPOUT_SIZE=POPULATION_SIZE-PARENT_SIZE
+POPULATION_SIZE=100
+PARENT_SIZE=50
+DROPOUT_SIZE=POPULATION_SIZE-PARENT_SIZE
+MUTATION_RATE=0.01
+MAX_GENERATION = 1000
+CHROM_LEN=100
+CROSSOVER_LEN=int(0.9*CHROM_LEN)
+MUTATION_TIMES=2
+
+MAX_GENERATION = 1000
+CROSSOVER_LEN=int(0.9*CHROM_LEN)
+
+def changeStep(steps,index,num,before,after):
+	i=0
+	times=0
+	while(times<num and index<CHROM_LEN):
+		if(steps[i]==before):
+			steps[i] = after
+			times+=1
+		index+=1
+		i+=1
+	return steps
+
+def determineChange(steps1,steps2,index,diff,change1,change2):
+	changeNum=abs(int(diff/2))
+	odds=diff%2
+	cutsize = CHROM_LEN-index
+	if(diff>0):
+		steps1 = changeStep(steps1,index,changeNum,change2,change1)
+		steps2 = changeStep(steps2,index,changeNum,change1,change2)
+		if(odds==1):
+			steps1 = np.insert(steps1,0,change1)[0:cutsize]
+			steps2 = np.insert(steps2,0,change2)[0:cutsize]
+	elif(diff<0):
+		steps1 = changeStep(steps1,index,changeNum,change1,change2)
+		steps2 = changeStep(steps2,index,changeNum,change2,change1)
+		if(odds==1):
+			steps1 = np.insert(steps1,0,change2)[0:cutsize]
+			steps2 = np.insert(steps2,0,change1)[0:cutsize]   
+	
+	return steps1,steps2
+
+
+def changeState(offspring,index):
+	puzzle = Puzzle(offspring.states[index-1])
+	for i in range(index,CHROM_LEN):
+		move = offspring.steps[i]
+		puzzle.move(move)
+		offspring.states[i] = puzzle.state.copy()
+		offspring.positions[i] = puzzle.position
+		offspring.manhattanDists[i] = puzzle.manhattanDist
+
+def selection(population,fitnesses,totalFitness):
+	probilities = np.zeros(POPULATION_SIZE)
+	#parents = np.empty(PARENT_SIZE,dtype=object)
+	for i in range(POPULATION_SIZE):
+		probilities[i]= fitnesses[i]/totalFitness
+	dropout = np.random.choice(population,DROPOUT_SIZE,p=probilities,replace=False)
+	index= np.isin(population,dropout,invert = True)
+	parents=population[index]
+	return parents
+
+def crossOver(parents):
+	parents =parents
+	offspring = np.empty(PARENT_SIZE,dtype=object)
+	for i in range(0,PARENT_SIZE,2):
+		index=np.random.randint(2,CROSSOVER_LEN)
+		pos1=parents[i].positions[index-1]
+		pos2=parents[i+1].positions[index-1]
+		row1 = pos1%puzzle.width
+		row2 = pos2%puzzle.width
+		col1 = pos1//puzzle.width
+		col2 = pos2//puzzle.width
+		row_diff=row1-row2
+		col_diff=col1-col2		   
+
+		changeStep2 = copy(parents[i].steps[index:])
+		changeStep1 = copy(parents[i+1].steps[index:])
+		changeStep1,changeStep2 = determineChange(changeStep1,changeStep2,index,row_diff,'L','R')
+		changeStep1,changeStep2 = determineChange(changeStep1,changeStep2,index,col_diff,'U','D')
+		offspring[i] = deepcopy(parents[i])
+		offspring[i+1]=deepcopy(parents[i+1])
+		offspring[i].steps[index:]=changeStep1
+		offspring[i+1].steps[index:]=changeStep2
+		#offspring[i].steps = copy(offspring[i].steps)
+		#offspring[i+1].steps = copy(offspring[i+1].steps)
+		changeState(offspring[i],index)
+		changeState(offspring[i+1],index)
+		
+	return offspring
+
+def mutation(offspring):
+    offspring = deepcopy(offspring)
+    for individual in offspring:
+        index=np.random.randint(2,CROSSOVER_LEN)
+        
+        puzzle = Puzzle(individual.states[index-1])
+        lastStep = individual.steps[index-1]
+        moves = puzzle.availMove(lastStep)
+        move = choice(moves)
+        puzzle.move(move)
+        individual.states[index] = puzzle.state.copy()
+        individual.positions[index] = puzzle.position
+        individual.manhattanDists[index] = puzzle.manhattanDist
+        lastStep = move
+        for i in range(index+1,CHROM_LEN):
+            moves = puzzle.availMove(lastStep)
+            if(individual.steps[i] in moves):
+                move = individual.steps[i]
+            else:
+                
+                move = choice(moves)
+                individual.steps[i] = move
+
+            puzzle.move(move)
+            individual.states[i] = puzzle.state.copy()
+            individual.positions[i] = puzzle.position
+            individual.manhattanDists[i] = puzzle.manhattanDist
+            lastStep = move
+    return offspring
+

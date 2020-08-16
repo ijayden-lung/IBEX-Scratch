@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --job-name=STARGenerateGenome
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --time=24:00:00
+#SBATCH --output=log.mmm10
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+
+echo 'partition=amd all 64 core, all memory,remember to 64 core'
+#module load star
+#module load anaconda3
+#source activate rna_seq3
+
+dir='/ibex/scratch/longy/cnda/STAR_INDEX/mm10len100'
+mkdir $dir
+STAR --runMode genomeGenerate --runThreadN 32 --genomeDir $dir --genomeFastaFiles /ibex/scratch/longy/cnda/ensembl/Mus_musculus.GRCm38.dna.primary_assembly.fa --sjdbGTFfile /ibex/scratch/longy/cnda/ensembl/mm10v95_ensembl.gtf --sjdbOverhang 100 --limitGenomeGenerateRAM 310000000000
+
+
+#dir='/home/bio-longyk/cnda/STAR_INDEX/mm10v92len100/'
+#mkdir $dir
+#STAR --runMode genomeGenerate --runThreadN 18 --genomeDir $dir --genomeFastaFiles /home/biology/genome/mm10/mm10.fa --sjdbGTFfile /home/bio-longyk/cnda/ensembl/mm10.ensemblv92.nopsuedo.gtf --sjdbOverhang 100
+

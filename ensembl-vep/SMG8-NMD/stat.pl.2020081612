@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+use Statistics::Descriptive;
+
+open FILE,"tpm.stop_gained.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+my $sample = "19DG0152";
+print "$header[-3]\n";
+
+open OUT,">tpm.stop_gained.19DG0152_zsocre.tsv";
+print OUT "chr\tstrand\tstart\tend\tgene_id\tgene_symbol\tmean\tmedian\tmin\tmax\tstd\tzscore\n";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	my @stat_data = @data[6..@data-1];
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@stat_data);
+	my $mean = $stat->mean();#平均值
+	my $variance = $stat->variance();#方差
+	my $num = $stat->count();#data的数
+	my $standard_deviation=$stat->standard_deviation();#标准差
+	my $sum=$stat->sum();#求和
+	my $min=$stat->min();#最小值
+	my $max=$stat->max();#最大值
+	my $median=$stat->median();
+	my $zscore = NaN;
+	if($standard_deviation != 0){
+		$zscore = ($data[-3]-$mean)/$standard_deviation;
+	}
+	print OUT "$data[0]\t$data[1]\t$data[2]\t$data[3]\t$data[4]\t$data[5]\t$mean\t$median\t$min\t$max\t$standard_deviation\t$zscore\n";
+
+}

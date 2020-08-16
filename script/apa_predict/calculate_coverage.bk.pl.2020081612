@@ -1,0 +1,165 @@
+#!/usr/bin/perl -w
+
+my ($PAS,$WIG1,$WIG2,$COV) = @ARGV;
+my $window = 100;
+
+
+my %pas_fwd;
+my %pas_rev;
+my %type_fwd;
+my @type_fwd;
+my %type_rev;
+my @type_rev;
+open FILE,$PAS;
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$coordinate) = split;
+	my ($bl6,$spr) = split /,/,$coordinate;
+	my ($chr,$srd,$spe,$mid) = split /\|/,$bl6;
+	my ($chr2,$srd2,$spe2,$mid2) = split /\|/,$spr if defined $spr;
+	my $beg = $mid-$window;
+	my $end = $mid+$window;
+	if($spe eq "BL"){
+		if($srd eq "+"){
+			$type_rev{"$pas_id\t$pas_type\t-"} = "$chr:$beg-$end";
+			$pas_rev{$chr}->{$mid} = '';
+			push @type_rev, "$pas_id\t$pas_type\t-";
+		}
+		else{
+			$type_fwd{"$pas_id\t$pas_type\t+"} = "$chr:$beg-$end";
+			$pas_fwd{$chr}->{$mid} = '';
+			push @type_fwd, "$pas_id\t$pas_type\t+";
+		}
+	}
+=pod
+	elsif(defined $spe2 && $spe2 eq "SP"){
+		($chr,$srd,$spe,$mid) = ($chr2,$srd2,$spe2,$mid2);
+		if($srd eq "+"){
+			$type_rev{"$pas_id\t$pas_type\t-"} = "$chr:$beg-$end";
+			$pas_rev{$chr}->{$mid} = '';
+			push @type_rev, "$pas_id\t$pas_type\t-";
+		}
+		else{
+			$type_fwd{"$pas_id\t$pas_type\t+"} = "$chr:$beg-$end";
+			$pas_fwd{$chr}->{$mid} = '';
+			push @type_fwd, "$pas_id\t$pas_type\t+";
+		}
+	}
+=cut
+}
+
+
+sub calCov{
+	my ($WIG,$ref) = @_;
+	my %pas = %$ref;
+	open FILE,$WIG;
+	my @sortCoor;
+	my $i=0;
+	my $chr = "chr1";
+	my %cov;
+	my $prepos=0;
+	my $pas_num=0;
+	while(<FILE>){
+		chomp;
+		my ($pos,$read) = split;
+		if($pos eq "variableStep"){
+			(undef,$chr) = split /\=/,$read;
+			$chr="chr$chr" if $chr !~ /^chr/;
+			if(exists $pas{$chr}){
+				my $position = $pas{$chr};
+				@sortCoor = sort{$a<=>$b} keys %$position;
+				$pas_num=@sortCoor;
+				$i=0;
+				$prepos=0;
+			}
+		}
+		elsif(exists $pas{$chr}){
+			next if $i>=$pas_num;
+			my $cleavge_site = $sortCoor[$i];
+			my $beg = $cleavge_site-$window;
+			my $end = $cleavge_site+$window;
+			if($pos < $beg){
+				next;
+			}
+			elsif($pos > $end){
+				my @cov_pre = exists $cov{"$chr:$beg-$end"} ? split /\t/,$cov{"$chr:$beg-$end"}:(0)x(2*$window+2);
+				if (@cov_pre <2*$window+2){
+					my $len = 2*$window+2-@cov_pre;
+					my @new = (0)x$len;
+					push @cov_pre,@new;
+				}
+				$i++;
+				next if $i >= $pas_num;
+				my $beg_next = $sortCoor[$i]-$window;
+				my $end_next = $sortCoor[$i]+$window;
+				if($pos>=$beg_next && $pos <=$end_next){
+					my $comple = 201-$end+$beg_next;
+					for(my $k=$comple;$k<202;$k++){
+						print "$chr:$beg-$end\t$chr:$beg_next-$end_next\n";
+						$cov{"$chr:$beg_next-$end_next"} .= "\t$cov_pre[$k]";
+					}
+					$cov{"$chr:$beg_next-$end_next"} .= "\t$read";
+				}
+			}
+			else{
+				my $diff = $beg>$prepos+1 ? $pos-$beg : $pos-$prepos-1;
+				for(my $i=0;$i<$diff;$i++){
+					$cov{"$chr:$beg-$end"} .= "\t0";
+				}
+				$cov{"$chr:$beg-$end"} .= "\t$read";
+			}
+			$prepos = $pos;
+		}
+	}
+	return \%cov;
+}
+
+
+my $cov_fwd = &calCov($WIG2,\%pas_fwd);
+open OUT,">$COV";
+my $avaible = 0;
+foreach my $id (@type_fwd){
+	my $key = $type_fwd{$id};
+	next if !exists $cov_fwd->{$key};
+	my $val = $cov_fwd->{$key};
+	$avaible++;
+	my @data = split /\t/,$val;
+	if (@data <2*$window+2){
+		my $len = 2*$window+2-@data;
+		my @new = (0)x$len;
+		print OUT "$id\t$key";
+		print OUT join "\t",$val,@new;
+		print OUT "\n";
+	}
+	else{
+		print OUT "$id\t$key";
+		print OUT "$val\n";
+	}
+}
+
+my $cov_rev = &calCov($WIG1,\%pas_rev);
+foreach my $id (@type_rev){
+	my $key = $type_rev{$id};
+	next if !exists $cov_rev->{$key};
+	my $val = $cov_rev->{$key};
+	$avaible++;
+	my @data = split /\t/,$val;
+	if (@data <2*$window+2){
+		my $len = 2*$window+2-@data;
+		my @new = (0)x$len;
+		print OUT "$id\t$key";
+		print OUT join "\t",$val,@new;
+		print OUT "\n";
+	}
+	else{
+		print OUT "$id\t$key";
+		print OUT "$val\n";
+	}
+}
+
+my $total1 = keys %type_fwd;
+my $total2 = keys %type_rev;
+my $total=$total1+$total2;
+my $percentage = sprintf("%.2f",$avaible/$total*100);
+print "pas with read: $avaible\ntotal pas: $total\npercentage:$percentage\n";

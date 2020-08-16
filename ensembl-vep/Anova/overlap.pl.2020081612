@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+#
+my %hash;
+my %overlap ;
+
+open FILE,"DE.Anova.blood.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($symbol,$sig,$type) = (split /\t/)[1,-4,-2];
+	if($sig eq "Up" && $type =~ /tableS5/){
+		$hash{$symbol} = '';
+	}
+}
+my %overlap2;
+open FILE,"DE.Anova.skin.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($symbol,$sig,$type) = (split /\t/)[1,-4,-2];
+	if($sig eq "Up" && $type =~ /tableS5/){
+		#if($type =~ /tableS5/){
+		#$hash{$symbol} = '';
+		if(exists $hash{$symbol}){
+			$overlap2{$symbol} = '';
+		}
+	}
+}
+
+
+
+
+my $num = keys %overlap2;
+print "$num\n";
+my @key = keys %overlap2;
+print "@key\n";

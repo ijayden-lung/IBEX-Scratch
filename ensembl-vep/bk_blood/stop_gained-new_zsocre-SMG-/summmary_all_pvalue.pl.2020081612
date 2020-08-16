@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+use Statistics::Descriptive;
+my %hash;
+foreach my $file (glob "*tsv"){
+	next if $file =~ /pvalue/;
+	open FILE,"$file";
+	my ($sample) = split /\/|\./,$file;
+	<FILE>;
+	my $nmd_num = 0;
+	my $control_num = 0;
+	my $invalid_num = 0;
+	while(<FILE>){
+		if($_ =~ /NMD/){
+			$nmd_num++;
+		}
+		elsif($_ =~ /Invalid/){
+			$invalid_num++;
+		}
+		else{
+			$control_num++;
+		}
+	}
+	print "$sample\n";
+	$hash{$sample} = "$nmd_num\t$control_num\t$invalid_num";
+
+}
+
+
+open OUT,">Summaries_pval.se.txt\n";
+print OUT "sample\tmean_nmd_target_zscore\tpvalue\tse\tnmd_num\tcontrol_num\tinvalid_num\ttype\n";
+foreach my $file (glob "*.pvalue.6.tsv"){
+=pod
+	my $base = $file;
+	$base =~ s/\.0\.tsv$//g;
+	my $file1 = "$base.1.tsv";
+	my $file2 = "$base.2.tsv";
+	my $file3 = "$base.3.tsv";
+	my $file4 = "$base.4.tsv";
+	my $file5 = "$base.5.tsv";
+	my $file6 = "$base.6.tsv";
+	my $file7 = "$base.7.tsv";
+	my $file8 = "$base.8.tsv";
+	my $file9 = "$base.9.tsv";
+	print "$file\n";
+	my $pval0 = &openFile($file);
+	my $pval1 = &openFile($file1);
+	my $pval2 = &openFile($file2);
+	my $pval3 = &openFile($file3);
+	my $pval4 = &openFile($file4);
+	my $pval5 = &openFile($file5);
+	my $pval6 = &openFile($file6);
+	my $pval7 = &openFile($file7);
+	my $pval8 = &openFile($file8);
+	my $pval9 = &openFile($file9);
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data($pval0,$pval1,$pval2,$pval3,$pval4,$pval5,$pval6,$pval7,$pval8,$pval9);
+	my $mean = $stat->mean();
+	my $standard_deviation=$stat->standard_deviation();
+	my $se = $standard_deviation/sqrt(10);
+=cut
+	my ($zscore,$pval) = &openFile($file);
+	my $se = sqrt($pval*(1-$pval)/100000);
+	my ($sample) = split /\./,$file;
+	
+	my $type = "SMG+";
+	if($sample =~ /L/){
+		$type = "SMG8/9-";
+	}
+	print OUT "$sample\t$zscore\t$pval\t$se\t$hash{$sample}\t$type\n";
+}
+		
+
+
+sub openFile{
+	my ($file) = @_;
+	open FILE,"tail -n 1 $file |";
+	my $pval = <FILE>;
+	chomp $pval;
+	my ($mean_pval,$median_pval) = split /\t/,$pval;
+	open FILE,"head $file |";
+	<FILE>;
+	my $zscore = <FILE>;
+	chomp $zscore;
+	my ($mean_zscore,$median_zscore) = split /\t/,$zscore;
+	return ($mean_zscore,$mean_pval);
+}
+

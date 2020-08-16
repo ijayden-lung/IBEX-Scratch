@@ -1,0 +1,24 @@
+#!/bin/bash
+
+##Change the existence ID to 123456 and then modified your parameter
+#Modified star_mapping.sh
+#Modified bamremoveduplicate.sh 
+#Modified quantative.sh
+
+#sbatch star_mapping.sh
+#sbatch bamremoveduplicate.sh
+#sbatch quantative.sh
+
+##change the line number where is the sbatch dependency
+sed -i 11s/.*/"#SBATCH --dependency=afterok:123456"/ star_mapping.sh
+ID1=$(sbatch star_mapping.sh)
+echo $ID1
+
+sed -i 11s/.*/"#SBATCH --dependency=afterok:${ID1##* }"/ bamremoveduplicate.sh
+ID2=$(sbatch bamremoveduplicate.sh)
+echo $ID2
+
+sed -i 11s/.*/"#SBATCH --dependency=afterok:${ID2##* }"/ quantative.sh
+ID3=$(sbatch quantative.sh)
+echo $ID3
+

@@ -1,0 +1,49 @@
+#!/usr/bin/perl -w
+
+my %hash;
+my @sample;
+foreach my $file (glob "*.tsv"){
+	open $file,$file or die;
+	<$file>;
+	my ($sample) = split /\./,$file;
+	push @sample,$sample;
+	while(<$file>){
+		my ($target_id,$counts) = (split /\t/)[0,3];
+		$counts = sprintf("%.0f",$counts);
+		my ($gene_id,$type) = (split /\|/,$target_id)[1,7];
+		if($type eq "protein_coding"){
+			$hash{$gene_id}->{$sample} += $counts;
+		}
+	}
+}
+
+my @samples=qw/17DG0444 18DG0778 09DG00934 15DG2630 17DG0832 
+14DG1171 16DG0662 18DG0120 19DG0060 17DG0977 
+16DG0744 18DG0147 15DG2234 16DG0328 10DG0840 
+16DG0991 18DG0454 19DG0555 18DG1094 18DG0734 
+14DG1686 16DG1048 18DG0464 19DG0591 17DG0969 
+15DG0371 16DG1068 18DG0638 16DG0064 10DG0792 
+15DG0678 16DG1186 18DG0646 18DG1029 15DG0918 
+16DG1333 18DG0717 15DG1349 
+19DG0152L 14DG1661L 19DG1391L 19DG1424L/;
+
+
+open OUT,">blood.counts.txt";
+print OUT "gene_id";
+for(my$i=0;$i<@samples;$i++){
+	print OUT "\t$samples[$i]";
+}
+print OUT "\n";
+
+while(my ($gene_id,$val) = each %hash){
+	print OUT "$gene_id";
+	foreach my $sample (@samples){
+		if(exists $val->{$sample}){
+			print OUT "\t$val->{$sample}";
+		}
+		else{
+			print "$gene_id\t$sample\n";
+		}
+	}
+	print OUT "\n";
+}

@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --job-name=DeeRect
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --output=log.%J
+#SBATCH --time=24:00:00
+#SBATCH --mem=40G
+
+####SBATCH -a 0-4
+
+
+echo "This is job #${SLURM_ARRAY_JOB_ID}, task id ${SLURM_ARRAY_TASK_ID}"
+base="tandom.length176"
+name=${base}${SLURM_ARRAY_TASK_ID}
+mut=(0.01 0.02 0.04 0.08 0.16)
+#mut=(0.6 0.6 0.7 0.8 0.9)
+mutate=${mut[$SLURM_ARRAY_TASK_ID]}
+python3 Operation.py 400 0.9 400 0.9

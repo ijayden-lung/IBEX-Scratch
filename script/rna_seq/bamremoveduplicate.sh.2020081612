@@ -1,0 +1,51 @@
+#!/bin/bash
+#SBATCH --job-name=STAR
+#SBATCH --partition=amd
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=64
+#SBATCH --time=24:00:00
+#SBATCH --output=log.%J
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --dependency=afterok:1355849
+#SBATCH -a 0-3
+module load anaconda3
+source activate rna_seq3
+
+#####Modify parameter
+threads=64
+input=(ctrl.1 ctrl.2 sh2.1 sh2.2)         ####Sample Name
+dir='/ibex/scratch/longy/workspace/runx2' ####Partenal Directory
+sam=${input[$SLURM_ARRAY_TASK_ID]}
+inp=$dir/STAR/$sam                        ####Woring Directory
+if [ ! -d $dir/STAR ];then
+	mkdir -p $dir/STAR
+fi
+if [ ! -d $inp ];then
+	mkdir -p $inp
+fi
+
+cd $inp   ####Going to Working Directory
+
+time_start=$(date +"%s")
+echo "job start at" `date "+%Y-%m-%d %H:%M:%S"`
+
+
+echo "This is job #${SLURM_ARRAY_JOB_ID}, with parameter ${input[$SLURM_ARRAY_TASK_ID]}"
+echo "My hostname is: $(hostname -s)"
+echo "My task ID is $SLURM_ARRAY_TASK_ID"
+echo
+
+
+
+echo 'starting bam reomve duplicate in  STAR'
+echo "mapping with $sam"
+
+
+STAR --runThreadN $threads --runMode inputAlignmentsFromBAM --inputBAMfile Aligned.sortedByCoord.out.bam --bamRemoveDuplicatesType UniqueIdenticalNotMulti
+
+echo "job  end  at" `date "+%Y-%m-%d %H:%M:%S"`
+time_end=$(date +"%s")
+duration=$(($time_end-$time_start))
+echo "Run time: $(($duration/3600)):$((($duration/60)%60)):$(($duration % 60))"

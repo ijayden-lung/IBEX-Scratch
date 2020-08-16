@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+open FILE,"DE.DESeq2.skin.tsv";
+my %hash;
+while(<FILE>){
+	chomp;
+	my ($sig,$biotype,$brain_related) = (split)[-3,-2,-1];
+	if($biotype eq "protein_coding"){
+		$hash{$sig}++;
+		if($brain_related eq "Yes"){
+			if($sig ne "No"){
+				$hash{'sig_brain_related'}++;
+			}
+			$hash{'brain_related'}++;
+		}
+	}
+}
+
+while(my ($key,$val) = each %hash){
+	print "$key\t$val\n";
+}

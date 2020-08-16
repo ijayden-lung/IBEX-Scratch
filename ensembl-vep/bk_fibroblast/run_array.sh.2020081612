@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --job-name=Join_Test
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --output=log.%J
+#SBATCH --time=1:00:00
+#SBATCH --mem=500G
+#SBATCH -a 0-15
+
+##SBATCH --dependency afterok:6686802_[1-100] 
+
+
+echo "This is job #${SLURM_ARRAY_JOB_ID}, task id ${SLURM_ARRAY_TASK_ID}"
+samples=(11DG0060 13DG2283 15DG2154 16DG0518 18DG0180 18DG0464F  19DG0230 15DG2154MG 16DG0144 16DG1353 18DG0348  19DG0152F 19DG1391F 11DG0165 14DG2098 14DG2019)
+#samples=(16DG0518 18DG0180)
+echo ${samples[$SLURM_ARRAY_TASK_ID]}
+perl stat.onetailed_pvalue2.pl ${samples[$SLURM_ARRAY_TASK_ID]} 6
+

@@ -1,0 +1,41 @@
+from Queue import Queue
+from copy import deepcopy
+
+class State:
+    def __init__(self, board, parent=None, move=""):
+        self.board = board
+        self.parent = parent
+        self.depth = 0
+        if parent is None:
+            self.depth = 0
+            self.moves = move
+        else:
+            self.depth = parent.depth + 1
+            self.moves = parent.moves + move
+
+    def is_target_state(self):
+        return self.board.is_target()
+
+    def find_successors(self):
+        successors = Queue()
+        for m in self.board.moves:
+            p = deepcopy(self.board)
+            p.move_tile(m)
+            if p.zero_position is not self.board.zero_position:
+                successors.put(State(p, self, m))
+        return successors
+
+    def cal_manhattan_dis(self):
+        result = 0
+        count = 1
+        for i in range(0, self.board.size):
+            for j in range(0, self.board.size):
+                index = self.board.board_tiles[i][j] - 1
+                distance = (2 - i) + (2 - j) if index == -1 else abs(i - (index / self.board.size)) + abs(
+                    j - (index % self.board.size))
+                result += distance
+                count += 1
+        return result
+
+    def __str__(self):
+        return str(self.moves)

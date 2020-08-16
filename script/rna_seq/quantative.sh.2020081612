@@ -1,0 +1,65 @@
+#!/bin/bash
+#SBATCH --job-name=ANNOTATION
+#SBATCH --partition=amd
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=64
+#SBATCH --time=24:00:00
+#SBATCH --output=log.annotation
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --dependency=afterok:1355854
+module load anaconda3
+source activate rna_seq3
+source ~/.bashrc
+
+####Configure parameter
+threads=64
+exp="Runx2shRNA2"
+ctl="control"
+tes="shRNA2"
+cnum=2   ###control sample number
+tnum=2   ###test sample number
+dir='/ibex/scratch/longy/workspace/runx2' ####Partenal Directory
+gtf="/ibex/scratch/longy/cnda/ensembl/hg38v95_ensembl.gtf"
+i2n="/ibex/scratch/longy/cnda/ensembl/hg38_ID2Name.txt"
+cd $dir
+if [ ! -d DESeq2 ];then
+	mkdir -p DESeq2
+fi
+if [ ! -d GO ];then
+	mkdir -p GO
+fi
+
+
+####Job started
+time_start=$(date +"%s")
+echo "job start at" `date "+%Y-%m-%d %H:%M:%S"`
+
+#####Merge log
+merge_log.pl
+
+echo 'job annotation starting'
+c=0
+for i in STAR/*/Aligned.sortedByCoord.out.bam
+do
+	sample[$c]=$i
+	((c++))
+done
+echo $sample
+feature_count.r $gtf $exp $threads ${sample[@]}  #Modifie
+
+echo "Run DESeq2"
+deseq2.r $ctl $tes $exp $cnum $tnum
+
+add_genename.pl $exp $i2n
+maplot.r $exp
+input_gobp.pl $exp
+goseq_hg38.r $exp
+annotate.pl $exp $i2n
+echo 
+
+echo "job  end  at" `date "+%Y-%m-%d %H:%M:%S"`
+time_end=$(date +"%s")
+duration=$(($time_end-$time_start))
+echo "Run time: $(($duration/3600)):$((($duration/60)%60)):$(($duration % 60))"

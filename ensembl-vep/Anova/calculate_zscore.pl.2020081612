@@ -1,0 +1,40 @@
+#!/usr/bin/perl -w
+#
+
+use Statistics::ANOVA 0.14;
+use Statistics::Descriptive;
+
+my $aov = Statistics::ANOVA->new();
+my @control_rmOutlier = qw/1 1 1 1 1 1 1 1 1 1 1 1 1 1 1.5/;
+my @test = qw/1 1 1/;
+$aov->load_data({control => \@control_rmOutlier, test => \@test});
+my %res = $aov->anova(independent => 1, parametric => 1,ordinal => 0);
+while(my($key,$val) = each %res){
+	print "$key\t$val\n";
+}
+
+open FILE,"sort -k 4,4n blood.anova.tsv |";
+my $header = <FILE>;
+my @header = split /\t/,$header;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$mean_val,$log2FoldChange,$pvalue) = (split)[0,1,2,3];
+	my ($id) = split /\./,$gene_id;
+	my @data = split;
+	my @tpm = @data[4..$#data-3];
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@tpm);
+	my $mean = $stat->mean();
+	my $standard_deviation=$stat->standard_deviation();
+	if($standard_deviation == 0){
+		next;
+		print "@tpm\n";
+	}
+	for(my$j=0;$j<@tpm;$j++){
+		my $zscore = ($tpm[$j]-$mean)/$standard_deviation;
+		if($gene_id eq "ENSG00000198952.8"){
+			print "$header[$j+4]\t\t$tpm[$j]\t$zscore\n";
+		}
+	}
+}
+

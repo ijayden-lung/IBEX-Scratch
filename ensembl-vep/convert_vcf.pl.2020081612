@@ -1,0 +1,50 @@
+#!/usr/bin/perl -w
+my %hash;
+open FILE,"awk '(\$3 == \"gene\")' /home/longy/cnda/ensembl/Homo_sapiens.GRCh38.95.gtf |";
+while(<FILE>){
+	chomp;
+	my ($strand,$id,$gene) = (split)[6,9,13];
+	$id =~ s/\"|\;//g;
+	$gene =~ s/\"|\;//g;
+	$hash{$gene} = $strand;
+	$hash{$id} = $strand;
+}
+
+open FILE,"Variant.txt";
+<FILE>;
+<FILE>;
+open OUT,">Variant.inp";
+#print OUT "#CHROM POS     ID        REF    ALT     QUAL FILTER INFO\n";
+while(<FILE>){
+	chomp;
+	my ($chr,$start,$end,$ref,$alt,$qual,$filter,$gene,$id,$info) = (split /\t/)[0,1,2,6,7,8,10,13,19,-3];
+	$chr =~ s/chr//g;
+	my @gene = split /\;/,$gene;
+	my $strand = "+";
+	my @id = split /\;/,$id;
+	my $count = 0;
+	if($ref eq "-"){
+		my $len = length($alt);
+		$end--;
+	}
+	#if($alt eq "-"){
+	#	my $len = length($ref);
+	#	$end += $len;
+	#}
+
+	foreach my $gene (@gene){
+		if(exists $hash{$gene}){
+			$strand = $hash{$gene};
+			$count++;
+			last;
+		}
+	}
+	foreach my $gene (@id){
+		if(exists $hash{$gene}){
+			$strand = $hash{$gene};
+			$count++;
+			last;
+		}
+	}
+	print OUT "$chr\t$start\t$end\t$ref/$alt\t$strand\n";
+}

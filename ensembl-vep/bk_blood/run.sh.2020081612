@@ -1,0 +1,6 @@
+#! /bin/bash
+input_dir=./Distribution
+output_dir=./dist_singles
+mkdir -p ${output_dir}
+
+awk -v outdir="${output_dir}" 'BEGIN{FS="\t"; OFS="\t";} NR==FNR{a[$1] = 1; next;} FNR==1{header = $0; next;} FNR==2{sample = $7; print header > outdir "/" sample ".tsv";} ($1 in a){print $0 > outdir "/" sample ".tsv";}' ./single.list ${input_dir}/*.tsv

@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+
+
+my %hash;
+open FILE,"bl6.pAs.positive.trimmed0.txt";
+while(<FILE>){
+	chomp;
+	my ($id) = split;
+	$hash{$id} = '';
+}
+
+open FILE,"bl6.pAs.zhangbin.fibroblast.txt";
+while(<FILE>){
+	chomp;
+	my ($id) = split;
+	if(!exists $hash{$id}){
+		print "$_\n";
+	}
+}

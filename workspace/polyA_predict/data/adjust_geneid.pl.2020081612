@@ -1,0 +1,17 @@
+#!/usr/bin/perl -w
+#
+open FILE,"bl6.pAs.random.negative.all.txt";
+my $header = <FILE>;
+open OUT,">bl6.pAs.random.negative.all.adjust.txt";
+print OUT $header;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	if($data[1] =~ /exon/){
+		$data[0] .= ".1";
+	}
+	else{
+		$data[0] .= ".2";
+	}
+	print OUT join("\t",@data),"\n";
+}

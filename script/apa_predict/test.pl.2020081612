@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+
+use Statistics::R;
+
+#Create a communication bridge with R and start R
+my $R = Statistics::R->new();
+
+my $cmds = <<EOF;
+library(MASS)
+
+res = rlm(b ~ a)
+coef = res\$coef[[2]]
+coef = atan(coef)
+EOF
+
+open FILE,"/home/longy/workspace/apa_predict/Coverage_BL6_REP1.zhangbin.txt";
+<FILE>;
+my @cov;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	@cov = @data[4..103] if $data[0] eq "ENSMUSG00000033701.10:7";
+}
+
+print join(",",@cov),"\n";
+my @pos = 0..99;
+print "@pos\n";
+$R->set('a', \@pos);
+$R->set('b',\@cov);
+$R->run($cmds);
+my $output_value = $R->get('coef');
+print "y = $output_value\n";
+$R->stop();
+

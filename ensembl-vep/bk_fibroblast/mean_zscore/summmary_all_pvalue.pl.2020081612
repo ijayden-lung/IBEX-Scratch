@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+use Statistics::Descriptive;
+
+open OUT,">Summaries_pval.se.txt\n";
+print OUT "sample\tpvalue\tse\ttype\n";
+foreach my $file (glob "*.pvalue.9.tsv"){
+	my $base = $file;
+	my $pval9 = &openFile($file);
+	#my $stat = Statistics::Descriptive::Full->new();
+	#$stat->add_data($pval0,$pval1,$pval2,$pval3,$pval4,$pval5,$pval6,$pval7,$pval8,$pval9);
+	#my $mean = $stat->mean();
+	#my $standard_deviation=$stat->standard_deviation();
+	#my $se = $standard_deviation/sqrt(10);
+	my $se = sqrt($pval9*(1-$pval9)/100000);
+	my ($sample) = split /\./,$file;
+	
+	my $type = "SMG+";
+	if($sample =~ /F/ && $sample ne "18DG0464F"){
+		$type = "SMG8/9-";
+	}
+	print OUT "$sample\t$pval9\t$se\t$type\n";
+}
+		
+
+
+sub openFile{
+	my ($file) = @_;
+	open FILE,"tail -n 1 $file |";
+	my $pval = <FILE>;
+	chomp $pval;
+	my ($mean_pval,$median_pval) = split /\t/,$pval;
+	return $median_pval;
+}
+

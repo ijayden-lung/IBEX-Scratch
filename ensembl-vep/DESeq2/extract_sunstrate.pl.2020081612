@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"NMD_substrage.txt";
+while(<FILE>){
+	chomp;
+	$hash{$_} = '';
+}
+
+
+my %filter;
+my $i = 0;
+my $total = 0;
+open FILE,"DE.DESeq2.skin.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene,$pvalue,$sig) = (split)[1,4,5];
+	if(exists $hash{$gene} && $sig eq "Up"){
+		print "$gene\n";
+		$i++;
+	}
+	if(exists $hash{$gene}){
+		$total++;
+	}
+	if($pvalue ne "NA"){
+		$filter{$gene} = '';
+	}
+}
+print "$i\t$total\n";
+
+my $num = keys %filter;
+print "$num\n";
+
+open FILE,"zscore.skin.tsv";
+my $header = <FILE>;
+open OUT,">zscore.skin.nmd_substrate.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene) = split;
+	if(exists $hash{$gene}){
+		print OUT "$_\n";
+	}
+}

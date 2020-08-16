@@ -1,0 +1,47 @@
+#!/bin/bash
+#SBATCH --job-name=BAM2WIG
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=20
+#SBATCH --time=24:00:00
+#SBATCH --output=log.%J
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --dependency=afterok:2006864
+#SBATCH -a 0-2
+thread=20
+source ~/.bash_slurm
+#input=(BL6_Liver_REP1 BL6_Liver_REP2) ####Sample name
+#input=(BL6_REP1 BL6_REP2 BL6_REP3) ####Sample name
+input=(SPR_REP1 SPR_REP2 SPR_REP3) ####Sample name
+sam=${input[$SLURM_ARRAY_TASK_ID]} #####Get Sample Name
+dir='/home/longy/project/DeeReCT-PolyARC' ####Parental Directory
+cd $dir
+
+time_start=$(date +"%s")
+echo "job start at" `date "+%Y-%m-%d %H:%M:%S"`
+echo "This is job #${SLURM_ARRAY_JOB_ID}, with parameter ${input[$SLURM_ARRAY_TASK_ID]}"
+echo "My hostname is: $(hostname -s)"
+echo "My task ID is $SLURM_ARRAY_TASK_ID"
+echo
+##use only 3' reads;
+BAM="$dir/STAR/$sam/Aligned.sortedByCoord.out.bam"
+SAM="$dir/STAR/$sam/ThreePrimeRead.sam"
+SORT="$dir/STAR/$sam/ThreePrimeRead.sorted.bam"
+extract_3prime_read.pl $BAM $SAM $SORT $thread
+
+#samtools view -@ 64 -h STAR/$sam/Aligned.sortedByCoord.out.bam 7:17500239-197550439 -O bam -o WIG/$sam.bam
+#samtools sort -@ 64 WIG/$sam.bam -O bam -o WIG/$sam.sorted.bam
+#samtools index -@ 64 WIG/$sam.sorted.bam
+#rm WIG/$sam.bam
+
+#infer_experiment.py -i STAR/$sam/ThreePrimeRead.sorted.bam -r /home/longy/cnda/ensembl/mm10.bed
+#bam2wig.py -i STAR/$sam/ThreePrimeReadMul.sorted.bam -s ~/cnda/STAR_INDEX/mm10len100/chrNameLength.txt -o STAR/$sam/ThreePrimeReadMul --strand="++,--"
+bam2wig.py -i STAR/$sam/ThreePrimeRead.sorted.bam -s ~/cnda/STAR_INDEX/sprlen100/chrNameLength.txt -o STAR/$sam/ThreePrimeRead --strand="++,--"
+
+
+echo "job  end  at" `date "+%Y-%m-%d %H:%M:%S"`
+time_end=$(date +"%s")
+duration=$(($time_end-$time_start))
+echo "Run time: $(($duration/3600)):$((($duration/60)%60)):$(($duration % 60))"

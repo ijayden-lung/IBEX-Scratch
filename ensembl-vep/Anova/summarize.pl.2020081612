@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+open FILE,"DE.Anova.blood.tsv";
+<FILE>;
+my %hash;
+while(<FILE>){
+	chomp;
+	my ($sig,$brain_related) = (split)[-2,-1];
+	$hash{$sig}++;
+	if($brain_related ne "No"){
+		if($sig ne "No"){
+			$hash{$brain_related}++;
+		}
+		$hash{'brain_related'}++;
+	}
+	$hash{'total'}++;
+}
+
+while(my ($key,$val) = each %hash){
+	print "$key\t$val\n";
+}

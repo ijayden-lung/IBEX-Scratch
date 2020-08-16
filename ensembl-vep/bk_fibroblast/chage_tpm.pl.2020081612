@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+open FILE,"tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+open FILE,"tpm.tsv";
+open OUT,">tpm.new.tsv";
+while(<FILE>){
+	chomp;
+	my @data = split;
+	print OUT "$data[0]\t$data[1]\t$data[2]\t$data[3]\t$data[4]\t$data[5]";
+	for(my $i =0;$i<@header;$i++){
+		if($header[$i] eq "11DG0165"){
+			#print "$i,11DG0165\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "15DG2154MG"){
+			#print "$i,15DG2154MG\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "18DG0464F"){
+			#print "$i,18DG0464F\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "16DG1353"){
+			#print "$i,16DG1353\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "16DG0518"){
+			#print "$i,16DG0518\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "15DG2154"){
+			#print "$i,15DG2154\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "18DG0180"){
+			#print "$i,18DG0180\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "18DG0348"){
+			#print "$i,18DG0348\n";
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "19DG0230"){
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "19DG1391F"){
+			print OUT "\t$data[$i]";
+		}
+		elsif($header[$i] eq "19DG0152F"){
+			print OUT "\t$data[$i]";
+		}
+	}
+	print OUT "\n";
+}
+=pod
+11DG0165
+15DG2154MG
+18DG0464F
+16DG1353
+16DG0518
+15DG2154
+18DG0180
+18DG0348
+19DG0230
+=cut

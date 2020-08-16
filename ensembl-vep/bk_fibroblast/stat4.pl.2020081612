@@ -1,0 +1,95 @@
+#!/usr/bin/perl -w
+#### Author: Yongkang Long
+#### Update: Feb 23, 2020
+
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+my $cutofftpm = 0.5;
+my $cutoffcpm = 0.5;
+
+my %mapping;
+open FILE,"../blood/WES_database.stop_gained.txt";
+while(<FILE>){
+	chomp;
+	my ($sample,$file) = split /\t/;
+	$mapping{$sample} = $file;
+}
+
+
+my ($tpm_zscore,$log2tpm_zscore) = &getZscore("tpm.tsv",$cutofftpm);
+my %tpm_zscore = %$tpm_zscore;
+my %log2tpm_zscore = %$log2tpm_zscore;
+
+
+my ($cpm_zscore,$log2cpm_zscore) = &getZscore("cpm.tsv",$cutoffcpm);
+my %cpm_zscore = %$cpm_zscore;
+my %log2cpm_zscore = %$log2cpm_zscore;
+
+
+while(my($sample,$val) = each %tpm_zscore){
+	&printInfo($sample);
+}
+
+
+sub getZscore{
+	my ($file,$cutoff) = @_;
+	my %cpm_zscore;
+	my %log2cpm_zscore;
+	open FILE,"$file";
+	$header = <FILE>;
+	chomp $header;
+	@header = split /\t/,$header;
+	while(<FILE>){
+		chomp;
+		my @data = split;
+		my $gene_id = $data[4];
+		($gene_id) = split /\./,$gene_id;
+		my @cpm = @data[6..$#data];   #####spice cpm/cpm value
+		my $max = &max(@cpm);
+		my @log2cpm;
+		for(my$i=0;$i<@cpm;$i++){
+			$log2cpm[$i] = log($cpm[$i]+0.001)/log(2);   ######Log2 Scale
+		}
+		my $stat = Statistics::Descriptive::Full->new();
+		$stat->add_data(@cpm);
+		my $mean = $stat->mean();
+		my $standard_deviation=$stat->standard_deviation();
+		my $median=$stat->median();
+		next if $median < $cutoff;  ###### cutoff medain
+		for(my$j=0;$j<@cpm;$j++){
+			my $zscore = ($cpm[$j]-$mean)/$standard_deviation;  #####calculate zscore
+			$cpm_zscore{$header[$j+6]}->{$gene_id} = $zscore;
+		}
+		my $log2stat = Statistics::Descriptive::Full->new();
+		$log2stat->add_data(@log2cpm);
+		my $log2mean = $log2stat->mean();
+		my $log2standard_deviation=$log2stat->standard_deviation();
+		for(my$j=0;$j<@log2cpm;$j++){
+			my $zscore = ($log2cpm[$j]-$log2mean)/$log2standard_deviation;  #####calculate zscore
+			$log2cpm_zscore{$header[$j+6]}->{$gene_id} = $zscore;
+		}
+	}
+	return (\%cpm_zscore,\%log2cpm_zscore);
+}
+
+
+sub printInfo{
+	my ($sample) = @_;
+	open OUT,">oneTailPval/$sample.tsv";
+	print OUT "gene_id\tlog2tpm_zscore\n";
+	
+	my $sample_tmp = $sample;
+	$sample =~ s/F//g;
+	$sample =~ s/MG//g;
+
+	$sample = $sample_tmp;
+	my $tpm_zscore_ref = $tpm_zscore{$sample};
+	my $log2tpm_zscore_ref = $log2tpm_zscore{$sample};
+	my $cpm_zscore_ref = $cpm_zscore{$sample};
+	my $log2cpm_zscore_ref = $log2cpm_zscore{$sample};
+	while(my ($gene_id,$val) = each %$log2tpm_zscore_ref){
+		print OUT "$gene_id\t$val\n";
+	}
+}
+

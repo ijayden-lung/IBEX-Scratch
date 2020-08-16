@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+
+my %pas_gene;
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/pas_dataset/Parental/bl.pAs.sequence.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$coordinate) = split;
+	my ($gene_id) = split /\./,$pas_id;
+	my ($bl6,$spr) = split /,/,$coordinate;
+	my ($chr,$srd,$spe,$mid) = split /\|/,$bl6;
+	if($spe eq "BL"){
+		$pas_gene{$gene_id}->{$mid} = $_;
+	}
+}
+
+
+my %gene;
+my %cleavage_site;
+open GTF,"awk '(\$3 == \"transcript\")' /ibex/scratch/longy/cnda/ensembl/mm10.ensemblv95.nopsuedo.gtf | grep protein_coding |";
+while(<GTF>){
+	chomp;
+	#my ($chr,$source,$type,$str,$end,undef,$srd,undef,undef,$gene_id,undef,undef,undef,$tran_id,) = split;
+	#my ($chr,$source,$type,$str,$end,undef,$srd,undef,undef,$gene_id,$tran_id,$symbol) = (split)[0..9,13,17];
+	my ($chr,$source,$type,$str,$end,undef,$srd,undef,$info) = split /\t/;
+	next if $chr eq "chrM";
+	my @info = split /\s+/,$info;
+	my $gene_id;
+	my $tran_id;
+	my $symbol;
+	for(my$i=0;$i<@info;$i+=2){
+		if($info[$i] eq "gene_name"){
+			$symbol = $info[$i+1];
+		}
+		if($info[$i] eq "gene_id"){
+			$gene_id = $info[$i+1];
+		}
+		if($info[$i] eq "transcript_id"){
+			$tran_id = $info[$i+1];
+		}
+	}
+	$symbol = "unknown" if !defined $symbol;
+	$gene_id =~ s/\"|\;//g;
+	$tran_id =~ s/\"|\;//g;
+	$symbol  =~ s/\"|\;//g;
+	if($srd eq "+"){
+		$cleavage_site{"$chr|+|BL|$end"} = "$gene_id\t$tran_id\t$symbol";
+		$gene{$gene_id}->{$end} = '';
+	}
+	else{
+		$cleavage_site{"$chr|-|BL|$str"} = "$gene_id\t$tran_id\t$symbol";
+		$gene{$gene_id}->{$str} = '';
+	}
+
+}
+
+open OUT,">/ibex/scratch/longy/workspace/apa_predict/bl6_pas.txt";
+print OUT "gene_id\ttranscript_id\tsymbol\tcoordinate\n";
+foreach my $key (sort keys %cleavage_site){
+	my $val = $cleavage_site{$key};
+	print OUT "$val\t$key\n";
+}
+
+
+=pod
+open OUT2,">/ibex/scratch/longy/workspace/apa_predict/overlap_pas.txt";
+print OUT2 "pas_id\tpas_type\tcoordinate\tsequence\n";
+while(my($gene_id,$val) = each %pas_gene){
+	if(exists $gene{$gene_id}){
+		my $mm10_coor = $gene{$gene_id};
+		foreach my $key (keys %$val){
+			foreach my $ele (keys %$mm10_coor){
+				if(abs($key - $ele)<10){
+					print OUT2 "$val->{$key}\n";
+					last;
+				}
+			}
+		}
+	}
+}
+=cut

@@ -1,0 +1,70 @@
+#!/usr/bin/perl -w
+
+my $width = 100;
+my @chr = (1..19,"X");
+my %chr;
+my %chrlen;
+foreach my $chr (@chr){
+	open REF,"/ibex/scratch/longy/cnda/ensembl/oneLine/mm10.$chr.fa";
+	$chr{"chr$chr"} = <REF>;
+	$chrlen{"chr$chr"} = length($chr{"chr$chr"});
+}
+open FILE,"bl6.pAs.random.tandemUTR.txt";
+open OUT,">bl6.pAs.random.negative.txt";
+my $header = <FILE>;
+chomp $header;
+print OUT "$header\tusage\tsequence\n";
+my @motif = qw/AAGAAA AATAAA AATACA AATAGA AATATA AATGAA ACTAAA AGTAAA ATTAAA CATAAA CATAAA GATAAA TATAAA TTTAAA/;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$srd,$symbol) = split;
+	my $str = $pos-$width;
+	my $end = $pos+$width;
+	if(!exists $chr{$chr}){
+		print"$chr\n";
+		next;
+	}
+	my $sequence = substr($chr{$chr},$str-1,$end-$str+1);
+	if($srd eq "-"){
+		$sequence =~ tr/ATCG/TAGC/;
+		$sequence = reverse $sequence;
+	}
+	my $subseq = substr($sequence,60,34);
+	my $hasMotif = 0;
+	foreach my $motif (@motif){
+		if($subseq =~ /$motif/){
+			$hasMotif = 1;
+			last;
+		}
+	}
+	$pas_type = $hasMotif ==1 ? "$pas_type\_hasMotif" : "$pas_type\_noMotif";
+	print OUT "$pas_id\t$pas_type\t$chr\t$pos\t$srd\t$symbol\t1\t$sequence\n";
+}
+
+open FILE,"bl6.pAs.random.exon.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$srd,$symbol) = split;
+	my $str = $pos-$width;
+	my $end = $pos+$width;
+	if(!exists $chr{$chr}){
+		print"$chr\n";
+		next;
+	}
+	my $sequence = substr($chr{$chr},$str-1,$end-$str+1);
+	if($srd eq "-"){
+		$sequence =~ tr/ATCG/TAGC/;
+		$sequence = reverse $sequence;
+	}
+	my $subseq = substr($sequence,60,34);
+	my $hasMotif = 0;
+	foreach my $motif (@motif){
+		if($subseq =~ /$motif/){
+			$hasMotif = 1;
+			last;
+		}
+	}
+	$pas_type = $hasMotif ==1 ? "$pas_type\_hasMotif" : "$pas_type\_noMotif";
+	print OUT "$pas_id\t$pas_type\t$chr\t$pos\t$srd\t$symbol\t1\t$sequence\n";
+}

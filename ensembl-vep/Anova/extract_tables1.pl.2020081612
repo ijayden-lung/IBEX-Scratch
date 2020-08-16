@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+
+my %hash;
+open FILE,"tableS1.csv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene,$l2fc) = (split /,/)[0,2];
+	$hash{$gene} = '' if $l2fc>0;
+}
+
+
+my $i = 0;
+open FILE,"DE.Anova.blood.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene,$sig) = (split)[1,6];
+	if(exists $hash{$gene} && $sig eq "Up"){
+		$i++;
+	}
+}
+print "$i\n";
+
+open FILE,"DE.Anova.blood.tsv";
+my $header = <FILE>;
+open OUT,">Results.tableS1.blood.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene_id,$gene_symbol) = split;
+	if(exists $hash{$gene_symbol}){
+		print OUT "$_\n";
+	}
+}
+
+open FILE,"zscore.blood.tsv";
+open OUT,">zscore.blood.tables1.tsv";
+print OUT "$header";
+while(<FILE>){
+	chomp;
+	my ($gene) = split;
+	if(exists $hash{$gene}){
+		print OUT "$_\n";
+	}
+}

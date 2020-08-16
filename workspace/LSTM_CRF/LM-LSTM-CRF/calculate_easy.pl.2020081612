@@ -1,0 +1,41 @@
+#!/usr/bin/perl -w
+
+my $i = 0;
+open FILE,"output.wc_more_promoter";
+<FILE>;
+while(<FILE>){
+	chomp;
+	if($_ eq ""){
+		$i++;
+	}
+	else{
+		my ($motif,$label) = split;
+		$hash{$i} .= "$label";
+	}
+}
+
+my $total = 0;
+my $correct = 0;
+foreach my $key (sort{$a<=>$b} keys %hash){
+	$total++;
+	if($key%3==1){
+		if($hash{$key} =~ /O/){
+			$correct++;
+		}
+	}
+	elsif($key%3==2){
+		if($hash{$key} =~ /S/){
+			$correct++;
+		}
+	}
+	else{
+		if($hash{$key} =~ /P/){
+			$correct++;
+		}
+	}
+
+}
+
+my $accuacry = $correct/$total;
+print "$correct\t$total\t$accuacry\n";
+

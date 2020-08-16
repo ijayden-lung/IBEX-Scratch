@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+my %true_pas;
+
+open FILE,"/home/longy/workspace/apa_predict/pas_dataset/bl6.pAs.tianbin.liver.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$srd) = split;
+	my ($gene_id) = split /\./,$pas_id;
+	$true_pas{$gene_id}->{$pos} = '';
+}
+
+open FILE,"/home/longy/workspace/apa_predict/pas_dataset/bl6.pAs.zhangbin.fibroblast.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$chr,$pos,$srd) = split;
+	my ($gene_id) = split /\./,$pas_id;
+	$true_pas{$gene_id}->{$pos} = '';
+}
+
+my %false_pas;
+open FILE,"awk '(\$3 == \"three_prime_utr\" && \$2 == \"ensembl_havana\")' /home/longy/cnda/ensembl/Mus_musculus.GRCm38.95.gtf |";
+open OUT,">/home/longy/workspace/apa_predict/pas_dataset/bl6.pAs.random.negative1.txt";
+print OUT "pas_id\tpas_type\tchr\tposition\tstrand\tsymbol\n";
+while(<FILE>){
+	chomp;
+	my ($chr,$str,$end,$srd,$gene_id,$gene_name) = (split)[0,3,4,6,9,17];
+	$gene_id =~ s/\"|\;//g;
+	if(exists $true_pas{$gene_id}){
+		my $pos_ref = $true_pas{$gene_id};
+		for(my$i=0;$i<4;$i++){
+			my $random = int(rand($end-$str))+$str;
+			my $near_pas = 0;
+			foreach my $pos (keys %$pos_ref){
+				if($random >$pos-200 && $random < $pos+200){
+					$near_pas++;
+				}
+			}
+			if($near_pas == 0){
+				$false_pas{$gene_id}++;
+				print OUT "$gene_id.$false_pas{$gene_id}\ttandemUTR\tchr$chr\t$random\t$srd\t$gene_name\n";
+			}
+		}
+	}
+}

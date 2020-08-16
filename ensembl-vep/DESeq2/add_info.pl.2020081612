@@ -1,0 +1,105 @@
+#!/usr/bin/perl -w
+#
+use Statistics::Descriptive;
+
+
+
+my %brain_gene;
+open FILE,"Table_s3.csv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene) = split /,/;
+	$brain_gene{$gene} = '';
+}
+
+
+my %id2gene;
+my %biotype;
+open FILE,"awk '(\$3 == \"gene\")' /home/longy/cnda/ensembl/Homo_sapiens.GRCh38.95.gtf |";
+while(<FILE>){
+	my ($gene_id,$symbol,$biotype) = (split)[9,13,17];
+	$gene_id =~ s/\"|\;//g;
+	$symbol =~ s/\"|\;//g;
+	$biotype =~ s/\"|\;//g;
+	$id2gene{$gene_id} = $symbol;
+	$biotype{$gene_id} = $biotype;
+}
+
+
+open FILE,"../DESeq2/quant/10DG0840.tsv";
+<FILE>;
+while(<FILE>){
+	my ($target_id) = split;
+	my ($trans_id,$gene_id,$symbol,$biotype) = (split /\|/,$target_id)[0,1,5,7];
+	($gene_id) = split /\./,$gene_id;
+	next if exists $id2gene{$gene_id};
+	$id2gene{$gene_id} = $symbol;
+	$biotype{$gene_id} = $biotype;
+}
+
+open FILE,"Edger_skin.Result.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+open OUT,">DE.DESeq2.skin.tsv";
+print OUT "gene_id\tsymbol\tmean_readcount\tlog2foldChange\tpvalue\tSig\tbiotype\tbrain_related\n";
+while(<FILE>){
+	chomp;
+	my ($gene_id,$log2FoldChange,$mean_raw,$pvalue) = (split)[0,1,2,3];
+	my ($id) = split /\./,$gene_id;
+	my $symbol = $id2gene{$id};
+
+	my $brain_related = "No";
+	if(exists $brain_gene{$symbol}){
+		$brain_related = "Yes";
+	}
+	my $sig = "No";
+	if($pvalue ne "NA" && $pvalue < 0.05){
+		if($log2FoldChange > 0){
+			$sig = "Up";
+		}
+		else{
+			$sig = "Down";
+		}
+	}
+
+	print OUT "$gene_id\t$symbol\t$mean_raw\t$log2FoldChange\t$pvalue\t$sig\t$biotype{$id}\t$brain_related\n";
+}
+
+
+open FILE,"../Anova/tpm/skin_tpm.tsv";
+$header = <FILE>;
+chomp $header;
+$header =~ s/\"//g;
+$header =~ s/\.tsv//g;
+@header = split /\t/,$header;
+open OUT2,">zscore.skin.tsv";
+print OUT2 "gene_id\t",join("\t",@header[6..$#header]),"\n";
+while(<FILE>){
+	chomp;
+	my @data = split /\t/;
+	my $gene_id = $data[4];
+	my ($id) = split /\./,$gene_id;
+	next if !exists $id2gene{$id};
+	my $symbol = $id2gene{$id};
+
+	my @tpm = @data[6..$#data];
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@tpm);
+	my $mean = $stat->mean();
+
+	my $standard_deviation=$stat->standard_deviation();
+	if($standard_deviation == 0){
+		#print "@tpm\n";
+		next;
+	}
+	print OUT2 "$id2gene{$id}";
+	for(my$j=0;$j<@tpm;$j++){
+		my $zscore = ($tpm[$j]-$mean)/$standard_deviation;
+		print OUT2 "\t$zscore";
+	}
+	print OUT2 "\n";
+}
+
+

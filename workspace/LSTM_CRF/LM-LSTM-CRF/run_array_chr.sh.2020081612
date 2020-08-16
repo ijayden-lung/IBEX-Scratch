@@ -1,0 +1,71 @@
+#!/bin/bash
+#SBATCH --job-name=allrPrecision
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --output=log.%J
+#SBATCH --time=24:00:00
+#SBATCH --mem=124G
+#SBATCH --gres=gpu:1
+#####SBATCH -a 0
+##SBATCH --dependency afterok:6686802_[1-100] 
+
+#python3 my_train.py --testid less_epoch10 --epoch 10
+
+#python3 train_w.py --emb_file one_hotencoding.txt --train_file dna.train.iobes --dev_file dna.testa.iobes --test_file dna.testb.iobes --checkpoint ./checkpoint/dna_  --least_iters 100 --embedding_dim 24 --hidden 24
+
+#python3 train_w.py --emb_file glove.6B.50d.txt --train_file eng.train.iobes --dev_file eng.testa.iobes --test_file eng.testb.iobes --checkpoint ./checkpoint/ner50_  --least_iters 300 --embedding_dim 50 --hidden 50
+
+#python3 eval_w.py --load_arg checkpoint/ner50_lstm_crf.json --load_check_point checkpoint/ner50_lstm_crf.model --test_file eng.testb.iobes
+
+#python3 train_w.py --emb_file one_hotencoding.txt --train_file dna.train.iobes6 --dev_file dna.testa.iobes6 --test_file dna.testb.iobes6 --checkpoint ./checkpoint/w_more_promoter_  --least_iters 100 --embedding_dim 24 --hidden 24 --batch_size 64 --drop_out 0.25
+
+
+#python3 train_w.py --rand_embedding  --train_file dna.train.iobes4 --dev_file dna.testa.iobes4 --test_file dna.testb.iobes4 --checkpoint ./checkpoint/w_rand_iobes4  --least_iters 200 --embedding_dim 32 --hidden 32 --epoch 200 --drop_out 0.25
+
+#python3 train_wc.py  --rand_embedding --train_file dna.train.iobes6 --dev_file dna.testa.iobes6 --test_file dna.testb.iobes6 --checkpoint ./checkpoint/wc_more_promoter_  --least_iters 100 --char_dim 5 --word_dim 30 --char_hidden 50 --word_hidden 50 --epoch 100 --drop_out 0.25
+
+
+#python seq_w.py --load_arg checkpoint/dna2_lstm_crf.json --load_check_point checkpoint/dna2_lstm_crf.model --gpu 0 --input_file dna.testb.iobes4 --output_file output.dna2.txt --decode_type label
+
+
+###log.10532420  lobes2 复杂模式epoch  100 04:24:33
+#python seq_w.py --load_arg checkpoint/dna4_lstm_crf.json --load_check_point checkpoint/dna4_lstm_crf.model --gpu 0 --input_file test.input --output_file output.dna4.txt --decode_type label
+
+
+#log.10532994 简易模式，lm_lstm_crf 03:07:21 100epoch
+#python seq_wc.py --load_arg checkpoint/dna_easy200_cwlm_lstm_crf.json --load_check_point checkpoint/dna_easy200_cwlm_lstm_crf.model --gpu 0 --input_file dna.testb.iobes4 --output_file output.easy200.txt --decode_type label
+
+#log.10533273  lstm_crf dropout 0.55 promoter
+python seq_w.py --load_arg checkpoint/promoter_lstm_crf.json --load_check_point checkpoint/promoter_lstm_crf.model --gpu 0 --input_file dna.testa.iobes5 --output_file output.w_promoter.valid.txt --decode_type label
+python seq_w.py --load_arg checkpoint/promoter_lstm_crf.json --load_check_point checkpoint/promoter_lstm_crf.model --gpu 0 --input_file dna.train.iobes5 --output_file output.w_promoter.train.txt --decode_type label
+
+
+#log.10533577 lm_lstm_crf iobes3 100 epoch still converge
+#python seq_wc.py --load_arg checkpoint/wc_diff_cwlm_lstm_crf.json --load_check_point checkpoint/wc_diff_cwlm_lstm_crf.model --gpu 0 --input_file dna.testb.iobes3 --output_file output.wc_diff.txt --decode_type label
+
+
+#log.10533587 lstm_crf random iobes3 100 epoch still converge
+#python seq_w.py --load_arg checkpoint/w_rand_iobes3lstm_crf.json --load_check_point checkpoint/w_rand_iobes3lstm_crf.model --gpu 0 --input_file dna.testb.iobes3 --output_file output.w_rand_iobes3.txt --decode_type label
+
+
+#log.10533593 lstm_crf random iobes4 100 epoch still converge
+#python seq_w.py --load_arg checkpoint/w_rand_iobes4lstm_crf.json --load_check_point checkpoint/w_rand_iobes4lstm_crf.model --gpu 0 --input_file dna.testb.iobes4 --output_file output.w_rand_iobes4.txt --decode_type label
+
+
+#log.10532538  lstm_crf one hot-embedding epoch 200
+#python seq_w.py --load_arg checkpoint/dna_newepoch200_lstm_crf.json --load_check_point checkpoint/dna_newepoch100_lstm_crf.model --gpu 0 --input_file dna.testb.iobes3 --output_file output.new_epoch200.txt --decode_type label
+
+#log.10533607 promoter，lm_lstm_crf 03:07:21 100epoch
+#python seq_wc.py --load_arg checkpoint/wc_promoter_cwlm_lstm_crf.json --load_check_point checkpoint/wc_promoter_cwlm_lstm_crf.model --gpu 0 --input_file dna.testa.iobes5 --output_file output.wc_promoter.valid.txt --decode_type label
+
+
+
+#log.10535344 more promoter，lstm_crf 03:07:21 100epoch
+python seq_w.py --load_arg checkpoint/w_more_promoter_lstm_crf.json --load_check_point checkpoint/w_more_promoter_lstm_crf.model --gpu 0 --input_file dna.train.iobes6 --output_file output.more_promoter.train.txt --decode_type label
+
+
+#log.10535339 more promoter，lstm_crf 03:07:21 100epoch
+python seq_wc.py --load_arg checkpoint/wc_more_promoter_cwlm_lstm_crf.json --load_check_point checkpoint/wc_more_promoter_cwlm_lstm_crf.model --gpu 0 --input_file dna.train.iobes6 --output_file output.wc_more_promoter.train.txt --decode_type label
+

@@ -1,0 +1,7 @@
+#!/usr/bin/env Rscript
+library("pheatmap")
+
+args = commandArgs(T)
+
+data <-as.matrix(read.table(args[1],header=TRUE,row.names=1))
+pheatmap(data, cellwidth = 30, cellheight = 3, fontsize=6, fontsize_row=3,main=args[3],filename=args[2])

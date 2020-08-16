@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+my %filter;
+open FILE,"../Anova/tpm/skin_tpm.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my @data = split;;
+	my $max = &max(@data[6..$#data]);
+	if($max>1){
+		$filter{$data[4]} = '';
+	}
+}
+
+
+my $num = keys %filter;
+print "$num\n";
+
+my %hash;
+open FILE,"tx2gene-hiro.tsv";
+<FILE>;
+open OUT,">tx2gene-hiro.csv";
+print OUT "TXNAME,GENEID\n";
+while(<FILE>){
+	chomp;
+	my ($trans_id,$gene_id) = split;
+	next if !exists $filter{$gene_id};
+	$hash{$trans_id} = '';
+	print OUT "$trans_id,$gene_id\n";
+}
+
+foreach my $file (glob "quant/*DG*tsv"){
+	my $new_file = $file;
+	$new_file =~ s/quant/new_quant/;
+	open FILE,"$file";
+	my $header = <FILE>;
+	open OUT,">$new_file";
+	print OUT "$header";
+	while(<FILE>){
+		chomp;
+		my ($trans_id) = split /\|/;
+		if(exists $hash{$trans_id}){
+			print OUT "$_\n";
+		}
+	}
+
+}

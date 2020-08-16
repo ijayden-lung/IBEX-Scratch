@@ -1,0 +1,10 @@
+#!/usr/bin/perl -w
+#
+#
+use Math::Random;
+
+
+for(my$i=0;$i<2;$i++){
+my $a = random_normal(1, 4, 2);
+print "$a\n";
+}

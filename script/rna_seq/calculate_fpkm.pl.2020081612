@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+my %conventer;
+my %length;
+my ($ref,$anno,$input,$output) = @ARGV;
+open FILE,$ref;
+while(<FILE>){
+	chomp;
+	my ($id,$name,$strad) = split;
+	$conventer{$id} = $name;
+}
+
+open FILE,$anno;
+while(<FILE>){
+	chomp;
+	my ($id,$length) = (split)[1,-1];
+	$length{$id} = $length;
+}
+
+
+my @total;
+open FILE,$input;
+<FILE>;
+while(<FILE>){
+	chomp;
+	my @data = split;
+	for(my$i=0;$i<$#data;$i++){
+		$total[$i] += $data[$i+1];
+	}
+}
+
+open FILE,$input;
+open OUT,'>',$output;
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+shift @header;
+print OUT join("\t","gene_id","gene_name",@header),"\n";
+my $i=0;
+my @fpkm;
+while(<FILE>){
+	chomp;
+	$i++;
+	my @data = split;
+	for(my$i=0;$i<$#data;$i++){
+		$fpkm[$i] = $data[$i+1]/$length{$data[0]}/$total[$i]*1e9;
+	}
+	if(exists $conventer{$data[0]}){
+		print OUT join("\t",$data[0],$conventer{$data[0]},@fpkm),"\n";
+	}
+	else{
+		print "gene id not found: $data[0]\n";
+	}
+}

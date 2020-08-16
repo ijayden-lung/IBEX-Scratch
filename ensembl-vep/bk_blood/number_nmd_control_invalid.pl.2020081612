@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+
+my %hash;
+foreach my $file (glob "stop_gained/*tsv"){
+	next if $file =~ /pvalue/;
+	open FILE,"$file";
+	my (undef,$sample) = split /\/|\./,$file;
+	<FILE>;
+	my $nmd_num = 0;
+	my $control_num = 0;
+	my $invalid_num = 0;
+	while(<FILE>){
+		if($_ =~ /NMD/){
+			$nmd_num++;
+		}
+		elsif($_ =~ /Invalid/){
+			$invalid_num++;
+		}
+		else{
+			$control_num++;
+		}
+	}
+	$hash{$sample} = "$nmd_num\t$control_num\t$invalid_num";
+
+}
+
+open OUT,">stop_gained/Number_nmd_control_invalid\n";
+print OUT "sample\tnmd_num\tcontrol_num\tinvalid_num\n";
+while(my ($sample,$val) = each %hash){
+	print OUT "$sample\t$val\n";
+}

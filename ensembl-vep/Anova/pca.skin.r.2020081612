@@ -1,0 +1,33 @@
+#!/usr/bin/env Rscript
+library(ggfortify)
+library(ggrepel)
+pdf('PCA.skin.pdf')
+
+cts = read.table("skin.input.tsv",header=TRUE,sep="\t")
+
+#sample <- c("10DG0934", "11DG0060", "11DG0268",
+#"11DG0165",	"11DG0840",	"12DG1794",	"14DG2098",	"15DG2154",	"15DG2530",	"16DG0559",
+#"16DG0676",	"16DG0790",	"16DG1353",	"18DG0180",	"18DG0295",	"19DG0151",
+#"13DG2283",	"14DG2019",	"16DG0144",	"16DG0518",	"16DG0932",	"17DG0349",
+#"18DG0348", "18DG0464F","18DG0603F","19DG0230",
+#"19DG0152F"," 19DG1391F", "19DG2599F")
+
+sample = colnames(cts)[1:29]
+
+t1 <- t(data.frame(cts,row.names=1))
+t2 <- as.data.frame(t1,row.names=F)
+t3 <- as.data.frame(cbind(sample,t2))
+cts <- data.frame(t3,row.names=1)
+end = ncol(cts)-2
+df=as.data.frame(lapply(cts[1:end],as.numeric))
+#df = log2(df)
+#df <- df[1:13619]
+#cts[13620:13620]
+pca_res <- prcomp(df, scale. = TRUE)
+autoplot(pca_res, data = cts, colour = 'Group')+theme_bw()+
+#autoplot(pca_res, data = cts)+theme_bw()+
+geom_text_repel(label = cts$Label)+
+scale_color_discrete(name = "Group")+
+#theme(legend.position = c(0.86,0.9),legend.text=element_text(size=12))+
+theme(axis.text = element_text(size=15),axis.title = element_text(size=15))
+

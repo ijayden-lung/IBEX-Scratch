@@ -1,0 +1,17 @@
+#!/usr/bin/perl -w
+
+my %pas_gene;
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($pas_id,$pas_type,$coordinate) = split;
+	my ($gene_id) = split /\./,$pas_id;
+	my ($bl6,$spr) = split /,/,$coordinate;
+	my ($chr,$srd,$spe,$mid) = split /\|/,$bl6;
+	if($spe ne "BL"){
+		if($pas_type 
+	}
+}
+
+

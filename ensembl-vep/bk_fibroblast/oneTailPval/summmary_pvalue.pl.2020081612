@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+
+open OUT,">Summaries_pval.txt\n";
+print OUT "sample\thigh_impact_mean\thigh_impact_median\tmean_pval\tmedian_pval\n";
+foreach my $file (glob "*.pvalue.tsv"){
+	open FILE,"$file";
+	<FILE>;
+	my $high_impact = <FILE>;
+	chomp $high_impact;
+	my ($mean,$median) = split /\t/,$high_impact;
+	
+	open FILE,"tail -n 1 $file |";
+	my $pval = <FILE>;
+	chomp $pval;
+	my ($mean_pval,$median_pval) = split /\t/,$pval;
+	my ($sample) = split /\./,$file;
+	print OUT "$sample\t$mean\t$median\t$mean_pval\t$median_pval\n";
+}
+		

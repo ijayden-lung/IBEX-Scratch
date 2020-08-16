@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+import os
+
+data_root = '/home/longy/workspace/DeeReCT-PolyA/posAAGAAA.txt'
+for data_file in os.listdir(data_root):
+	data_path = os.path.join(data_root, data_file)
+	print(data_path)

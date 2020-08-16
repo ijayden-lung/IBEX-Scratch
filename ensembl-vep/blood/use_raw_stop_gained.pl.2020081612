@@ -1,0 +1,88 @@
+#!/usr/bin/perl -w
+
+use List::Util qw(first max maxstr min minstr reduce shuffle sum shuffle) ;
+use Statistics::Descriptive;
+
+my %high;
+open FILE,"sgfs/09DG00934.tsv";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$gene_name,undef,undef,undef,$zscore,$variants) = split;
+	if($variants eq "NMD"){
+		$high{$gene_id} = $zscore;
+		$high{$gene_name} = $zscore;
+	}
+}
+
+
+my %hash;
+open FILE,"sgfs/14DG1661L.tsv";
+my @zscore;
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($gene_id,$gene_name,undef,undef,undef,$zscore,$variants) = split;
+	push @zscore,$zscore;
+	#if($variants eq "NMD"){
+	if(exists $high{$gene_id} && $variants ne "NMD"){
+		$hash{$gene_id} = $zscore;
+		#$hash{$gene_name} = $zscore;
+	}
+}
+
+
+my $sum = 0;
+my $count = 0;
+my %nmd;
+open FILE,"grep stopgain ../WES/raw3/14DG1661_exome.csv | ";
+while(<FILE>){
+	chomp;
+	my @data = split /,/;
+	my $index = 0;
+	for(my$i=0;$i<@data;$i++){
+		if($data[$i] eq "stopgain"){
+			$index = $i-2;
+			last;
+		}
+	}
+	my $gene = $data[$index];
+	$gene =~ s/\"//g;
+	($gene) = split /\;/,$gene;
+	if(exists $hash{$gene}){
+		$nmd{$gene} = $hash{$gene};
+	}
+}
+
+foreach my $gene (keys %hash){
+	$sum += $hash{$gene};
+	$count++;
+	print "$gene\t$hash{$gene}\n";
+}
+
+my $high_impact_mean = $sum/$count;
+print "$count\t$high_impact_mean\n";
+my $n = $count;
+my $mean_count = 0;
+my $random_times = 10000;
+
+
+
+my $mean_zsocr = &sum(@zscore)/@zscore;;
+print "mean all: $mean_zsocr\n";
+for(my$i=0;$i<$random_times;$i++){
+	my @shuffle = &shuffle(@zscore);
+	my $stat = Statistics::Descriptive::Full->new();
+	$stat->add_data(@shuffle[1..$n]);
+	my $mean = $stat->mean();
+	if($mean<=$high_impact_mean){
+		$mean_count++;
+	}
+	#print OUT "$mean\t$median\n";
+}
+
+my $mean_pval = $mean_count/$random_times;
+print "pvalue: $mean_pval\n";
+
+
+

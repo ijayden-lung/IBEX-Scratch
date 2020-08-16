@@ -1,0 +1,17 @@
+#!/usr/bin/perl -w
+
+open FILE,"Coverage_BL6_REP1.txt";
+open OUT,">NewC.txt";
+while(<FILE>){
+	chomp;
+	my @data = split /\t/;
+	if (@data < 202){
+		$length = 202-@data;
+		my @new = (0)x$length;
+		print OUT join "\t",$_,@new;
+		print OUT "\n";
+	}
+	else{
+		print OUT "$_\n";
+	}
+}

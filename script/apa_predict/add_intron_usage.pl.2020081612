@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+my %intron;
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/overlaptianbin_pastype.txt";
+while(<FILE>){
+	chomp;
+	my ($type,$id) = split;
+	$intron{$id} = $type;
+}
+
+my %usage;
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/pas_dataset/Parental/parental.pAs.usage.txt";
+<FILE>;
+while(<FILE>){
+	chomp;
+	my ($id,$usage) = split;
+	$usage{$id} = $usage;
+}
+
+
+
+open FILE,"/ibex/scratch/longy/workspace/apa_predict/Merge_BL6.cov10.txt";
+my $header = <FILE>;
+chomp $header;
+open OUT,">/ibex/scratch/longy/workspace/apa_predict/Merge_BL6.cov10.usage.txt";
+print OUT "$header\tUsage\n";
+while(<FILE>){
+	chomp;
+	my ($id) = split;
+	if(exists $usage{$id}){
+		print OUT "$_\t$usage{$id}\n";
+	}
+	else{
+		print OUT "$_\t0\n";
+	}
+}
+
+
+

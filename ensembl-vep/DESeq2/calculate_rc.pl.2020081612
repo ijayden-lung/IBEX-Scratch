@@ -1,0 +1,17 @@
+#!/usr/bin/perl -w
+
+open FILE,"skin.raw_counts.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+my %hash;
+while(<FILE>){
+	my @data = split;
+	for (my $i=0;$i<@header;$i++){
+		$hash{$header[$i]} += $data[$i+1];
+	}
+}
+
+while(my ($key,$val) = each %hash){
+	print "$key\t$val\n";
+}

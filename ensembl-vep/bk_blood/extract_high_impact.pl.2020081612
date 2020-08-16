@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+
+#my $file = "high_impact_nmd/08DG-00413.txt";
+#foreach my $file (glob "high_impact_nmd/19DG1424.txt"){
+#foreach my $file (glob "high_impact_nmd/19DG0152.txt"){
+#foreach my $file (glob "high_impact_nmd/14DG1661.txt"){
+#foreach my $file (glob "high_impact_nmd/19DG1391.txt"){
+foreach my $file (glob "high_impact_nmd/*.txt"){
+	print "$file\n";
+	my %high_impact_gene;
+	open FILE,"$file";
+	while(<FILE>){
+		chomp;
+		my ($gene_id) = (split)[3];
+		$high_impact_gene{$gene_id} = '';
+	}
+
+	my ($base) = (split /\/|\./,$file)[1];
+	#my $stop_gain_file = "Distribution/$base"."L.tsv";
+	my $stop_gain_file = "Distribution/$base.tsv";
+	open FILE,"$stop_gain_file";
+	my $header = <FILE>;
+
+	#open OUT,">high_impact_nmd/$base"."L.tsv";
+	open OUT,">high_impact_nmd/$base.tsv";
+	print OUT "$header";
+	while(<FILE>){
+		chomp;
+		my ($gene_id) = split;
+		if(exists $high_impact_gene{$gene_id}){
+			print OUT "$_\n";
+		}
+	}
+}

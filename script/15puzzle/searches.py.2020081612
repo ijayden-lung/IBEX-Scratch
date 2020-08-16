@@ -1,0 +1,28 @@
+import puzzle
+from Queue import Queue
+from Queue import LifoQueue
+from Queue import PriorityQueue
+import state
+import sys
+
+class Search:
+    def __init__(self, board):
+        self.start_state = state.State(board)
+
+    def a_star_search(self):
+        start_state = self.start_state
+        candidate_queue = PriorityQueue()
+        candidate_queue.put((start_state.cal_manhattan_dis(), start_state))
+        closed_list = list()
+        while True:
+            if candidate_queue.empty():
+                return None
+            current_state = candidate_queue.get()[1]
+            if current_state.is_target_state():
+                return current_state
+            elif current_state.board.board_tiles not in closed_list:
+                closed_list.append(current_state.board.board_tiles)
+                succ = current_state.find_successors()
+                while not succ.empty():
+                    child = succ.get()
+                    candidate_queue.put((child.cal_manhattan_dis()+child.depth, child))

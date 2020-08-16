@@ -1,0 +1,12 @@
+#!/usr/bin/perl -w
+
+open FILE,"dna2vec-20161219-0153-k3to8-100d-10c-29320Mbp-sliding-Xat.w2v";
+<FILE>;
+open OUT,">dna2vec.txt";
+while(<FILE>){
+	chomp;
+	my ($kmer) = split;
+	if(length($kmer) == 6){
+		print OUT "$_\n";
+	}
+}

@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+my ($file) = @ARGV;
+
+open FILE,"zcat $file |";
+$file =~ s/gz$/inp/g;
+$file = "new_input/$file";
+open OUT,">$file";
+while(<FILE>){
+	next if $_ =~ /\#/;
+	chomp;
+	my ($chr,$start,$id,$ref,$alt) = (split /\t/)[0,1,2,3,4];
+	my $end = $start;
+	if(length($ref) > 1){
+		$start++;
+		$end = $start + length($ref) -2;
+		$ref = substr($ref,1);
+		$alt = "-";
+		
+	}
+	elsif(length($alt) > 1){
+		$start++;
+		$ref = "-";
+		$alt = substr($alt,1);
+	}
+	print OUT "$chr\t$start\t$end\t$ref/$alt\t1\n";
+}
