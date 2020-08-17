@@ -1,0 +1,623 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from Puzzle import Puzzle\n",
+    "from Individual import Chromsome\n",
+    "import numpy as np\n",
+    "import time\n",
+    "from copy import copy,deepcopy"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "POPULATION_SIZE=100\n",
+    "PARENT_SIZE=30\n",
+    "DROPOUT_SIZE=POPULATION_SIZE-PARENT_SIZE\n",
+    "MUTATION_RATE=0.01\n",
+    "ELITES_SIZE = 10\n",
+    "MAX_GENERATION = 1000\n",
+    "CHROM_LEN=10\n",
+    "CROSSOVER_LEN=int(0.9*CHROM_LEN)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def changeStep(steps,index,num,before,after):\n",
+    "    i=0\n",
+    "    times=0\n",
+    "    while(times<num and index<CHROM_LEN):\n",
+    "        if(steps[i]==before):\n",
+    "            steps[i] = after\n",
+    "            times+=1\n",
+    "        index+=1\n",
+    "        i+=1\n",
+    "    return steps"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def determineChange(steps1,steps2,index,diff,change1,change2):\n",
+    "    changeNum=abs(int(diff/2))\n",
+    "    odds=diff%2\n",
+    "    cutsize = CHROM_LEN-index\n",
+    "    if(diff>0):\n",
+    "        steps1 = changeStep(steps1,index,changeNum,change2,change1)\n",
+    "        steps2 = changeStep(steps2,index,changeNum,change1,change2)\n",
+    "        if(odds==1):\n",
+    "            steps1 = np.insert(steps1,0,change1)[0:cutsize]\n",
+    "            steps2 = np.insert(steps2,0,change2)[0:cutsize]\n",
+    "    elif(diff<0):\n",
+    "        steps1 = changeStep(steps1,index,changeNum,change1,change2)\n",
+    "        steps2 = changeStep(steps2,index,changeNum,change2,change1)\n",
+    "        if(odds==1):\n",
+    "            steps1 = np.insert(steps1,0,change2)[0:cutsize]\n",
+    "            steps2 = np.insert(steps2,0,change1)[0:cutsize]   \n",
+    "    \n",
+    "    return steps1,steps2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def selection(population,fitnesses,totalFitness):\n",
+    "    probilities = np.zeros(POPULATION_SIZE)\n",
+    "    for i in range(POPULATION_SIZE):\n",
+    "        probilities[i]= fitnesses[i]/totalFitness\n",
+    "    dropout = np.random.choice(population,population.shape[0]-PARENT_SIZE,p=probilities,replace=False)\n",
+    "    index= np.isin(population,dropout,invert = True)\n",
+    "    parents=population[index]\n",
+    "    return parents"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def crossOver(parents):\n",
+    "    offspring = np.empty(PARENT_SIZE,dtype=object)\n",
+    "    for i in range(0,PARENT_SIZE,2):\n",
+    "        index=np.random.randint(2,CROSSOVER_LEN)\n",
+    "        pos1=parents[i].positions[index-1]\n",
+    "        pos2=parents[i+1].positions[index-1]\n",
+    "        row1 = pos1%puzzle.width\n",
+    "        row2 = pos2%puzzle.width\n",
+    "        col1 = pos1//puzzle.width\n",
+    "        col2 = pos2//puzzle.width\n",
+    "        row_diff=row1-row2\n",
+    "        col_diff=col1-col2           \n",
+    "\n",
+    "        changeStep1 = copy(parents[i].steps[index:])\n",
+    "        changeStep2 = copy(parents[i+1].steps[index:])\n",
+    "        changeStep1,changeStep2 = determineChange(changeStep1,changeStep2,index,row_diff,'L','R')\n",
+    "        changeStep1,changeStep2 = determineChange(changeStep1,changeStep2,index,col_diff,'U','D')\n",
+    "        offspring[i] = deepcopy(parents[i])\n",
+    "        offspring[i+1]=deepcopy(parents[i+1])\n",
+    "        offspring[i].steps[index:]=changeStep1\n",
+    "        offspring[i+1].steps[index:]=changeStep2\n",
+    "        print(index)\n",
+    "        \n",
+    "    return offspring"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "initState=[4,5,6,7,8,2,1,3,0,9,10,11,12,13,15,14]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "puzzle = Puzzle(initState)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Initial Mahattan distance:  28\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Initial Mahattan distance: \",puzzle.manhattanDist)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.020231962203979492\n"
+     ]
+    }
+   ],
+   "source": [
+    "population = np.empty(POPULATION_SIZE, dtype=object)\n",
+    "parents = np.empty(PARENT_SIZE,dtype=object)\n",
+    "fitnesses = np.zeros(POPULATION_SIZE)\n",
+    "totalFitness = 0\n",
+    "start = time.time()\n",
+    "for i in range(POPULATION_SIZE):\n",
+    "    population[i] = Chromsome(puzzle,CHROM_LEN)\n",
+    "    fitnesses[i] = population[i].get_fitness()\n",
+    "    totalFitness += fitnesses[i]\n",
+    "end = time.time()\n",
+    "print(end-start)\n",
+    "parents = selection(population,fitnesses,totalFitness)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "offspring = crossOver(parents)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#start = time.time()\n",
+    "#for i in range(1):\n",
+    "#    crossOver(parents)\n",
+    "#end = time.time()\n",
+    "#print(end-start)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "4\n",
+      "4\n",
+      "5\n",
+      "5\n",
+      "3\n",
+      "8\n",
+      "5\n",
+      "6\n",
+      "2\n",
+      "8\n",
+      "2\n",
+      "3\n",
+      "2\n",
+      "2\n",
+      "4\n",
+      "['N' 'U' 'U' 'R' 'D' 'R' 'D' 'L' 'U' 'R'] ['N' 'U' 'U' 'R' 'D' 'L' 'U' 'R' 'D' 'D']\n"
+     ]
+    }
+   ],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[8 4 0 1 5 4 0 1 5 9]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(offspring[2].positions)\n",
+    "index=5\n",
+    "puzzle = Puzzle(offspring[2].states[index-1])\n",
+    "for i in range(index,CHROM_LEN):\n",
+    "    move = offspring[2].steps[i]\n",
+    "    puzzle.move(move)\n",
+    "    offspring[2].states[i] = puzzle.state.copy()\n",
+    "    offspring[2].positions[i] = puzzle.position\n",
+    "    offspring[2].manhattanDists[i] = puzzle.manhattanDist"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([28, 29, 30, 29, 28, 27, 28, 29, 30, 29])"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "offspring[2].manhattanDists"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['N' 'U' 'U' 'R' 'D' 'L' 'U' 'R' 'D' 'D']\n",
+      "4  5  6  7  \n",
+      "8  2  1  3  \n",
+      "0  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "4  5  6  7  \n",
+      "0  2  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "0  5  6  7  \n",
+      "4  2  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "5  0  6  7  \n",
+      "4  2  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "5  2  6  7  \n",
+      "4  0  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "5  2  6  7  \n",
+      "0  4  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "0  2  6  7  \n",
+      "5  4  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "2  0  6  7  \n",
+      "5  4  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "2  4  6  7  \n",
+      "5  0  1  3  \n",
+      "8  9  10 11 \n",
+      "12 13 15 14 \n",
+      "\n",
+      "2  4  6  7  \n",
+      "5  9  1  3  \n",
+      "8  0  10 11 \n",
+      "12 13 15 14 \n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(parents[2].steps)\n",
+    "index=1\n",
+    "puzzle = Puzzle(offspring[2].states[index-1])\n",
+    "puzzle.display()\n",
+    "print()\n",
+    "for i in range(index,CHROM_LEN):\n",
+    "    move = parents[2].steps[i]\n",
+    "    puzzle.move(move)\n",
+    "    puzzle.display() \n",
+    "    print()\n",
+    "    #self.states[i] = self.puzzle.state.copy()\n",
+    "    #self.positions[i] = self.puzzle.position\n",
+    "    #self.manhattanDists[i] = self.puzzle.manhattanDist"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[2 3] [0 1 4]\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "array([0, 1, 4])"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a = np.arange(5)\n",
+    "b=np.random.choice(a,2,p=[0.15,0.3,0.2,0.25,0.1],replace=False)\n",
+    "c=np.setdiff1d(a,b)\n",
+    "print(b,c)\n",
+    "e = np.isin(a,b,invert = True)\n",
+    "d = a[e]\n",
+    "d"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(array([2, 3, 1, 0]), array([4, 3, 5, 6]))"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a=np.array([2,3,5,6])\n",
+    "b=np.array([4,3,1,0])\n",
+    "a[[2,3]],b[[2,3]]=b[[2,3]],a[[2,3]]\n",
+    "a,b"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([25.3, 24.6, 27.1, 27.5, 24.6, 26.2, 27.5, 26.2, 27.1, 25.9])"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "probilities = np.zeros(POPULATION_SIZE)\n",
+    "for i in range(POPULATION_SIZE):\n",
+    "    probilities[i]= fitnesses[i]/totalFitness\n",
+    "np.random.choice(fitnesses,size=10,p=probilities)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([2, 3, 0, 1, 0])"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "np.insert(a,2,0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[4, 4, 3, 4, 3]\n",
+      "[4, 4, 3, -1, 3]\n"
+     ]
+    }
+   ],
+   "source": [
+    "a = [4,4,3,4,3]\n",
+    "b =a \n",
+    "print(b)\n",
+    "a[3] = -1\n",
+    "print(b)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "7\n",
+      "7\n",
+      "2\n",
+      "8\n",
+      "5\n",
+      "2\n",
+      "7\n",
+      "6\n",
+      "2\n",
+      "4\n",
+      "3\n",
+      "5\n",
+      "6\n",
+      "4\n",
+      "3\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "array([<Individual.Chromsome object at 0x7f4151c13518>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c137f0>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f0f0>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f128>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f240>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f320>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f438>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f518>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f668>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f748>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f860>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2f940>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2fa58>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2fb38>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2fc50>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2fd30>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2fe48>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c2ff28>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c1a080>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c1a160>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c1a278>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c1a358>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c13a20>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c13438>,\n",
+       "       <Individual.Chromsome object at 0x7f4151c13f60>,\n",
+       "       <Individual.Chromsome object at 0x7f4151ca9080>,\n",
+       "       <Individual.Chromsome object at 0x7f4151ca46a0>,\n",
+       "       <Individual.Chromsome object at 0x7f4151ca47b8>,\n",
+       "       <Individual.Chromsome object at 0x7f4151ca4b00>,\n",
+       "       <Individual.Chromsome object at 0x7f4151ca4550>], dtype=object)"
+      ]
+     },
+     "execution_count": 22,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "crossOver(population)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "7"
+      ]
+     },
+     "execution_count": 23,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "np.argmin(population[11].manhattanDists)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([28, 27, 26, 27, 28, 27, 26, 25, 26, 27])"
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "population[11].manhattanDists"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

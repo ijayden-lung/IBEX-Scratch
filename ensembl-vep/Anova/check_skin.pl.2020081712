@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+use Statistics::ANOVA 0.14;
+use Statistics::Descriptive;
+use List::Util qw(first max maxstr min minstr reduce shuffle sum);
+
+
+my %hash;
+open FILE,"../fibroblast/WES_database.txt";
+while(<FILE>){
+	chomp;
+	my ($id) = split;
+	$hash{$id} = '';
+}
+
+open FILE,"tpm/skin_tpm.tsv";
+my $header = <FILE>;
+chomp $header;
+my @header = split /\t/,$header;
+foreach my $sample (@header){
+	my $sam = $sample;
+	$sam =~ s/F//g;
+	if(exists $hash{$sam}){
+		print "$sample\t";
+	}
+}
+

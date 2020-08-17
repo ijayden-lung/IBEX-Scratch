@@ -1,0 +1,369 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ModuleNotFoundError",
+     "evalue": "No module named 'tf_metrics'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mModuleNotFoundError\u001b[0m                       Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-3-dff86a68be97>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mjson\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mnumpy\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m \u001b[0;32mfrom\u001b[0m \u001b[0mtf_metrics\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mprecision\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mrecall\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mf1\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;31mModuleNotFoundError\u001b[0m: No module named 'tf_metrics'"
+     ]
+    }
+   ],
+   "source": [
+    "from pathlib import Path\n",
+    "import sys\n",
+    "\n",
+    "import tensorflow as tf\n",
+    "\n",
+    "import functools\n",
+    "import json\n",
+    "import numpy as np\n",
+    "from tf_metrics import precision, recall, f1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import logging"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "DATADIR='tf_ner/data/example'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def model_fn(features, labels, mode, params):\n",
+    "    # For serving, features are a bit different\n",
+    "    if isinstance(features, dict):\n",
+    "        features = features['words'], features['nwords']\n",
+    "\n",
+    "    # Read vocabs and inputs\n",
+    "    dropout = params['dropout']\n",
+    "    words, nwords = features\n",
+    "    training = (mode == tf.estimator.ModeKeys.TRAIN)\n",
+    "    vocab_words = tf.contrib.lookup.index_table_from_file(\n",
+    "        params['words'], num_oov_buckets=params['num_oov_buckets'])\n",
+    "    with Path(params['tags']).open() as f:\n",
+    "        indices = [idx for idx, tag in enumerate(f) if tag.strip() != 'O']\n",
+    "        num_tags = len(indices) + 1\n",
+    "\n",
+    "    # Word Embeddings\n",
+    "    word_ids = vocab_words.lookup(words)\n",
+    "    glove = np.load(params['glove'])['embeddings']  # np.array\n",
+    "    variable = np.vstack([glove, [[0.]*params['dim']]])\n",
+    "    variable = tf.Variable(variable, dtype=tf.float32, trainable=False)\n",
+    "    embeddings = tf.nn.embedding_lookup(variable, word_ids)\n",
+    "    embeddings = tf.layers.dropout(embeddings, rate=dropout, training=training)\n",
+    "\n",
+    "    # LSTM\n",
+    "    t = tf.transpose(embeddings, perm=[1, 0, 2])\n",
+    "    lstm_cell_fw = tf.contrib.rnn.LSTMBlockFusedCell(params['lstm_size'])\n",
+    "    lstm_cell_bw = tf.contrib.rnn.LSTMBlockFusedCell(params['lstm_size'])\n",
+    "    lstm_cell_bw = tf.contrib.rnn.TimeReversedFusedRNN(lstm_cell_bw)\n",
+    "    output_fw, _ = lstm_cell_fw(t, dtype=tf.float32, sequence_length=nwords)\n",
+    "    output_bw, _ = lstm_cell_bw(t, dtype=tf.float32, sequence_length=nwords)\n",
+    "    output = tf.concat([output_fw, output_bw], axis=-1)\n",
+    "    output = tf.transpose(output, perm=[1, 0, 2])\n",
+    "    output = tf.layers.dropout(output, rate=dropout, training=training)\n",
+    "\n",
+    "    # CRF\n",
+    "    logits = tf.layers.dense(output, num_tags)\n",
+    "    crf_params = tf.get_variable(\"crf\", [num_tags, num_tags], dtype=tf.float32)\n",
+    "    pred_ids, _ = tf.contrib.crf.crf_decode(logits, crf_params, nwords)\n",
+    "\n",
+    "    if mode == tf.estimator.ModeKeys.PREDICT:\n",
+    "        # Predictions\n",
+    "        reverse_vocab_tags = tf.contrib.lookup.index_to_string_table_from_file(\n",
+    "            params['tags'])\n",
+    "        pred_strings = reverse_vocab_tags.lookup(tf.to_int64(pred_ids))\n",
+    "        predictions = {\n",
+    "            'pred_ids': pred_ids,\n",
+    "            'tags': pred_strings\n",
+    "        }\n",
+    "        return tf.estimator.EstimatorSpec(mode, predictions=predictions)\n",
+    "    else:\n",
+    "        # Loss\n",
+    "        vocab_tags = tf.contrib.lookup.index_table_from_file(params['tags'])\n",
+    "        tags = vocab_tags.lookup(labels)\n",
+    "        log_likelihood, _ = tf.contrib.crf.crf_log_likelihood(\n",
+    "            logits, tags, nwords, crf_params)\n",
+    "        loss = tf.reduce_mean(-log_likelihood)\n",
+    "\n",
+    "        # Metrics\n",
+    "        weights = tf.sequence_mask(nwords)\n",
+    "        metrics = {\n",
+    "            'acc': tf.metrics.accuracy(tags, pred_ids, weights),\n",
+    "            #'precision': tf.metrics.precision(tags, pred_ids, num_tags, indices, weights),\n",
+    "            #'recall': tf.metrics.recall(tags, pred_ids, num_tags, indices, weights),\n",
+    "            'precision': tf.metrics.accuracy(tags, pred_ids, weights),\n",
+    "            'recall' : tf.metrics.accuracy(tags, pred_ids, weights),\n",
+    "            #'f1': tf.metrics.f1(tags, pred_ids, num_tags, indices, weights),\n",
+    "            'f1' : 1,\n",
+    "        }\n",
+    "        for metric_name, op in metrics.items():\n",
+    "            tf.summary.scalar(metric_name, op[1])\n",
+    "\n",
+    "        if mode == tf.estimator.ModeKeys.EVAL:\n",
+    "            return tf.estimator.EstimatorSpec(\n",
+    "                mode, loss=loss, eval_metric_ops=metrics)\n",
+    "\n",
+    "        elif mode == tf.estimator.ModeKeys.TRAIN:\n",
+    "            train_op = tf.train.AdamOptimizer().minimize(\n",
+    "                loss, global_step=tf.train.get_or_create_global_step())\n",
+    "            return tf.estimator.EstimatorSpec(\n",
+    "                mode, loss=loss, train_op=train_op)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 69,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def parse_fn(line_words, line_tags):\n",
+    "    # Encode in Bytes for TF\n",
+    "    words = [w.encode() for w in line_words.strip().split()]\n",
+    "    tags = [t.encode() for t in line_tags.strip().split()]\n",
+    "    assert len(words) == len(tags), \"Words and tags lengths don't match\"\n",
+    "    return (words, len(words)), tags\n",
+    "\n",
+    "\n",
+    "def generator_fn(words, tags):\n",
+    "    with Path(words).open('r') as f_words, Path(tags).open('r') as f_tags:\n",
+    "        for line_words, line_tags in zip(f_words, f_tags):\n",
+    "            yield parse_fn(line_words, line_tags)\n",
+    "\n",
+    "\n",
+    "def input_fn(words, tags, params=None, shuffle_and_repeat=False):\n",
+    "    params = params if params is not None else {}\n",
+    "    shapes = (([None], ()), [None])\n",
+    "    types = ((tf.string, tf.int32), tf.string)\n",
+    "    defaults = (('<pad>', 0), 'O')\n",
+    "\n",
+    "    dataset = tf.data.Dataset.from_generator(\n",
+    "        functools.partial(generator_fn, words, tags),\n",
+    "        output_shapes=shapes, output_types=types)\n",
+    "\n",
+    "    if shuffle_and_repeat:\n",
+    "        dataset = dataset.shuffle(params['buffer']).repeat(params['epochs'])\n",
+    "\n",
+    "    dataset = (dataset\n",
+    "               .padded_batch(params.get('batch_size', 20), shapes, defaults)\n",
+    "               .prefetch(1))\n",
+    "    return dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 70,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Using config: {'_model_dir': 'results/model', '_tf_random_seed': None, '_save_summary_steps': 100, '_save_checkpoints_steps': None, '_save_checkpoints_secs': 120, '_session_config': allow_soft_placement: true\n",
+      "graph_options {\n",
+      "  rewrite_options {\n",
+      "    meta_optimizer_iterations: ONE\n",
+      "  }\n",
+      "}\n",
+      ", '_keep_checkpoint_max': 5, '_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': 100, '_train_distribute': None, '_device_fn': None, '_protocol': None, '_eval_distribute': None, '_experimental_distribute': None, '_experimental_max_worker_delay_secs': None, '_service': None, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x7f761dc7b2b0>, '_task_type': 'worker', '_task_id': 0, '_global_id_in_cluster': 0, '_master': '', '_evaluation_master': '', '_is_chief': True, '_num_ps_replicas': 0, '_num_worker_replicas': 1}\n",
+      "Not using Distribute Coordinator.\n",
+      "Running training and evaluation locally (non-distributed).\n",
+      "Start train and evaluate loop. The evaluate will happen after every checkpoint. Checkpoint frequency is determined based on RunConfig arguments: save_checkpoints_steps None or save_checkpoints_secs 120.\n",
+      "Calling model_fn.\n",
+      "Entity <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761db14e48>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761db14e48>>: AssertionError: Bad argument number for Name: 3, expecting 4\n",
+      "WARNING: Entity <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761db14e48>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761db14e48>>: AssertionError: Bad argument number for Name: 3, expecting 4\n",
+      "Entity <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db14e48>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db14e48>>: AttributeError: module 'gast' has no attribute 'Num'\n",
+      "WARNING: Entity <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db14e48>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db14e48>>: AttributeError: module 'gast' has no attribute 'Num'\n",
+      "Entity <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db4ae10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db4ae10>>: AttributeError: module 'gast' has no attribute 'Num'\n",
+      "WARNING: Entity <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db4ae10>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method LSTMBlockWrapper.call of <tensorflow.contrib.rnn.python.ops.lstm_ops.LSTMBlockFusedCell object at 0x7f761db4ae10>>: AttributeError: module 'gast' has no attribute 'Num'\n",
+      "Entity <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761dae0e80>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761dae0e80>>: AssertionError: Bad argument number for Name: 3, expecting 4\n",
+      "WARNING: Entity <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761dae0e80>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method Dropout.call of <tensorflow.python.layers.core.Dropout object at 0x7f761dae0e80>>: AssertionError: Bad argument number for Name: 3, expecting 4\n",
+      "Entity <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x7f761dae0e80>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x7f761dae0e80>>: AssertionError: Bad argument number for Name: 3, expecting 4\n",
+      "WARNING: Entity <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x7f761dae0e80>> could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. Cause: converting <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x7f761dae0e80>>: AssertionError: Bad argument number for Name: 3, expecting 4\n"
+     ]
+    },
+    {
+     "ename": "TypeError",
+     "evalue": "'int' object is not subscriptable",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mTypeError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-70-47687de92591>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m     35\u001b[0m     \u001b[0mtrain_spec\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mestimator\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mTrainSpec\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_fn\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mtrain_inpf\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mhooks\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mhook\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     36\u001b[0m     \u001b[0meval_spec\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mestimator\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mEvalSpec\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_fn\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0meval_inpf\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mthrottle_secs\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;36m120\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 37\u001b[0;31m     \u001b[0mtf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mestimator\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mtrain_and_evaluate\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mestimator\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtrain_spec\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0meval_spec\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     38\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     39\u001b[0m     \u001b[0;31m# Write predictions to file\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/training.py\u001b[0m in \u001b[0;36mtrain_and_evaluate\u001b[0;34m(estimator, train_spec, eval_spec)\u001b[0m\n\u001b[1;32m    471\u001b[0m         '(with task id 0).  Given task id {}'.format(config.task_id))\n\u001b[1;32m    472\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 473\u001b[0;31m   \u001b[0;32mreturn\u001b[0m \u001b[0mexecutor\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrun\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    474\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    475\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/training.py\u001b[0m in \u001b[0;36mrun\u001b[0;34m(self)\u001b[0m\n\u001b[1;32m    611\u001b[0m         config.task_type != run_config_lib.TaskType.EVALUATOR):\n\u001b[1;32m    612\u001b[0m       \u001b[0mlogging\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minfo\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'Running training and evaluation locally (non-distributed).'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 613\u001b[0;31m       \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrun_local\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    614\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    615\u001b[0m     \u001b[0;31m# Distributed case.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/training.py\u001b[0m in \u001b[0;36mrun_local\u001b[0;34m(self)\u001b[0m\n\u001b[1;32m    712\u001b[0m         \u001b[0mmax_steps\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_train_spec\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmax_steps\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    713\u001b[0m         \u001b[0mhooks\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mtrain_hooks\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 714\u001b[0;31m         saving_listeners=saving_listeners)\n\u001b[0m\u001b[1;32m    715\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    716\u001b[0m     eval_result = listener_for_eval.eval_result or _EvalResult(\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/estimator.py\u001b[0m in \u001b[0;36mtrain\u001b[0;34m(self, input_fn, hooks, steps, max_steps, saving_listeners)\u001b[0m\n\u001b[1;32m    365\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    366\u001b[0m       \u001b[0msaving_listeners\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0m_check_listeners_type\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0msaving_listeners\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 367\u001b[0;31m       \u001b[0mloss\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_train_model\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_fn\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mhooks\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0msaving_listeners\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    368\u001b[0m       \u001b[0mlogging\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minfo\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'Loss for final step: %s.'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mloss\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    369\u001b[0m       \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/estimator.py\u001b[0m in \u001b[0;36m_train_model\u001b[0;34m(self, input_fn, hooks, saving_listeners)\u001b[0m\n\u001b[1;32m   1156\u001b[0m       \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_train_model_distributed\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_fn\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mhooks\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0msaving_listeners\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1157\u001b[0m     \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1158\u001b[0;31m       \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_train_model_default\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_fn\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mhooks\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0msaving_listeners\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1159\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1160\u001b[0m   \u001b[0;32mdef\u001b[0m \u001b[0m_train_model_default\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0minput_fn\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mhooks\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0msaving_listeners\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/estimator.py\u001b[0m in \u001b[0;36m_train_model_default\u001b[0;34m(self, input_fn, hooks, saving_listeners)\u001b[0m\n\u001b[1;32m   1186\u001b[0m       \u001b[0mworker_hooks\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mextend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minput_hooks\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1187\u001b[0m       estimator_spec = self._call_model_fn(\n\u001b[0;32m-> 1188\u001b[0;31m           features, labels, ModeKeys.TRAIN, self.config)\n\u001b[0m\u001b[1;32m   1189\u001b[0m       \u001b[0mglobal_step_tensor\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtraining_util\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_global_step\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mg\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1190\u001b[0m       return self._train_with_estimator_spec(estimator_spec, worker_hooks,\n",
+      "\u001b[0;32m~/.local/lib/python3.6/site-packages/tensorflow_estimator/python/estimator/estimator.py\u001b[0m in \u001b[0;36m_call_model_fn\u001b[0;34m(self, features, labels, mode, config)\u001b[0m\n\u001b[1;32m   1144\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1145\u001b[0m     \u001b[0mlogging\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minfo\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'Calling model_fn.'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1146\u001b[0;31m     \u001b[0mmodel_fn_results\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_model_fn\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfeatures\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mfeatures\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1147\u001b[0m     \u001b[0mlogging\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0minfo\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'Done calling model_fn.'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1148\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m<ipython-input-58-3852eec96253>\u001b[0m in \u001b[0;36mmodel_fn\u001b[0;34m(features, labels, mode, params)\u001b[0m\n\u001b[1;32m     68\u001b[0m         }\n\u001b[1;32m     69\u001b[0m         \u001b[0;32mfor\u001b[0m \u001b[0mmetric_name\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mop\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mmetrics\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mitems\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 70\u001b[0;31m             \u001b[0mtf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msummary\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mscalar\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mmetric_name\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mop\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     71\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     72\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mmode\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0mtf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mestimator\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mModeKeys\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mEVAL\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mTypeError\u001b[0m: 'int' object is not subscriptable"
+     ]
+    }
+   ],
+   "source": [
+    "if __name__ == '__main__':\n",
+    "    # Params\n",
+    "    params = {\n",
+    "        'dim': 300,\n",
+    "        'dropout': 0.5,\n",
+    "        'num_oov_buckets': 1,\n",
+    "        'epochs': 25,\n",
+    "        'batch_size': 20,\n",
+    "        'buffer': 15000,\n",
+    "        'lstm_size': 100,\n",
+    "        'words': str(Path(DATADIR, 'vocab.words.txt')),\n",
+    "        'chars': str(Path(DATADIR, 'vocab.chars.txt')),\n",
+    "        'tags': str(Path(DATADIR, 'vocab.tags.txt')),\n",
+    "        'glove': str(Path(DATADIR, 'glove.npz'))\n",
+    "    }\n",
+    "    with Path('results/params.json').open('w') as f:\n",
+    "        json.dump(params, f, indent=4, sort_keys=True)\n",
+    "\n",
+    "    def fwords(name):\n",
+    "        return str(Path(DATADIR, '{}.words.txt'.format(name)))\n",
+    "\n",
+    "    def ftags(name):\n",
+    "        return str(Path(DATADIR, '{}.tags.txt'.format(name)))\n",
+    "\n",
+    "    # Estimator, train and evaluate\n",
+    "    train_inpf = functools.partial(input_fn, fwords('train'), ftags('train'),\n",
+    "                                   params, shuffle_and_repeat=True)\n",
+    "    eval_inpf = functools.partial(input_fn, fwords('testa'), ftags('testa'))\n",
+    "\n",
+    "    cfg = tf.estimator.RunConfig(save_checkpoints_secs=120)\n",
+    "    estimator = tf.estimator.Estimator(model_fn, 'results/model', cfg, params)\n",
+    "    Path(estimator.eval_dir()).mkdir(parents=True, exist_ok=True)\n",
+    "    hook = tf.estimator.experimental.stop_if_no_increase_hook(\n",
+    "        estimator, 'f1', 500, min_steps=8000, run_every_secs=120)\n",
+    "    train_spec = tf.estimator.TrainSpec(input_fn=train_inpf, hooks=[hook])\n",
+    "    eval_spec = tf.estimator.EvalSpec(input_fn=eval_inpf, throttle_secs=120)\n",
+    "    tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)\n",
+    "\n",
+    "    # Write predictions to file\n",
+    "    def write_predictions(name):\n",
+    "        Path('results/score').mkdir(parents=True, exist_ok=True)\n",
+    "        with Path('results/score/{}.preds.txt'.format(name)).open('wb') as f:\n",
+    "            test_inpf = functools.partial(input_fn, fwords(name), ftags(name))\n",
+    "            golds_gen = generator_fn(fwords(name), ftags(name))\n",
+    "            preds_gen = estimator.predict(test_inpf)\n",
+    "            for golds, preds in zip(golds_gen, preds_gen):\n",
+    "                ((words, _), tags) = golds\n",
+    "                for word, tag, tag_pred in zip(words, tags, preds['tags']):\n",
+    "                    f.write(b' '.join([word, tag, tag_pred]) + b'\\n')\n",
+    "                f.write(b'\\n')\n",
+    "\n",
+    "    for name in ['train', 'testa', 'testb']:\n",
+    "        write_predictions(name)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "glove = np.load(params['glove'])['embeddings']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variable = np.vstack([glove, [[0.]*params['dim']]]) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 64,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variable = tf.Variable(variable, dtype=tf.float32, trainable=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 68,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "NameError",
+     "evalue": "name 'word_ids' is not defined",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-68-23acb20473db>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0membeddings\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mnn\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0membedding_lookup\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mvariable\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mword_ids\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m: name 'word_ids' is not defined"
+     ]
+    }
+   ],
+   "source": [
+    "embeddings = tf.nn.embedding_lookup(variable, word_ids)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

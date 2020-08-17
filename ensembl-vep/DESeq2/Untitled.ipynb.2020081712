@@ -1,0 +1,323 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ERROR",
+     "evalue": "Error in library(\"tximportData\"): there is no package called ‘tximportData’\n",
+     "output_type": "error",
+     "traceback": [
+      "Error in library(\"tximportData\"): there is no package called ‘tximportData’\nTraceback:\n",
+      "1. library(\"tximportData\")"
+     ]
+    }
+   ],
+   "source": [
+    "library(\"tximportData\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ERROR",
+     "evalue": "Error in library(deseq2): there is no package called ‘deseq2’\n",
+     "output_type": "error",
+     "traceback": [
+      "Error in library(deseq2): there is no package called ‘deseq2’\nTraceback:\n",
+      "1. library(deseq2)"
+     ]
+    }
+   ],
+   "source": [
+    "library(deseq2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cts = read.table(\"quant/skin.counts.txt\",header=TRUE,sep=\"\\t\",row.names=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coldata <- data.frame(row.names = colnames(cts),condition = c(\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG8/9-\",\"SMG8/9-\",\"SMG8/9-\",\"SMG8/9-\"))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coldata <- data.frame(row.names = colnames(cts),condition = c(\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG+\",\"SMG8/9-\",\"SMG8/9-\"))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<thead><tr><th></th><th scope=col>condition</th></tr></thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>X11DG0060</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X13DG2283</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X15DG2154</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X16DG0518</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X18DG0180</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X18DG0464F</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X19DG0230</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X15DG2154MG</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X16DG0144</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X16DG1353</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X18DG0348</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X11DG0165</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X14DG2098</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X14DG2019</th><td>SMG+   </td></tr>\n",
+       "\t<tr><th scope=row>X19DG0152F</th><td>SMG8/9-</td></tr>\n",
+       "\t<tr><th scope=row>X19DG1391F</th><td>SMG8/9-</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "\\begin{tabular}{r|l}\n",
+       "  & condition\\\\\n",
+       "\\hline\n",
+       "\tX11DG0060 & SMG+   \\\\\n",
+       "\tX13DG2283 & SMG+   \\\\\n",
+       "\tX15DG2154 & SMG+   \\\\\n",
+       "\tX16DG0518 & SMG+   \\\\\n",
+       "\tX18DG0180 & SMG+   \\\\\n",
+       "\tX18DG0464F & SMG+   \\\\\n",
+       "\tX19DG0230 & SMG+   \\\\\n",
+       "\tX15DG2154MG & SMG+   \\\\\n",
+       "\tX16DG0144 & SMG+   \\\\\n",
+       "\tX16DG1353 & SMG+   \\\\\n",
+       "\tX18DG0348 & SMG+   \\\\\n",
+       "\tX11DG0165 & SMG+   \\\\\n",
+       "\tX14DG2098 & SMG+   \\\\\n",
+       "\tX14DG2019 & SMG+   \\\\\n",
+       "\tX19DG0152F & SMG8/9-\\\\\n",
+       "\tX19DG1391F & SMG8/9-\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "| <!--/--> | condition |\n",
+       "|---|---|\n",
+       "| X11DG0060 | SMG+    |\n",
+       "| X13DG2283 | SMG+    |\n",
+       "| X15DG2154 | SMG+    |\n",
+       "| X16DG0518 | SMG+    |\n",
+       "| X18DG0180 | SMG+    |\n",
+       "| X18DG0464F | SMG+    |\n",
+       "| X19DG0230 | SMG+    |\n",
+       "| X15DG2154MG | SMG+    |\n",
+       "| X16DG0144 | SMG+    |\n",
+       "| X16DG1353 | SMG+    |\n",
+       "| X18DG0348 | SMG+    |\n",
+       "| X11DG0165 | SMG+    |\n",
+       "| X14DG2098 | SMG+    |\n",
+       "| X14DG2019 | SMG+    |\n",
+       "| X19DG0152F | SMG8/9- |\n",
+       "| X19DG1391F | SMG8/9- |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            condition\n",
+       "X11DG0060   SMG+     \n",
+       "X13DG2283   SMG+     \n",
+       "X15DG2154   SMG+     \n",
+       "X16DG0518   SMG+     \n",
+       "X18DG0180   SMG+     \n",
+       "X18DG0464F  SMG+     \n",
+       "X19DG0230   SMG+     \n",
+       "X15DG2154MG SMG+     \n",
+       "X16DG0144   SMG+     \n",
+       "X16DG1353   SMG+     \n",
+       "X18DG0348   SMG+     \n",
+       "X11DG0165   SMG+     \n",
+       "X14DG2098   SMG+     \n",
+       "X14DG2019   SMG+     \n",
+       "X19DG0152F  SMG8/9-  \n",
+       "X19DG1391F  SMG8/9-  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "coldata"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d <- data.frame(\n",
+    "    name=c(1.2,4.3,5.3), \n",
+    "    age=c(3.0, 35, 28), \n",
+    "    height=c(18.0, 1.62, 175),\n",
+    "    stringsAsFactors=FALSE)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ERROR",
+     "evalue": "Error in eval(expr, envir, enclos): (list) object cannot be coerced to type 'integer'\n",
+     "output_type": "error",
+     "traceback": [
+      "Error in eval(expr, envir, enclos): (list) object cannot be coerced to type 'integer'\nTraceback:\n"
+     ]
+    }
+   ],
+   "source": [
+    "as.integer(d['name'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d$name <- as.integer(d$name)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "len = length(colnames(d))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ERROR",
+     "evalue": "Error in eval(expr, envir, enclos): (list) object cannot be coerced to type 'integer'\n",
+     "output_type": "error",
+     "traceback": [
+      "Error in eval(expr, envir, enclos): (list) object cannot be coerced to type 'integer'\nTraceback:\n"
+     ]
+    }
+   ],
+   "source": [
+    "d[,1:] = as.integer(d[,1:len])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for (i in 1:len){\n",
+    "     d[,i] = as.integer(d[,i])\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<thead><tr><th scope=col>name</th><th scope=col>age</th><th scope=col>height</th></tr></thead>\n",
+       "<tbody>\n",
+       "\t<tr><td>1  </td><td>30 </td><td>180</td></tr>\n",
+       "\t<tr><td>4  </td><td>35 </td><td>162</td></tr>\n",
+       "\t<tr><td>5  </td><td>28 </td><td>175</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "\\begin{tabular}{r|lll}\n",
+       " name & age & height\\\\\n",
+       "\\hline\n",
+       "\t 1   & 30  & 180\\\\\n",
+       "\t 4   & 35  & 162\\\\\n",
+       "\t 5   & 28  & 175\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "| name | age | height |\n",
+       "|---|---|---|\n",
+       "| 1   | 30  | 180 |\n",
+       "| 4   | 35  | 162 |\n",
+       "| 5   | 28  | 175 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  name age height\n",
+       "1 1    30  180   \n",
+       "2 4    35  162   \n",
+       "3 5    28  175   "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "d"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

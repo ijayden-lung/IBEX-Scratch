@@ -1,0 +1,510 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import math\n",
+    "import random\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Question1: (3 pts) Difference between TD and MC\n",
+    "\n",
+    "Read the attached TD-MC chapter, and the example 6.1 Driving to home. Can you imagine a scenario in which a TD update would be better on average than an Monte Carlo update? Give an example scenario—a description of past experience and a current state—in which you would expect the TD update to be better.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**According to my previous experience, I know the accurate time of driving home from the entrance of highway. Therefore, I can re-estimate my time once I enter the highway (TD methods). However, if you use MC methods, you can only update your time when you reach your home.  TD updates are better and it’s initially, cause it only depends on previous steps, while MD must wait until the end of an episode.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "actions=[\"up\", \"down\", \"left\", \"right\"]\n",
+    "\n",
+    "x_scope=5\n",
+    "y_scope=4\n",
+    "\n",
+    "epsilon_start=0.4\n",
+    "epsilon_final=0.01\n",
+    "\n",
+    "#The discount factor γ = 0.9.\n",
+    "discount_factor=0.9\n",
+    "\n",
+    "learning_rate=0.1\n",
+    "\n",
+    "q_value=dict()\n",
+    "\n",
+    "episodes=3000"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def calc_epsilon(t, epsilon_start=epsilon_start,\n",
+    "        epsilon_final=epsilon_final, epsilon_decay=episodes):\n",
+    "    if t<2000:\n",
+    "        epsilon = epsilon_final + (epsilon_start - epsilon_final) \\\n",
+    "            * math.exp(-1. * t / epsilon_decay)\n",
+    "    else:\n",
+    "        epsilon=0.0\n",
+    "    return epsilon\n",
+    "\n",
+    "\n",
+    "def q_value_init():\n",
+    "    q_value.clear()\n",
+    "    for i in range(x_scope):\n",
+    "        for j in range(y_scope):\n",
+    "            state=(i, j)\n",
+    "            for action in actions:\n",
+    "                q_value[(state, action)]=0 \n",
+    "\n",
+    "\n",
+    "def step(state, action):\n",
+    "    next_x, next_y=state\n",
+    "    if action==\"up\":\n",
+    "        next_y += 1\n",
+    "    elif action==\"down\":\n",
+    "        next_y -= 1\n",
+    "    elif action==\"left\":\n",
+    "        next_x -= 1\n",
+    "    else:\n",
+    "        next_x += 1\n",
+    "\n",
+    "    next_state=(next_x, next_y) \n",
+    "    reward=0\n",
+    "    if next_x<0 or next_x>(x_scope-1) or next_y<0 or next_y>(y_scope-1):\n",
+    "        next_state=state\n",
+    "        reward=-1\n",
+    "    if (next_x== 3 and next_y==2):\n",
+    "        reward=-5\n",
+    "    if (next_x== 0 and next_y==3):\n",
+    "        reward=10\n",
+    "    \n",
+    "    return next_state, reward\n",
+    "\n",
+    "#arg_max\n",
+    "def arg_max(state):\n",
+    "    q_value_list=[]\n",
+    "    for action in actions:\n",
+    "        q_value_list.append((q_value[(state, action)], action)) \n",
+    "    random.shuffle(q_value_list)\n",
+    "\n",
+    "    action=max(q_value_list)[-1]\n",
+    "    return action \n",
+    "\n",
+    "\n",
+    "#e-greedy\n",
+    "def e_greedy(state):\n",
+    "    q_value_list=[]\n",
+    "    for action in actions:\n",
+    "        q_value_list.append((q_value[(state, action)], action)) \n",
+    "    random.shuffle(q_value_list)\n",
+    "\n",
+    "    if random.random()>epsilon:\n",
+    "        action=max(q_value_list)[-1]\n",
+    "    else:\n",
+    "        action=random.choice(q_value_list)[-1]\n",
+    "    return action"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Use off policy Q learning to learn the optimal values of Q* (s, a). Please submit your own code on calculating the Q*(s,a).\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def q_learning(state):\n",
+    "    \n",
+    "    action=e_greedy(state)\n",
+    "    next_state, reward=step(state, action)   \n",
+    "\n",
+    "    \n",
+    "    next_action=arg_max(next_state)\n",
+    " \n",
+    "    \n",
+    "    estimate=reward+discount_factor*q_value[(next_state, next_action)]\n",
+    "    ##Assign new q_value\n",
+    "\n",
+    "    q_value[(state, action)] = (1-learning_rate)*q_value[(state, action)] + learning_rate*estimate\n",
+    "    \n",
+    "    done = False\n",
+    "    ###Terminal State\n",
+    "    if state == (0, 3):\n",
+    "        done = True\n",
+    "    return next_state, reward, done"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "reward_list_2=[]\n",
+    "q_value_init()\n",
+    "for episode in range(episodes):\n",
+    "    ####Initail state\n",
+    "    state=(4, 0)\n",
+    "    while True:\n",
+    "        reward_sum=0\n",
+    "        epsilon=calc_epsilon(episode)\n",
+    "        next_state, reward,done=q_learning(state)\n",
+    "        reward_sum+=reward\n",
+    "        state = next_state\n",
+    "        if done:\n",
+    "            break\n",
+    "    reward_list_2.append(reward_sum)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# --1  (1pts) What is the Q*(s,a) for each pair of s and a?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Q*(s,a)\n",
+      "state    up    down    left    right    \n",
+      "(0, 0)   0.000   0.000   0.000   0.000   \n",
+      "(0, 1)   6.676   0.000   0.000   0.000   \n",
+      "(0, 2)   46.058   0.001   -0.093   5.003   \n",
+      "(0, 3)   41.631   39.818   41.631   47.368   \n",
+      "(1, 0)   1.802   0.000   0.000   7.172   \n",
+      "(1, 1)   32.186   0.003   0.276   3.025   \n",
+      "(1, 2)   47.365   19.016   27.244   38.352   \n",
+      "(1, 3)   46.368   42.609   52.632   42.632   \n",
+      "(2, 0)   0.001   0.000   1.430   20.709   \n",
+      "(2, 1)   37.572   7.643   3.986   10.791   \n",
+      "(2, 2)   42.632   29.734   37.425   28.379   \n",
+      "(2, 3)   41.632   38.368   47.368   38.368   \n",
+      "(3, 0)   21.619   20.007   12.256   25.174   \n",
+      "(3, 1)   25.752   20.527   26.188   27.971   \n",
+      "(3, 2)   38.368   24.412   37.092   29.947   \n",
+      "(3, 3)   37.368   29.532   42.632   34.532   \n",
+      "(4, 0)   27.971   24.174   22.656   24.173   \n",
+      "(4, 1)   31.078   25.174   25.173   26.971   \n",
+      "(4, 2)   34.532   27.971   29.532   30.078   \n",
+      "(4, 3)   33.532   31.078   38.368   33.532   \n"
+     ]
+    }
+   ],
+   "source": [
+    "print('Q*(s,a)')\n",
+    "act = 'state    '\n",
+    "for action in actions:\n",
+    "    act = act + action + '    '\n",
+    "print(act)\n",
+    "string=''           \n",
+    "for i in range(x_scope):\n",
+    "    for j in range(y_scope):\n",
+    "        string = \"(\"+str(i)+\", \"+str(j)+\")   \"\n",
+    "        for action in actions:\n",
+    "            string = string + str(format(q_value[((i, j), action)],'.3f'))+\"   \"\n",
+    "        print(string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# --2  (1pts) What is the V*(s) for each s?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "V*(s)\n",
+      "57.368   52.632   47.368   42.632   38.368   \n",
+      "46.058   47.365   42.632   33.368   34.532   \n",
+      "6.676   32.186   37.572   27.971   31.078   \n",
+      "0.000   7.172   20.709   25.174   27.971   \n"
+     ]
+    }
+   ],
+   "source": [
+    "print('V*(s)')\n",
+    "for j in range(y_scope):\n",
+    "    v_value = ''\n",
+    "    for i in range(x_scope):\n",
+    "        row = i\n",
+    "        col = y_scope-j-1\n",
+    "        state=(row, col)\n",
+    "        q_value_list=[]\n",
+    "        for action in actions:\n",
+    "            q_value_list.append((q_value[(state, action)])) \n",
+    "        max_qvalue  = max(q_value_list)\n",
+    "        if(row==0 and col==3):\n",
+    "            max_qvalue+=10\n",
+    "        elif(row==3 and col==2):\n",
+    "            max_qvalue-=5\n",
+    "        v_value = v_value+str(format(max_qvalue,'.3f'))+ '   '\n",
+    "    print(v_value)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# --3  (1pts) What are the actions of optimal policy?"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**The optimal action is (4,0)->(4,1)->(4,2)->(4,3)->(3,3)->(2,3)->(1,3)->(0,3)**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Use Sarsa algorithm to learn the optimal values of Q* (s, a). Please submit your own code on calculating the Q*(s,a)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def sarsa(state):\n",
+    "    action=e_greedy(state)\n",
+    "    next_state, reward=step(state, action)   \n",
+    "    \n",
+    "    next_action=e_greedy(next_state)\n",
+    "\n",
+    "    estimate=reward+discount_factor*q_value[(next_state, next_action)]\n",
+    "    \n",
+    "    #assign new q_value\n",
+    "    q_value[(state, action)] = (1-learning_rate)*q_value[(state, action)] + learning_rate*estimate\n",
+    "    done = False\n",
+    "    ##Terminal state\n",
+    "    if state == (0, 3):\n",
+    "        done = True\n",
+    "    return next_state, reward, done "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if __name__==\"__main__\":\n",
+    "    reward_list_1=[]\n",
+    "    q_value_init()\n",
+    "    \n",
+    "    for episode in range(episodes):\n",
+    "        ####Initial State\n",
+    "        state=(4, 0)\n",
+    "        while True:\n",
+    "            reward_sum=0\n",
+    "            epsilon=calc_epsilon(episode)\n",
+    "            next_state, reward,done=sarsa(state)\n",
+    "            reward_sum+=reward\n",
+    "            state = next_state\n",
+    "            if done:\n",
+    "                break\n",
+    "        reward_list_1.append(reward_sum)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# --1  (1pts) What is the Q*(s,a) for each pair of s and a?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Q*(s,a)\n",
+      "state    up    down    left    right    \n",
+      "(0, 0)   30.305   14.368   18.381   13.571   \n",
+      "(0, 1)   35.079   24.146   27.140   23.062   \n",
+      "(0, 2)   52.631   29.451   33.569   30.274   \n",
+      "(0, 3)   28.715   47.368   28.975   31.747   \n",
+      "(1, 0)   38.368   21.734   22.584   20.015   \n",
+      "(1, 1)   42.631   22.888   27.446   21.290   \n",
+      "(1, 2)   31.002   26.298   47.368   23.320   \n",
+      "(1, 3)   24.253   19.017   40.024   12.317   \n",
+      "(2, 0)   22.006   18.681   34.531   16.779   \n",
+      "(2, 1)   19.698   17.264   25.425   14.614   \n",
+      "(2, 2)   11.942   15.194   29.521   1.626   \n",
+      "(2, 3)   2.832   7.785   26.818   0.686   \n",
+      "(3, 0)   16.469   15.741   31.078   14.525   \n",
+      "(3, 1)   4.349   11.605   23.020   5.687   \n",
+      "(3, 2)   1.214   4.231   18.130   0.189   \n",
+      "(3, 3)   -0.772   -1.342   8.404   -0.026   \n",
+      "(4, 0)   12.112   14.180   27.970   12.987   \n",
+      "(4, 1)   0.796   14.903   6.291   4.718   \n",
+      "(4, 2)   0.005   4.867   -1.355   -0.553   \n",
+      "(4, 3)   -0.410   -0.071   0.426   -0.568   \n"
+     ]
+    }
+   ],
+   "source": [
+    "print('Q*(s,a)')\n",
+    "act = 'state    '\n",
+    "for action in actions:\n",
+    "    act = act + action + '    '\n",
+    "print(act)\n",
+    "string=''           \n",
+    "for i in range(x_scope):\n",
+    "    for j in range(y_scope):\n",
+    "        string = \"(\"+str(i)+\", \"+str(j)+\")   \"\n",
+    "        for action in actions:\n",
+    "            string = string + str(format(q_value[((i, j), action)],'.3f'))+\"   \"\n",
+    "        print(string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# --2  (1pts) What is the V*(s) for each s?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "V*(s)\n",
+      "57.368   40.024   26.818   8.404   0.426   \n",
+      "52.631   47.368   29.521   13.130   4.867   \n",
+      "35.079   42.631   25.425   23.020   14.903   \n",
+      "30.305   38.368   34.531   31.078   27.970   \n"
+     ]
+    }
+   ],
+   "source": [
+    "print('V*(s)')\n",
+    "for j in range(y_scope):\n",
+    "    v_value = ''\n",
+    "    for i in range(x_scope):\n",
+    "        row = i\n",
+    "        col = y_scope-j-1\n",
+    "        state=(row, col)\n",
+    "        q_value_list=[]\n",
+    "        for action in actions:\n",
+    "            q_value_list.append((q_value[(state, action)])) \n",
+    "        max_qvalue = max(q_value_list)\n",
+    "        if(row==0 and col==3):\n",
+    "            max_qvalue+=10\n",
+    "        elif(row==3 and col==2):\n",
+    "            max_qvalue-=5\n",
+    "        v_value = v_value+str(format(max_qvalue,'.3f'))+ '   '\n",
+    "    print(v_value)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# --3  (1pts) What are the actions of optimal policy?"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**The optimal action is (4,0)->(3,0)->(2,0)->(1,0)->(1,1)->(1,2)->(0,2)->(0,3)**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Please discuss your observed difference between Sarsa algorithm and  off-policy Q-learning (1pts) in your game."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Q-learning learns values for the optimal policy which close to the penality, while Saras far away from the penality. \n",
+    "Although Q- learning actually learns the values of the optimal policy, its on-line performance is worse than that of Sarsa, which learns the roundabout policy.\n",
+    "Of course, if e were gradually reduced, then both methods would asymptotically converge to the same policy."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

@@ -1,0 +1,510 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from Puzzle import Puzzle\n",
+    "from Individual import Chromsome\n",
+    "import numpy as np\n",
+    "import time\n",
+    "from copy import copy,deepcopy\n",
+    "from Operation import *\n",
+    "from random import choice"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#POPULATION_SIZE=100\n",
+    "#PARENT_SIZE=30\n",
+    "#DROPOUT_SIZE=POPULATION_SIZE-PARENT_SIZE\n",
+    "#MUTATION_RATE=0.01\n",
+    "#ELITES_SIZE = 10\n",
+    "#MAX_GENERATION = 1000\n",
+    "#CHROM_LEN=50\n",
+    "#CROSSOVER_LEN=int(0.9*CHROM_LEN)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#initState=[4,5,6,7,8,2,1,3,0,9,10,11,12,13,15,14]\n",
+    "initState=[4,5,6,7,8,0,2,1,3]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "puzzle = Puzzle(initState)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Initial Mahattan distance:  13\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Initial Mahattan distance: \",puzzle.manhattanDist)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def availMove(self,lastMove):\n",
+    "    moves = ['U','D','L','R']\n",
+    "\n",
+    "    if(self.position % self.width == 0): \n",
+    "        moves.remove('L')\n",
+    "    elif(self.position % self.width == self.width-1):\n",
+    "        moves.remove('R')\n",
+    "    if(self.position //  self.width == 0): \n",
+    "        moves.remove('U')\n",
+    "    elif(self.position //  self.width == self.width-1):\n",
+    "        moves.remove('D')\n",
+    "    if lastMove in INVERT.keys():\n",
+    "        moves.remove(INVERT[lastMove])\n",
+    "    return moves\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def crossOver(parents):\n",
+    "    parents =parents\n",
+    "    offspring = np.empty(PARENT_SIZE,dtype=object)\n",
+    "    for i in range(0,PARENT_SIZE,2):\n",
+    "        index=np.random.randint(2,CROSSOVER_LEN)\n",
+    "        pos1=parents[i].positions[index-1]\n",
+    "        pos2=parents[i+1].positions[index-1]\n",
+    "        row1 = pos1%puzzle.width\n",
+    "        row2 = pos2%puzzle.width\n",
+    "        col1 = pos1//puzzle.width\n",
+    "        col2 = pos2//puzzle.width\n",
+    "        row_diff=row1-row2\n",
+    "        col_diff=col1-col2           \n",
+    "\n",
+    "        changeStep2 = copy(parents[i].steps[index:])\n",
+    "        changeStep1 = copy(parents[i+1].steps[index:])\n",
+    "        changeStep1,changeStep2 = determineChange(changeStep1,changeStep2,index,row_diff,'L','R')\n",
+    "        changeStep1,changeStep2 = determineChange(changeStep1,changeStep2,index,col_diff,'U','D')\n",
+    "        offspring[i] = deepcopy(parents[i])\n",
+    "        offspring[i+1]=deepcopy(parents[i+1])\n",
+    "        offspring[i].steps[index:]=changeStep1\n",
+    "        offspring[i+1].steps[index:]=changeStep2\n",
+    "        #offspring[i].steps = copy(offspring[i].steps)\n",
+    "        #offspring[i+1].steps = copy(offspring[i+1].steps)\n",
+    "        changeState(offspring[i],index)\n",
+    "        changeState(offspring[i+1],index)\n",
+    "        \n",
+    "    return offspring"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def mutation(offspring):\n",
+    "    offspring = deepcopy(offspring)\n",
+    "    for individual in offspring:\n",
+    "        index=np.random.randint(2,CROSSOVER_LEN)\n",
+    "        \n",
+    "        puzzle = Puzzle(individual.states[index-1])\n",
+    "        lastStep = individual.steps[index-1]\n",
+    "        moves = puzzle.availMove(lastStep)\n",
+    "        move = choice(moves)\n",
+    "        puzzle.move(move)\n",
+    "        individual.states[index] = puzzle.state.copy()\n",
+    "        individual.positions[index] = puzzle.position\n",
+    "        individual.manhattanDists[index] = puzzle.manhattanDist\n",
+    "        lastStep = move\n",
+    "        for i in range(index+1,CHROM_LEN):\n",
+    "            moves = puzzle.availMove(lastStep)\n",
+    "            if(individual.steps[i] in moves):\n",
+    "                move = individual.steps[i]\n",
+    "            else:\n",
+    "                \n",
+    "                move = choice(moves)\n",
+    "                individual.steps[i] = move\n",
+    "\n",
+    "            puzzle.move(move)\n",
+    "            individual.states[i] = puzzle.state.copy()\n",
+    "            individual.positions[i] = puzzle.position\n",
+    "            individual.manhattanDists[i] = puzzle.manhattanDist\n",
+    "            lastStep = move\n",
+    "    return offspring\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "success\n",
+      "1.452012538909912\n"
+     ]
+    }
+   ],
+   "source": [
+    "start = time.time()\n",
+    "W=open('outs.txt','w')\n",
+    "RESULT=open('stat.%s.%s.%s.%s',POPULATION_SIZELATION_SIZELATION_SIZELATION_SIZE')\n",
+    "W.write('generateion\\t\\tminManhattan\\tmaxManhttan\\tmeanManhttan\\tminFitness\\tmaxFitness\\tmeanFitness')\n",
+    "\n",
+    "population = np.empty(POPULATION_SIZE, dtype=object)\n",
+    "fitnesses = np.zeros(POPULATION_SIZE)\n",
+    "manhattan = np.zeros(POPULATION_SIZE)\n",
+    "\n",
+    "\n",
+    "for i in range(POPULATION_SIZE):\n",
+    "    population[i] = Chromsome(puzzle,CHROM_LEN)\n",
+    "    fitnesses[i],manhattan[i] = population[i].get_fitness()\n",
+    "    \n",
+    "for gen in range(MAX_GENERATION):\n",
+    "    totalFitness = np.sum(fitnesses)\n",
+    "    \n",
+    "    parents = selection(population,fitnesses,totalFitness)\n",
+    "    offspring = crossOver(parents)\n",
+    "    \n",
+    "    mutoffspr = mutation(offspring)    \n",
+    "    new_fitnesses = np.zeros(POPULATION_SIZE+PARENT_SIZE)\n",
+    "    new_population = np.empty(POPULATION_SIZE+PARENT_SIZE, dtype=object)\n",
+    "    new_manhattan = np.zeros(POPULATION_SIZE+PARENT_SIZE)\n",
+    "    #new_fitnesses = np.zeros(POPULATION_SIZE+2*PARENT_SIZE)\n",
+    "    #new_population = np.empty(POPULATION_SIZE+2*PARENT_SIZE, dtype=object)\n",
+    "    #new_manhattan = np.zeros(POPULATION_SIZE+2*PARENT_SIZE)\n",
+    "    new_fitnesses[0:POPULATION_SIZE] = fitnesses\n",
+    "    new_population[0:POPULATION_SIZE] = population\n",
+    "    new_manhattan[0:POPULATION_SIZE] = manhattan\n",
+    "    for i in range(PARENT_SIZE):\n",
+    "        new_fitnesses[i+POPULATION_SIZE],new_manhattan[i+POPULATION_SIZE] = offspring[i].get_fitness()\n",
+    "        #new_fitnesses[i+POPULATION_SIZE+PARENT_SIZE],new_manhattan[i+POPULATION_SIZE+PARENT_SIZE]= mutoffspr[i].get_fitness()\n",
+    "        new_population[i+POPULATION_SIZE] = offspring[i]\n",
+    "        #new_population[i+POPULATION_SIZE+PARENT_SIZE] = mutoffspr[i]\n",
+    "        \n",
+    "    index = np.argsort(new_fitnesses)\n",
+    "    new_fitnesses = new_fitnesses[index]\n",
+    "    minManhattan = np.min(new_manhattan)\n",
+    "    if(minManhattan==0):\n",
+    "        print(\"success\")\n",
+    "        W.write('%s\\t%s\\t%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n'%(gen,minManhattan,maxManhttan,meanManhttan,minFitness,maxFitness,meanFitness))\n",
+    "        break\n",
+    "    maxManhttan = np.max(new_manhattan)\n",
+    "    meanManhttan = np.mean(new_manhattan)\n",
+    "    minFitness = new_fitnesses[0]\n",
+    "    maxFitness = new_fitnesses[-1]\n",
+    "    if(minFitness == maxFitness):\n",
+    "        print(\"converge\")\n",
+    "        W.write('%s\\t%s\\t%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n'%(gen,minManhattan,maxManhttan,meanManhttan,minFitness,maxFitness,meanFitness)\n",
+    "        break\n",
+    "    meanFitness = np.mean(new_fitnesses)\n",
+    "    W.write('%s\\t%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n'%(gen,minManhattan,maxManhttan,meanManhttan,minFitness,maxFitness,meanFitness))\n",
+    "    population = new_population[index][0:POPULATION_SIZE]\n",
+    "    fitnesses = new_fitnesses[index][0:POPULATION_SIZE]\n",
+    "    manhattan = new_manhattan[index][0:POPULATION_SIZE]\n",
+    "            \n",
+    "end = time.time()\n",
+    "print(end-start)\n",
+    "W.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['N' 'L' 'D' 'L' 'U' 'U' 'R' 'D' 'R' 'D' 'L' 'U' 'R' 'D' 'L' 'L' 'U' 'U'\n",
+      " 'R' 'D' 'L' 'D' 'R' 'U' 'R' 'U' 'L' 'L' 'D' 'D' 'R' 'U' 'R' 'D' 'L' 'U'\n",
+      " 'L' 'U' 'R' 'R' 'D' 'D' 'L' 'L' 'U' 'R' 'L' 'U' 'R' 'D' 'R' 'D' 'U' 'U'\n",
+      " 'L' 'R' 'D' 'U' 'L' 'L' 'D' 'D' 'R' 'R' 'U' 'L' 'D' 'R' 'U' 'L' 'D' 'R'\n",
+      " 'U' 'L' 'D' 'L' 'U' 'R' 'U' 'L' 'D' 'R' 'D' 'L' 'U' 'R' 'U' 'L' 'R' 'R'\n",
+      " 'D' 'U' 'L' 'D' 'R' 'D' 'L' 'L' 'U' 'U']\n"
+     ]
+    },
+    {
+     "ename": "NameError",
+     "evalue": "name 'offspr' is not defined",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-10-9318b19e05e2>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0mprint\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mpopulation\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msteps\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m \u001b[0mmutation\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0moffspr\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      3\u001b[0m \u001b[0mprint\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mpopulation\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msteps\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mNameError\u001b[0m: name 'offspr' is not defined"
+     ]
+    }
+   ],
+   "source": [
+    "print(population[0].steps)\n",
+    "mutation(offspr)\n",
+    "print(population[0].steps)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_fitnesses = np.zeros(POPULATION_SIZE+PARENT_SIZE)\n",
+    "new_population = np.empty(POPULATION_SIZE+PARENT_SIZE, dtype=object)\n",
+    "new_manhattan = np.zeros(POPULATION_SIZE+PARENT_SIZE)\n",
+    "new_fitnesses[0:POPULATION_SIZE] = fitnesses\n",
+    "new_population[0:POPULATION_SIZE] = population\n",
+    "new_manhattan[0:POPULATION_SIZE] = manhattan\n",
+    "for i in range(PARENT_SIZE):\n",
+    "    new_fitnesses[i+POPULATION_SIZE],new_manhattan[i+POPULATION_SIZE] = offspring[i].get_fitness()\n",
+    "    new_population[i+POPULATION_SIZE] = offspring[i]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "index = np.argsort(new_fitnesses)\n",
+    "new_fitnesses = new_fitnesses[index]\n",
+    "minManhattan = np.min(new_manhattan)\n",
+    "if(minManhattan==0):\n",
+    "    print(\"success\")\n",
+    "maxManhttan = np.max(new_manhattan)\n",
+    "meanManhttan = np.mean(new_manhattan)\n",
+    "minFitness = new_fitnesses[0]\n",
+    "maxFitness = new_fitnesses[-1]\n",
+    "if(minFitness == maxFitness):\n",
+    "    print(\"converge\")\n",
+    "meanFitness = np.mean(new_fitnesses)\n",
+    "print(minManhattan,maxManhttan,meanManhttan,minFitness,maxFitness,meanFitness)\n",
+    "population = new_population[index][0:POPULATION_SIZE]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a = np.arange(5)\n",
+    "b=np.random.choice(a,2,p=[0.15,0.3,0.2,0.25,0.1],replace=False)\n",
+    "c=np.setdiff1d(a,b)\n",
+    "print(b,c)\n",
+    "e = np.isin(a,b,invert = True)\n",
+    "d = a[e]\n",
+    "d"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a=np.array([2,3,5,6])\n",
+    "b=np.array([4,3,1,0])\n",
+    "a[[2,3]],b[[2,3]]=b[[2,3]],a[[2,3]]\n",
+    "a,b"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "probilities = np.zeros(POPULATION_SIZE)\n",
+    "for i in range(POPULATION_SIZE):\n",
+    "    probilities[i]= fitnesses[i]/totalFitness\n",
+    "np.random.choice(fitnesses,size=10,p=probilities)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "np.insert(a,2,0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a = [4]\n",
+    "a.remove(4)\n",
+    "if a:\n",
+    "    print('em')\n",
+    "else:\n",
+    "    print('no')\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "crossOver(population)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "np.argmin(population[11].manhattanDists)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "population[11].manhattanDists"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def changeState(offspring,index):\n",
+    "    puzzle = Puzzle(offspring.states[index-1])\n",
+    "    for i in range(index,CHROM_LEN):\n",
+    "        move = offspring.steps[i]\n",
+    "        puzzle.move(move)\n",
+    "        offspring.states[i] = puzzle.state.copy()\n",
+    "        offspring.positions[i] = puzzle.position\n",
+    "        offspring.manhattanDists[i] = puzzle.manhattanDist"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def determineChange(steps1,steps2,index,diff,change1,change2):\n",
+    "    changeNum=abs(int(diff/2))\n",
+    "    odds=diff%2\n",
+    "    cutsize = CHROM_LEN-index\n",
+    "    if(diff>0):\n",
+    "        steps1 = changeStep(steps1,index,changeNum,change2,change1)\n",
+    "        steps2 = changeStep(steps2,index,changeNum,change1,change2)\n",
+    "        if(odds==1):\n",
+    "            steps1 = np.insert(steps1,0,change1)[0:cutsize]\n",
+    "            steps2 = np.insert(steps2,0,change2)[0:cutsize]\n",
+    "    elif(diff<0):\n",
+    "        steps1 = changeStep(steps1,index,changeNum,change1,change2)\n",
+    "        steps2 = changeStep(steps2,index,changeNum,change2,change1)\n",
+    "        if(odds==1):\n",
+    "            steps1 = np.insert(steps1,0,change2)[0:cutsize]\n",
+    "            steps2 = np.insert(steps2,0,change1)[0:cutsize]   \n",
+    "    \n",
+    "    return steps1,steps2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def changeState(offspring,index):\n",
+    "    puzzle = Puzzle(offspring.states[index-1])\n",
+    "    for i in range(index,CHROM_LEN):\n",
+    "        move = offspring.steps[i]\n",
+    "        puzzle.move(move)\n",
+    "        offspring.states[i] = puzzle.state.copy()\n",
+    "        offspring.positions[i] = puzzle.position\n",
+    "        offspring.manhattanDists[i] = puzzle.manhattanDist"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def selection(population,fitnesses,totalFitness):\n",
+    "    probilities = np.zeros(POPULATION_SIZE)\n",
+    "    #parents = np.empty(PARENT_SIZE,dtype=object)\n",
+    "    for i in range(POPULATION_SIZE):\n",
+    "        probilities[i]= fitnesses[i]/totalFitness\n",
+    "    dropout = np.random.choice(population,DROPOUT_SIZE,p=probilities,replace=False)\n",
+    "    index= np.isin(population,dropout,invert = True)\n",
+    "    parents=population[index]\n",
+    "    return parents"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

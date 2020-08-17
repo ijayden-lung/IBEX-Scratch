@@ -1,0 +1,25 @@
+#!/usr/bin/perl 
+
+
+my %id2gene;
+open FILE,"zcat table/Homo_sapiens.GRCh38.95.gtf.gz  | awk '(\$3 == \"gene\")' |";
+while(<FILE>){
+	my ($gene_id,$symbol) = (split)[9,13];
+	$gene_id =~ s/\"|\;//g;
+	$symbol =~ s/\"|\;//g;
+	$id2gene{$gene_id} = $symbol;
+}
+open FILE,"../../DESeq2/quant/10DG0840.tsv";
+<FILE>;
+while(<FILE>){
+	my ($target_id) = split;
+	my ($trans_id,$gene_id,$symbol) = (split /\|/,$target_id)[0,1,5];
+	($gene_id) = split /\./,$gene_id;
+	next if exists $id2gene{$gene_id};
+	$id2gene{$gene_id} = $symbol;
+}
+
+open OUT,">table/id2symbol.tsv";
+while(my ($gene_id,$symbol) = each %id2gene){
+	print OUT "$gene_id\t$symbol\n";
+}

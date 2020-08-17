@@ -1,0 +1,134 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Using TensorFlow backend.\n"
+     ]
+    }
+   ],
+   "source": [
+    "from pandas import DataFrame\n",
+    "from pandas import concat\n",
+    "from keras.models import Sequential\n",
+    "from keras.layers import Dense\n",
+    "from sklearn.metrics import mean_squared_error\n",
+    "from numpy.random import seed\n",
+    "#seed(1) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# fit MLP to dataset and print error\n",
+    "def fit_model(X, y):\n",
+    "# design network\n",
+    "    model = Sequential()\n",
+    "    model.add(Dense(10, input_dim=1))\n",
+    "    model.add(Dense(1))\n",
+    "    model.compile(loss='mean_squared_error', optimizer='adam')\n",
+    "# fit network\n",
+    "    model.fit(X, y, epochs=100, batch_size=len(X), verbose=0)\n",
+    "# forecast\n",
+    "    yhat = model.predict(X, verbose=0)\n",
+    "    print(mean_squared_error(y, yhat[:,0]))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.010853929624575405\n",
+      "0.008389190987893883\n",
+      "0.10943425272291805\n",
+      "0.012088805633718143\n",
+      "0.013897600146552887\n",
+      "0.03626705584956841\n",
+      "1.0096178709180971e-05\n",
+      "0.17658157409826686\n",
+      "0.00370879359242987\n",
+      "0.03793655257293285\n"
+     ]
+    }
+   ],
+   "source": [
+    "# create sequence\n",
+    "length = 10\n",
+    "sequence = [i/float(length) for i in range(length)]\n",
+    "# create X/y pairs\n",
+    "df = DataFrame(sequence)\n",
+    "df = concat([df.shift(1), df], axis=1)\n",
+    "df.dropna(inplace=True)\n",
+    "# convert to MLP friendly format\n",
+    "values = df.values\n",
+    "X, y = values[:,0], values[:,1]\n",
+    "# repeat experiment\n",
+    "repeats = 10\n",
+    "for _ in range(repeats):\n",
+    "    fit_model(X, y) "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "0.006025226045461847\n",
+    "0.037138596928055816\n",
+    "0.14161890597077545\n",
+    "0.00017639026142001444\n",
+    "0.0010382882347238327\n",
+    "0.04457513682887863\n",
+    "0.07545780971041297\n",
+    "0.11828835070115702\n",
+    "0.10517129160306932\n",
+    "0.06712448478839392\n",
+    "\n",
+    "0.006281944944121761\n",
+    "0.01245244946023261\n",
+    "0.125292683070269\n",
+    "0.0011040207408120838\n",
+    "0.17285448770249515\n",
+    "0.03325915536703524\n",
+    "0.012674668314927454\n",
+    "0.1256383803214356\n",
+    "0.014380743486297674\n",
+    "0.0010124956041113928\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
