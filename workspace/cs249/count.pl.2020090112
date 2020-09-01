@@ -1,0 +1,25 @@
+#!/usr/bin/perl -w
+
+open FILE,"dataset_369233_6.txt";
+my $sequence = '';
+my $kmer = '';
+while(<FILE>){
+	chomp;
+	if($. ==1){
+		$sequence = $_;
+	}
+	else{
+		$kmer  = $_;
+	}
+}
+
+
+
+my $count = 0;
+for (my $i=0;$i<length($sequence)-length($kmer);$i++){
+	if(substr($sequence,$i,length($kmer)) eq $kmer){
+		$count++;
+	}
+}
+print "$count\n";
+
