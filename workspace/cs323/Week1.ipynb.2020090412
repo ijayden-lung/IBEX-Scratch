@@ -1,0 +1,248 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "Assignment 01\n",
+    "\n",
+    "*) Read the AlexNet paper \"ImageNet Classification with Deep Convolutional Neural Networks\",  Alex Krizhevsky et al. (you should find it on the internet).\n",
+    "\n",
+    "- Answer Questions:\n",
+    "\n",
+    "What are the (claimed) main ideas that lead to the success of the proposed system? Describe each main idea in a short paragraph.\n",
+    "\n",
+    "How does the performance of AlexNet compare to modern state-of-the-art networks on imagenet classification?\n",
+    "\n",
+    "How to create the AlexNet architecture using a Python command? Please show the Python command and the architecture description if you print it out using Python \n",
+    "\n",
+    "\n",
+    "*) Look at recent conference proceedings: CVPR 2020 & ICLR 2020 & ECCV 2020. Read the abstract of 10 papers you find interesting / read part of the introduction, look at the figures, and look through the results. Don't read the complete paper, just get some main idea.\n",
+    "Write down the list of 10 papers and give\n",
+    "\n",
+    "a) a one line description of the problem the paper tries to solve.\n",
+    "\n",
+    "b) one line comment what seems to be most interesting in the paper and\n",
+    "\n",
+    "*) Create a working Deep Learning Environment, go through the proposed tutorial, and look at the project description.\n",
+    "\n",
+    "Write down a list of 10 PyTorch commands you think will be beneficial for tackling project 1 / an image classification problem and give a one sentence explanation of what the commands are useful for.\n",
+    "\n",
+    "Submit:Submit your answers / tasks as file via blackboard.\n",
+    "The file should be named A1LastnameFirstname.txt or A1LastnameFirstname.pdf\n",
+    "\n",
+    "A stands for assignment, 1 is the assignment number, Lastname your last name, Firstname your first name\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a= np.random.rand(3,2,6)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "dtype('float64')"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "a.dtype"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "A = np.random.rand(300,200 ,100) \n",
+    "B=A[20:50, : , :] # Slice notation \n",
+    "C=A[10:, :, 20:-20]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(30, 200, 100)"
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "B.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(300, 200, 100)"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "A.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(290, 200, 60)"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "C.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(5, 4)\n",
+      "(4,)\n",
+      "[[  1.0738427    1.11303081   1.78420794 100.83452232]\n",
+      " [  1.41476065   1.60308719   1.02353321 100.91199437]\n",
+      " [  1.49264589   1.71257946   1.06581499 100.68005218]\n",
+      " [  1.4486371    1.35788708   1.52449622 100.55505658]\n",
+      " [  1.14552064   1.42287272   1.39644426 100.4797731 ]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "A = np.random.rand(5,4)\n",
+    "x = np.array([1, 1, 1, 100])\n",
+    "print (A.shape) \n",
+    "print(x.shape)\n",
+    "print(A+x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([  1,   1,   1, 100])"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[0.0738427 , 0.11303081, 0.78420794, 0.83452232],\n",
+       "       [0.41476065, 0.60308719, 0.02353321, 0.91199437],\n",
+       "       [0.49264589, 0.71257946, 0.06581499, 0.68005218],\n",
+       "       [0.4486371 , 0.35788708, 0.52449622, 0.55505658],\n",
+       "       [0.14552064, 0.42287272, 0.39644426, 0.4797731 ]])"
+      ]
+     },
+     "execution_count": 22,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "A"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
