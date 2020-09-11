@@ -1,0 +1,3067 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "'/ibex/scratch/longy/workspace/stat210/Week1'"
+      ],
+      "text/latex": [
+       "'/ibex/scratch/longy/workspace/stat210/Week1'"
+      ],
+      "text/markdown": [
+       "'/ibex/scratch/longy/workspace/stat210/Week1'"
+      ],
+      "text/plain": [
+       "[1] \"/ibex/scratch/longy/workspace/stat210/Week1\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "getwd() "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setwd('/ibex/scratch/longy/workspace/stat210/')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "'/ibex/scratch/longy/workspace/stat210'"
+      ],
+      "text/latex": [
+       "'/ibex/scratch/longy/workspace/stat210'"
+      ],
+      "text/markdown": [
+       "'/ibex/scratch/longy/workspace/stat210'"
+      ],
+      "text/plain": [
+       "[1] \"/ibex/scratch/longy/workspace/stat210\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "getwd() "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setwd('/ibex/scratch/longy/workspace/stat210/Week1')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [],
+      "text/latex": [],
+      "text/markdown": [],
+      "text/plain": [
+       "character(0)"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "ls()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<pre class=language-r><code>function (x, na.rm = FALSE) \n",
+       "sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x), \n",
+       "<span style=white-space:pre-wrap>    na.rm = na.rm))</span></code></pre>"
+      ],
+      "text/latex": [
+       "\\begin{minted}{r}\n",
+       "function (x, na.rm = FALSE) \n",
+       "sqrt(var(if (is.vector(x) \\textbar{}\\textbar{} is.factor(x)) x else as.double(x), \n",
+       "    na.rm = na.rm))\n",
+       "\\end{minted}"
+      ],
+      "text/markdown": [
+       "```r\n",
+       "function (x, na.rm = FALSE) \n",
+       "sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x), \n",
+       "    na.rm = na.rm))\n",
+       "```"
+      ],
+      "text/plain": [
+       "function (x, na.rm = FALSE) \n",
+       "sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x), \n",
+       "    na.rm = na.rm))\n",
+       "<bytecode: 0x55a26b93f8d0>\n",
+       "<environment: namespace:stats>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 19 × 2</caption>\n",
+       "<thead>\n",
+       "\t<tr><th scope=col>temperature</th><th scope=col>pressure</th></tr>\n",
+       "\t<tr><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><td>  0</td><td>  0.0002</td></tr>\n",
+       "\t<tr><td> 20</td><td>  0.0012</td></tr>\n",
+       "\t<tr><td> 40</td><td>  0.0060</td></tr>\n",
+       "\t<tr><td> 60</td><td>  0.0300</td></tr>\n",
+       "\t<tr><td> 80</td><td>  0.0900</td></tr>\n",
+       "\t<tr><td>100</td><td>  0.2700</td></tr>\n",
+       "\t<tr><td>120</td><td>  0.7500</td></tr>\n",
+       "\t<tr><td>140</td><td>  1.8500</td></tr>\n",
+       "\t<tr><td>160</td><td>  4.2000</td></tr>\n",
+       "\t<tr><td>180</td><td>  8.8000</td></tr>\n",
+       "\t<tr><td>200</td><td> 17.3000</td></tr>\n",
+       "\t<tr><td>220</td><td> 32.1000</td></tr>\n",
+       "\t<tr><td>240</td><td> 57.0000</td></tr>\n",
+       "\t<tr><td>260</td><td> 96.0000</td></tr>\n",
+       "\t<tr><td>280</td><td>157.0000</td></tr>\n",
+       "\t<tr><td>300</td><td>247.0000</td></tr>\n",
+       "\t<tr><td>320</td><td>376.0000</td></tr>\n",
+       "\t<tr><td>340</td><td>558.0000</td></tr>\n",
+       "\t<tr><td>360</td><td>806.0000</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 19 × 2\n",
+       "\\begin{tabular}{ll}\n",
+       " temperature & pressure\\\\\n",
+       " <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t   0 &   0.0002\\\\\n",
+       "\t  20 &   0.0012\\\\\n",
+       "\t  40 &   0.0060\\\\\n",
+       "\t  60 &   0.0300\\\\\n",
+       "\t  80 &   0.0900\\\\\n",
+       "\t 100 &   0.2700\\\\\n",
+       "\t 120 &   0.7500\\\\\n",
+       "\t 140 &   1.8500\\\\\n",
+       "\t 160 &   4.2000\\\\\n",
+       "\t 180 &   8.8000\\\\\n",
+       "\t 200 &  17.3000\\\\\n",
+       "\t 220 &  32.1000\\\\\n",
+       "\t 240 &  57.0000\\\\\n",
+       "\t 260 &  96.0000\\\\\n",
+       "\t 280 & 157.0000\\\\\n",
+       "\t 300 & 247.0000\\\\\n",
+       "\t 320 & 376.0000\\\\\n",
+       "\t 340 & 558.0000\\\\\n",
+       "\t 360 & 806.0000\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 19 × 2\n",
+       "\n",
+       "| temperature &lt;dbl&gt; | pressure &lt;dbl&gt; |\n",
+       "|---|---|\n",
+       "|   0 |   0.0002 |\n",
+       "|  20 |   0.0012 |\n",
+       "|  40 |   0.0060 |\n",
+       "|  60 |   0.0300 |\n",
+       "|  80 |   0.0900 |\n",
+       "| 100 |   0.2700 |\n",
+       "| 120 |   0.7500 |\n",
+       "| 140 |   1.8500 |\n",
+       "| 160 |   4.2000 |\n",
+       "| 180 |   8.8000 |\n",
+       "| 200 |  17.3000 |\n",
+       "| 220 |  32.1000 |\n",
+       "| 240 |  57.0000 |\n",
+       "| 260 |  96.0000 |\n",
+       "| 280 | 157.0000 |\n",
+       "| 300 | 247.0000 |\n",
+       "| 320 | 376.0000 |\n",
+       "| 340 | 558.0000 |\n",
+       "| 360 | 806.0000 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "   temperature pressure\n",
+       "1    0           0.0002\n",
+       "2   20           0.0012\n",
+       "3   40           0.0060\n",
+       "4   60           0.0300\n",
+       "5   80           0.0900\n",
+       "6  100           0.2700\n",
+       "7  120           0.7500\n",
+       "8  140           1.8500\n",
+       "9  160           4.2000\n",
+       "10 180           8.8000\n",
+       "11 200          17.3000\n",
+       "12 220          32.1000\n",
+       "13 240          57.0000\n",
+       "14 260          96.0000\n",
+       "15 280         157.0000\n",
+       "16 300         247.0000\n",
+       "17 320         376.0000\n",
+       "18 340         558.0000\n",
+       "19 360         806.0000"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "2.30258509299405"
+      ],
+      "text/latex": [
+       "2.30258509299405"
+      ],
+      "text/markdown": [
+       "2.30258509299405"
+      ],
+      "text/plain": [
+       "[1] 2.302585"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1.38493542219562</li><li>0.82473207548894</li><li>1.09530253372206</li><li>1.28111594807605</li><li>0.900584793751159</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1.38493542219562\n",
+       "\\item 0.82473207548894\n",
+       "\\item 1.09530253372206\n",
+       "\\item 1.28111594807605\n",
+       "\\item 0.900584793751159\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1.38493542219562\n",
+       "2. 0.82473207548894\n",
+       "3. 1.09530253372206\n",
+       "4. 1.28111594807605\n",
+       "5. 0.900584793751159\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 1.3849354 0.8247321 1.0953025 1.2811159 0.9005848"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 2</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>speed</th><th scope=col>dist</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>1</th><td>4</td><td> 2</td></tr>\n",
+       "\t<tr><th scope=row>2</th><td>4</td><td>10</td></tr>\n",
+       "\t<tr><th scope=row>3</th><td>7</td><td> 4</td></tr>\n",
+       "\t<tr><th scope=row>4</th><td>7</td><td>22</td></tr>\n",
+       "\t<tr><th scope=row>5</th><td>8</td><td>16</td></tr>\n",
+       "\t<tr><th scope=row>6</th><td>9</td><td>10</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 2\n",
+       "\\begin{tabular}{r|ll}\n",
+       "  & speed & dist\\\\\n",
+       "  & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t1 & 4 &  2\\\\\n",
+       "\t2 & 4 & 10\\\\\n",
+       "\t3 & 7 &  4\\\\\n",
+       "\t4 & 7 & 22\\\\\n",
+       "\t5 & 8 & 16\\\\\n",
+       "\t6 & 9 & 10\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 2\n",
+       "\n",
+       "| <!--/--> | speed &lt;dbl&gt; | dist &lt;dbl&gt; |\n",
+       "|---|---|---|\n",
+       "| 1 | 4 |  2 |\n",
+       "| 2 | 4 | 10 |\n",
+       "| 3 | 7 |  4 |\n",
+       "| 4 | 7 | 22 |\n",
+       "| 5 | 8 | 16 |\n",
+       "| 6 | 9 | 10 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  speed dist\n",
+       "1 4      2  \n",
+       "2 4     10  \n",
+       "3 7      4  \n",
+       "4 7     22  \n",
+       "5 8     16  \n",
+       "6 9     10  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "'data.frame':\t50 obs. of  2 variables:\n",
+      " $ speed: num  4 4 7 7 8 9 10 10 10 11 ...\n",
+      " $ dist : num  2 10 4 22 16 10 18 26 34 17 ...\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAA0gAAANICAMAAADKOT/pAAADAFBMVEUAAAABAQECAgIDAwME\nBAQFBQUGBgYHBwcICAgJCQkKCgoLCwsMDAwNDQ0ODg4PDw8QEBARERESEhITExMUFBQVFRUW\nFhYXFxcYGBgZGRkaGhobGxscHBwdHR0eHh4fHx8gICAhISEiIiIjIyMkJCQlJSUmJiYnJyco\nKCgpKSkqKiorKyssLCwtLS0uLi4vLy8wMDAxMTEyMjIzMzM0NDQ1NTU2NjY3Nzc4ODg5OTk6\nOjo7Ozs8PDw9PT0+Pj4/Pz9AQEBBQUFCQkJDQ0NERERFRUVGRkZHR0dISEhJSUlKSkpLS0tM\nTExNTU1OTk5PT09QUFBRUVFSUlJTU1NUVFRVVVVWVlZXV1dYWFhZWVlaWlpbW1tcXFxdXV1e\nXl5fX19gYGBhYWFiYmJjY2NkZGRlZWVmZmZnZ2doaGhpaWlqampra2tsbGxtbW1ubm5vb29w\ncHBxcXFycnJzc3N0dHR1dXV2dnZ3d3d4eHh5eXl6enp7e3t8fHx9fX1+fn5/f3+AgICBgYGC\ngoKDg4OEhISFhYWGhoaHh4eIiIiJiYmKioqLi4uMjIyNjY2Ojo6Pj4+QkJCRkZGSkpKTk5OU\nlJSVlZWWlpaXl5eYmJiZmZmampqbm5ucnJydnZ2enp6fn5+goKChoaGioqKjo6OkpKSlpaWm\npqanp6eoqKipqamqqqqrq6usrKytra2urq6vr6+wsLCxsbGysrKzs7O0tLS1tbW2tra3t7e4\nuLi5ubm6urq7u7u8vLy9vb2+vr6/v7/AwMDBwcHCwsLDw8PExMTFxcXGxsbHx8fIyMjJycnK\nysrLy8vMzMzNzc3Ozs7Pz8/Q0NDR0dHS0tLT09PU1NTV1dXW1tbX19fY2NjZ2dna2trb29vc\n3Nzd3d3e3t7f39/g4ODh4eHi4uLj4+Pk5OTl5eXm5ubn5+fo6Ojp6enq6urr6+vs7Ozt7e3u\n7u7v7+/w8PDx8fHy8vLz8/P09PT19fX29vb39/f4+Pj5+fn6+vr7+/v8/Pz9/f3+/v7////i\nsF19AAAACXBIWXMAABJ0AAASdAHeZh94AAAgAElEQVR4nO3dB3hT5f7A8TdtU2ihRZAtUKao\nTBEFFRAFF0MUBAQVKjjY8Be0Dq7gYFgURQVUHIjXrVXAjShchiCgiIpKQRAQBxsKbaFt/k3O\n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\nAggJEEBIgABCAgQQEiCAkAABhAQIICRAACEBAggJEEBIgABCAgQQEiCAkAABhAQIIKQwFN3G\n6hlEHkIKQ4RkPkIKQ4RkPkIKQ4RkPkKyvazU5onlm6XmejxXq12Dq8Y2nuX9t38Mq+Ou3OOr\nfwzfb1W2yuD9hGQ+QrK9m1T/2U9fo4Z7PH3VeSkrll2q5ng8fyVVSHl5cq0yS/42XBZdc/Kc\nG9q7Ccl0hGR78ed7v/5fr5z8kPrljw6UqevxDI1Zkz/cntD6b8MrlPfn0jBFSKYjJNurUPNP\nfdRXzfcuOqtdeZVb/e51uTp80jA3roF3/TeEZD5Csr0ZKvHGF3Z6R33Vj97FQPX1H6rADycN\nd6pLveszCcl8hGR/i68up1xdtnlD+tX7z8PU5+mq5Uea/ScNN6nuvh1chGQ6QnKCrEUDXQ2z\n80Pa6P2n69W3f6iWBetOGu7QfiId5ieS+QjJIYaq1fkhveMdnqf+8lQuu987/Cv/P4XD47EN\nvaMVhGQ+QrK7L2u+5F0MV1/nh9Q1f/Szq7G3q3vyh39V7/a3YUffq3b9Ccl8hGR3x5vG3jJz\n1qCodnn5IXXu9vSsuuoVj+fPOuqmuZPruD/92/BDV9W7pnW7pAIhmY6QbG/vmAbxFVpMPux9\nsSF9TM3Ys+Z6/+3vQ2vHnHLV6n8MX28WW2XQ/tpnWznfyERIDtJX7bB6CigCITkIIdkXITkI\nIdkXITkIIdkXIQECCAkQQEiAAEICBBASIICQAAGEBAggJEAAIQECCAkQQEiAAEICBBASIICQ\nAAGEBAggJEAAIQECCAkQQEiAAEICBBASIICQAAGEBAggJEAAIQECCAkQQEiAgP8HTJX1S/XE\nBu8AAAAASUVORK5CYII=",
+      "text/plain": [
+       "plot without title"
+      ]
+     },
+     "metadata": {
+      "image/png": {
+       "height": 420,
+       "width": 420
+      }
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "sd\n",
+    "\n",
+    "pressure\n",
+    "\n",
+    "log(10)\n",
+    "\n",
+    "rnorm(5)\n",
+    "\n",
+    "data()\n",
+    "\n",
+    "data(cars)\n",
+    "\n",
+    "plot(cars)\n",
+    "\n",
+    "head(cars)\n",
+    "\n",
+    "str(cars)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x <-c(1, 1.5,2,2.5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>1.5</li><li>2</li><li>2.5</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 1.5\n",
+       "\\item 2\n",
+       "\\item 2.5\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 1.5\n",
+       "3. 2\n",
+       "4. 2.5\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 1.0 1.5 2.0 2.5"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "x"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>1.5</li><li>2</li><li>2.5</li><li>3</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 1.5\n",
+       "\\item 2\n",
+       "\\item 2.5\n",
+       "\\item 3\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 1.5\n",
+       "3. 2\n",
+       "4. 2.5\n",
+       "5. 3\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 1.0 1.5 2.0 2.5 3.0"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'this'</li><li>'is'</li><li>'an'</li><li>'example'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'this'\n",
+       "\\item 'is'\n",
+       "\\item 'an'\n",
+       "\\item 'example'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'this'\n",
+       "2. 'is'\n",
+       "3. 'an'\n",
+       "4. 'example'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"this\"    \"is\"      \"an\"      \"example\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'1'</li><li>'1.5'</li><li>'2'</li><li>'2.5'</li><li>'3'</li><li>'a'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item '1'\n",
+       "\\item '1.5'\n",
+       "\\item '2'\n",
+       "\\item '2.5'\n",
+       "\\item '3'\n",
+       "\\item 'a'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. '1'\n",
+       "2. '1.5'\n",
+       "3. '2'\n",
+       "4. '2.5'\n",
+       "5. '3'\n",
+       "6. 'a'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"1\"   \"1.5\" \"2\"   \"2.5\" \"3\"   \"a\"  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "1 1.5 2 2.5 3 a"
+     ]
+    }
+   ],
+   "source": [
+    "(x <- c(x,3))\n",
+    "\n",
+    "# and also characters can be used:\n",
+    "\n",
+    "(y <- c('this','is','an','example'))\n",
+    "\n",
+    "# However, if one combines numbers and characters, all entries of \n",
+    "# the vector will be considered as characters and it is not posible \n",
+    "# to operate on them as numbers:\n",
+    "\n",
+    "(z <- c(x,'a'))\n",
+    "\n",
+    "# If you want to avoid the quotation marks when printing characters, \n",
+    "# you may use the function cat:\n",
+    "\n",
+    "cat(z)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ERROR",
+     "evalue": "Error in eval(expr, envir, enclos): object 'seq(from=1, to=1, by=((to-from)/length.out-1),length.out = NULL)' not found\n",
+     "output_type": "error",
+     "traceback": [
+      "Error in eval(expr, envir, enclos): object 'seq(from=1, to=1, by=((to-from)/length.out-1),length.out = NULL)' not found\nTraceback:\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "### seq\n",
+    "# This function is used to form regular sequences of numbers. \n",
+    "# The basic syntax is \n",
+    "\n",
+    "#seq(from=1, to=1, by=((to-from)/length.out-1),length.out = NULL)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>0</li><li>5</li><li>10</li><li>15</li><li>20</li><li>25</li><li>30</li><li>35</li><li>40</li><li>45</li><li>50</li><li>55</li><li>60</li><li>65</li><li>70</li><li>75</li><li>80</li><li>85</li><li>90</li><li>95</li><li>100</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 0\n",
+       "\\item 5\n",
+       "\\item 10\n",
+       "\\item 15\n",
+       "\\item 20\n",
+       "\\item 25\n",
+       "\\item 30\n",
+       "\\item 35\n",
+       "\\item 40\n",
+       "\\item 45\n",
+       "\\item 50\n",
+       "\\item 55\n",
+       "\\item 60\n",
+       "\\item 65\n",
+       "\\item 70\n",
+       "\\item 75\n",
+       "\\item 80\n",
+       "\\item 85\n",
+       "\\item 90\n",
+       "\\item 95\n",
+       "\\item 100\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 0\n",
+       "2. 5\n",
+       "3. 10\n",
+       "4. 15\n",
+       "5. 20\n",
+       "6. 25\n",
+       "7. 30\n",
+       "8. 35\n",
+       "9. 40\n",
+       "10. 45\n",
+       "11. 50\n",
+       "12. 55\n",
+       "13. 60\n",
+       "14. 65\n",
+       "15. 70\n",
+       "16. 75\n",
+       "17. 80\n",
+       "18. 85\n",
+       "19. 90\n",
+       "20. 95\n",
+       "21. 100\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1]   0   5  10  15  20  25  30  35  40  45  50  55  60  65  70  75  80  85  90\n",
+       "[20]  95 100"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1955</li><li>1956</li><li>1957</li><li>1958</li><li>1959</li><li>1960</li><li>1961</li><li>1962</li><li>1963</li><li>1964</li><li>1965</li><li>1966</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1955\n",
+       "\\item 1956\n",
+       "\\item 1957\n",
+       "\\item 1958\n",
+       "\\item 1959\n",
+       "\\item 1960\n",
+       "\\item 1961\n",
+       "\\item 1962\n",
+       "\\item 1963\n",
+       "\\item 1964\n",
+       "\\item 1965\n",
+       "\\item 1966\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1955\n",
+       "2. 1956\n",
+       "3. 1957\n",
+       "4. 1958\n",
+       "5. 1959\n",
+       "6. 1960\n",
+       "7. 1961\n",
+       "8. 1962\n",
+       "9. 1963\n",
+       "10. 1964\n",
+       "11. 1965\n",
+       "12. 1966\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 1955 1956 1957 1958 1959 1960 1961 1962 1963 1964 1965 1966"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>10</li><li>10.2</li><li>10.4</li><li>10.6</li><li>10.8</li><li>11</li><li>11.2</li><li>11.4</li><li>11.6</li><li>11.8</li><li>12</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 10\n",
+       "\\item 10.2\n",
+       "\\item 10.4\n",
+       "\\item 10.6\n",
+       "\\item 10.8\n",
+       "\\item 11\n",
+       "\\item 11.2\n",
+       "\\item 11.4\n",
+       "\\item 11.6\n",
+       "\\item 11.8\n",
+       "\\item 12\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 10\n",
+       "2. 10.2\n",
+       "3. 10.4\n",
+       "4. 10.6\n",
+       "5. 10.8\n",
+       "6. 11\n",
+       "7. 11.2\n",
+       "8. 11.4\n",
+       "9. 11.6\n",
+       "10. 11.8\n",
+       "11. 12\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 10.0 10.2 10.4 10.6 10.8 11.0 11.2 11.4 11.6 11.8 12.0"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "seq(0,100,5)\n",
+    "seq(1955,1966,1)\n",
+    "seq(10,12,0.2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1955</li><li>1956</li><li>1957</li><li>1958</li><li>1959</li><li>1960</li><li>1961</li><li>1962</li><li>1963</li><li>1964</li><li>1965</li><li>1966</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1955\n",
+       "\\item 1956\n",
+       "\\item 1957\n",
+       "\\item 1958\n",
+       "\\item 1959\n",
+       "\\item 1960\n",
+       "\\item 1961\n",
+       "\\item 1962\n",
+       "\\item 1963\n",
+       "\\item 1964\n",
+       "\\item 1965\n",
+       "\\item 1966\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1955\n",
+       "2. 1956\n",
+       "3. 1957\n",
+       "4. 1958\n",
+       "5. 1959\n",
+       "6. 1960\n",
+       "7. 1961\n",
+       "8. 1962\n",
+       "9. 1963\n",
+       "10. 1964\n",
+       "11. 1965\n",
+       "12. 1966\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 1955 1956 1957 1958 1959 1960 1961 1962 1963 1964 1965 1966"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 4\n",
+       "\\item 5\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 2\n",
+       "3. 3\n",
+       "4. 4\n",
+       "5. 5\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 1 2 3 4 5"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>5</li><li>4</li><li>3</li><li>2</li><li>1</li><li>0</li><li>-1</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 5\n",
+       "\\item 4\n",
+       "\\item 3\n",
+       "\\item 2\n",
+       "\\item 1\n",
+       "\\item 0\n",
+       "\\item -1\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 5\n",
+       "2. 4\n",
+       "3. 3\n",
+       "4. 2\n",
+       "5. 1\n",
+       "6. 0\n",
+       "7. -1\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1]  5  4  3  2  1  0 -1"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# 1 is the default value for the lower limit of the sequence and \n",
+    "# also for the increment:\n",
+    "\n",
+    "seq(1955,1966)\n",
+    "seq(5)\n",
+    "seq(5,-1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 4\n",
+       "\\item 5\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 2\n",
+       "3. 3\n",
+       "4. 4\n",
+       "5. 5\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 1 2 3 4 5"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>5</li><li>4</li><li>3</li><li>2</li><li>1</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 5\n",
+       "\\item 4\n",
+       "\\item 3\n",
+       "\\item 2\n",
+       "\\item 1\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 5\n",
+       "2. 4\n",
+       "3. 3\n",
+       "4. 2\n",
+       "5. 1\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 5 4 3 2 1"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>10</li><li>10.2</li><li>10.4</li><li>10.6</li><li>10.8</li><li>11</li><li>11.2</li><li>11.4</li><li>11.6</li><li>11.8</li><li>12</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 10\n",
+       "\\item 10.2\n",
+       "\\item 10.4\n",
+       "\\item 10.6\n",
+       "\\item 10.8\n",
+       "\\item 11\n",
+       "\\item 11.2\n",
+       "\\item 11.4\n",
+       "\\item 11.6\n",
+       "\\item 11.8\n",
+       "\\item 12\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 10\n",
+       "2. 10.2\n",
+       "3. 10.4\n",
+       "4. 10.6\n",
+       "5. 10.8\n",
+       "6. 11\n",
+       "7. 11.2\n",
+       "8. 11.4\n",
+       "9. 11.6\n",
+       "10. 11.8\n",
+       "11. 12\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 10.0 10.2 10.4 10.6 10.8 11.0 11.2 11.4 11.6 11.8 12.0"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# There is a shorthand for this function when the increment is 1:\n",
+    "\n",
+    "1:5\n",
+    "5:1\n",
+    "50:60/5"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>10</li><li>10</li><li>10</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 10\n",
+       "2. 10\n",
+       "3. 10\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 10 10 10"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>0</li><li>5</li><li>0</li><li>5</li><li>0</li><li>5</li><li>0</li><li>5</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 0\n",
+       "\\item 5\n",
+       "\\item 0\n",
+       "\\item 5\n",
+       "\\item 0\n",
+       "\\item 5\n",
+       "\\item 0\n",
+       "\\item 5\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 0\n",
+       "2. 5\n",
+       "3. 0\n",
+       "4. 5\n",
+       "5. 0\n",
+       "6. 5\n",
+       "7. 0\n",
+       "8. 5\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 0 5 0 5 0 5 0 5"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'wx'</li><li>'yz'</li><li>'wx'</li><li>'yz'</li><li>'wx'</li><li>'yz'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'wx'\n",
+       "\\item 'yz'\n",
+       "\\item 'wx'\n",
+       "\\item 'yz'\n",
+       "\\item 'wx'\n",
+       "\\item 'yz'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'wx'\n",
+       "2. 'yz'\n",
+       "3. 'wx'\n",
+       "4. 'yz'\n",
+       "5. 'wx'\n",
+       "6. 'yz'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"wx\" \"yz\" \"wx\" \"yz\" \"wx\" \"yz\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 4\n",
+       "\\item 5\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 4\n",
+       "\\item 5\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 2\n",
+       "3. 3\n",
+       "4. 4\n",
+       "5. 5\n",
+       "6. 1\n",
+       "7. 2\n",
+       "8. 3\n",
+       "9. 4\n",
+       "10. 5\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 1 2 3 4 5 1 2 3 4 5"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "### rep\n",
+    "# This function replicates a pattern. The syntax is \n",
+    "#rep(x,times)\n",
+    "\n",
+    "# where x is the object to be replicated and times is the number \n",
+    "# of replications:\n",
+    "\n",
+    "rep(10,3)\n",
+    "rep(c(0,5), 4)\n",
+    "rep(c('wx','yz'),3)\n",
+    "rep(1:5,2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>10</li><li>10</li><li>20</li><li>20</li><li>20</li><li>20</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 20\n",
+       "\\item 20\n",
+       "\\item 20\n",
+       "\\item 20\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 10\n",
+       "2. 10\n",
+       "3. 20\n",
+       "4. 20\n",
+       "5. 20\n",
+       "6. 20\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 10 10 20 20 20 20"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>2</li><li>2</li><li>3</li><li>3</li><li>3</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 3\n",
+       "\\item 3\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 2\n",
+       "3. 2\n",
+       "4. 3\n",
+       "5. 3\n",
+       "6. 3\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 1 2 2 3 3 3"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>1</li><li>1</li><li>1</li><li>2</li><li>2</li><li>2</li><li>2</li><li>3</li><li>3</li><li>3</li><li>3</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 1\n",
+       "\\item 1\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 2\n",
+       "\\item 2\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 3\n",
+       "\\item 3\n",
+       "\\item 3\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 1\n",
+       "3. 1\n",
+       "4. 1\n",
+       "5. 2\n",
+       "6. 2\n",
+       "7. 2\n",
+       "8. 2\n",
+       "9. 3\n",
+       "10. 3\n",
+       "11. 3\n",
+       "12. 3\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 1 1 1 1 2 2 2 2 3 3 3 3"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# The number of replications can be a vector, in which\n",
+    "# case it must have the same number of components as the pattern, \n",
+    "# and then each element of the pattern is repeated the corresponding \n",
+    "# number of times.\n",
+    "\n",
+    "rep(c(10,20),c(2,4))\n",
+    "rep(1:3,1:3)\n",
+    "rep(1:3,rep(4,3))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>1</li><li>2</li><li>3</li><li>4</li><li>1</li><li>2</li><li>3</li><li>4</li><li>1</li><li>2</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 4\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\item 3\n",
+       "\\item 4\n",
+       "\\item 1\n",
+       "\\item 2\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 1\n",
+       "2. 2\n",
+       "3. 3\n",
+       "4. 4\n",
+       "5. 1\n",
+       "6. 2\n",
+       "7. 3\n",
+       "8. 4\n",
+       "9. 1\n",
+       "10. 2\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 1 2 3 4 1 2 3 4 1 2"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# It is also possible to specify the number of terms the replications \n",
+    "# should have using the option length:\n",
+    "\n",
+    "rep(c(1,2,3,4), length=10)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "0.435480481040914"
+      ],
+      "text/latex": [
+       "0.435480481040914"
+      ],
+      "text/markdown": [
+       "0.435480481040914"
+      ],
+      "text/plain": [
+       "[1] 0.4354805"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "##Indexing\n",
+    "\n",
+    "# To get a particular component from a vector, you can write the \n",
+    "# position of the element in the vector within square brackets after \n",
+    "# the vector's name, as in the following example:\n",
+    "\n",
+    "z <- rnorm(10)\n",
+    "z[3]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "'s'"
+      ],
+      "text/latex": [
+       "'s'"
+      ],
+      "text/markdown": [
+       "'s'"
+      ],
+      "text/plain": [
+       "[1] \"s\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'k'</li><li>'m'</li><li>'o'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'k'\n",
+       "\\item 'm'\n",
+       "\\item 'o'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'k'\n",
+       "2. 'm'\n",
+       "3. 'o'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"k\" \"m\" \"o\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'k'</li><li>'m'</li><li>'o'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'k'\n",
+       "\\item 'm'\n",
+       "\\item 'o'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'k'\n",
+       "2. 'm'\n",
+       "3. 'o'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"k\" \"m\" \"o\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "letters[19]\n",
+    "letters[c(11,13,15)]\n",
+    "letters[seq(11,15,2)]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'a'</li><li>'b'</li><li>'c'</li><li>'d'</li><li>'e'</li><li>'f'</li><li>'g'</li><li>'h'</li><li>'i'</li><li>'j'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'a'\n",
+       "\\item 'b'\n",
+       "\\item 'c'\n",
+       "\\item 'd'\n",
+       "\\item 'e'\n",
+       "\\item 'f'\n",
+       "\\item 'g'\n",
+       "\\item 'h'\n",
+       "\\item 'i'\n",
+       "\\item 'j'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'a'\n",
+       "2. 'b'\n",
+       "3. 'c'\n",
+       "4. 'd'\n",
+       "5. 'e'\n",
+       "6. 'f'\n",
+       "7. 'g'\n",
+       "8. 'h'\n",
+       "9. 'i'\n",
+       "10. 'j'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" \"g\" \"h\" \"i\" \"j\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'b'</li><li>'d'</li><li>'f'</li><li>'h'</li><li>'j'</li><li>'l'</li><li>'n'</li><li>'p'</li><li>'r'</li><li>'t'</li><li>'v'</li><li>'x'</li><li>'z'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'b'\n",
+       "\\item 'd'\n",
+       "\\item 'f'\n",
+       "\\item 'h'\n",
+       "\\item 'j'\n",
+       "\\item 'l'\n",
+       "\\item 'n'\n",
+       "\\item 'p'\n",
+       "\\item 'r'\n",
+       "\\item 't'\n",
+       "\\item 'v'\n",
+       "\\item 'x'\n",
+       "\\item 'z'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'b'\n",
+       "2. 'd'\n",
+       "3. 'f'\n",
+       "4. 'h'\n",
+       "5. 'j'\n",
+       "6. 'l'\n",
+       "7. 'n'\n",
+       "8. 'p'\n",
+       "9. 'r'\n",
+       "10. 't'\n",
+       "11. 'v'\n",
+       "12. 'x'\n",
+       "13. 'z'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"b\" \"d\" \"f\" \"h\" \"j\" \"l\" \"n\" \"p\" \"r\" \"t\" \"v\" \"x\" \"z\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "# 2.- Negative numbers that correspond to entries to be excluded:\n",
+    "\n",
+    "letters[-(11:26)]\n",
+    "letters[-seq(1,25,2)]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>TRUE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li><li>FALSE</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\item FALSE\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. TRUE\n",
+       "2. TRUE\n",
+       "3. TRUE\n",
+       "4. TRUE\n",
+       "5. TRUE\n",
+       "6. TRUE\n",
+       "7. TRUE\n",
+       "8. TRUE\n",
+       "9. TRUE\n",
+       "10. TRUE\n",
+       "11. FALSE\n",
+       "12. FALSE\n",
+       "13. FALSE\n",
+       "14. FALSE\n",
+       "15. FALSE\n",
+       "16. FALSE\n",
+       "17. FALSE\n",
+       "18. FALSE\n",
+       "19. FALSE\n",
+       "20. FALSE\n",
+       "21. FALSE\n",
+       "22. FALSE\n",
+       "23. FALSE\n",
+       "24. FALSE\n",
+       "25. FALSE\n",
+       "26. FALSE\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE\n",
+       "[13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE\n",
+       "[25] FALSE FALSE"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'a'</li><li>'b'</li><li>'c'</li><li>'d'</li><li>'e'</li><li>'f'</li><li>'g'</li><li>'h'</li><li>'i'</li><li>'j'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'a'\n",
+       "\\item 'b'\n",
+       "\\item 'c'\n",
+       "\\item 'd'\n",
+       "\\item 'e'\n",
+       "\\item 'f'\n",
+       "\\item 'g'\n",
+       "\\item 'h'\n",
+       "\\item 'i'\n",
+       "\\item 'j'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'a'\n",
+       "2. 'b'\n",
+       "3. 'c'\n",
+       "4. 'd'\n",
+       "5. 'e'\n",
+       "6. 'f'\n",
+       "7. 'g'\n",
+       "8. 'h'\n",
+       "9. 'i'\n",
+       "10. 'j'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" \"g\" \"h\" \"i\" \"j\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li><li>FALSE</li><li>TRUE</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\item FALSE\n",
+       "\\item TRUE\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. FALSE\n",
+       "2. TRUE\n",
+       "3. FALSE\n",
+       "4. TRUE\n",
+       "5. FALSE\n",
+       "6. TRUE\n",
+       "7. FALSE\n",
+       "8. TRUE\n",
+       "9. FALSE\n",
+       "10. TRUE\n",
+       "11. FALSE\n",
+       "12. TRUE\n",
+       "13. FALSE\n",
+       "14. TRUE\n",
+       "15. FALSE\n",
+       "16. TRUE\n",
+       "17. FALSE\n",
+       "18. TRUE\n",
+       "19. FALSE\n",
+       "20. TRUE\n",
+       "21. FALSE\n",
+       "22. TRUE\n",
+       "23. FALSE\n",
+       "24. TRUE\n",
+       "25. FALSE\n",
+       "26. TRUE\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE\n",
+       "[13] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE\n",
+       "[25] FALSE  TRUE"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'b'</li><li>'d'</li><li>'f'</li><li>'h'</li><li>'j'</li><li>'l'</li><li>'n'</li><li>'p'</li><li>'r'</li><li>'t'</li><li>'v'</li><li>'x'</li><li>'z'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'b'\n",
+       "\\item 'd'\n",
+       "\\item 'f'\n",
+       "\\item 'h'\n",
+       "\\item 'j'\n",
+       "\\item 'l'\n",
+       "\\item 'n'\n",
+       "\\item 'p'\n",
+       "\\item 'r'\n",
+       "\\item 't'\n",
+       "\\item 'v'\n",
+       "\\item 'x'\n",
+       "\\item 'z'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'b'\n",
+       "2. 'd'\n",
+       "3. 'f'\n",
+       "4. 'h'\n",
+       "5. 'j'\n",
+       "6. 'l'\n",
+       "7. 'n'\n",
+       "8. 'p'\n",
+       "9. 'r'\n",
+       "10. 't'\n",
+       "11. 'v'\n",
+       "12. 'x'\n",
+       "13. 'z'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"b\" \"d\" \"f\" \"h\" \"j\" \"l\" \"n\" \"p\" \"r\" \"t\" \"v\" \"x\" \"z\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# 3.- Logical variables. TRUE values will be included while FALSE \n",
+    " # values will not.\n",
+    "\n",
+    "a <- 1:26\n",
+    "a < 11\n",
+    "letters[a<11]\n",
+    "a %% 2 == 0\n",
+    "letters[a %% 2==0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'b'</li><li>'c'</li><li>'d'</li><li>'e'</li><li>'f'</li><li>'g'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'b'\n",
+       "\\item 'c'\n",
+       "\\item 'd'\n",
+       "\\item 'e'\n",
+       "\\item 'f'\n",
+       "\\item 'g'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'b'\n",
+       "2. 'c'\n",
+       "3. 'd'\n",
+       "4. 'e'\n",
+       "5. 'f'\n",
+       "6. 'g'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"b\" \"c\" \"d\" \"e\" \"f\" \"g\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Double inequalities such as $1 < x \\leq 7$ should be written \n",
+    "# using the \\& symbol: 1 < a \\& a <= 7:\n",
+    "\n",
+    "letters[1 < a & a <= 7]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>9</li><li>10</li><li>12</li><li>11</li><li>15</li><li>12</li><li>14</li><li>17</li><li>13</li><li>10</li><li>10</li><li>9</li><li>10</li><li>13</li><li>16</li><li>12</li><li>15</li><li>13</li><li>11</li><li>14</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 9\n",
+       "\\item 10\n",
+       "\\item 12\n",
+       "\\item 11\n",
+       "\\item 15\n",
+       "\\item 12\n",
+       "\\item 14\n",
+       "\\item 17\n",
+       "\\item 13\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 9\n",
+       "\\item 10\n",
+       "\\item 13\n",
+       "\\item 16\n",
+       "\\item 12\n",
+       "\\item 15\n",
+       "\\item 13\n",
+       "\\item 11\n",
+       "\\item 14\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 9\n",
+       "2. 10\n",
+       "3. 12\n",
+       "4. 11\n",
+       "5. 15\n",
+       "6. 12\n",
+       "7. 14\n",
+       "8. 17\n",
+       "9. 13\n",
+       "10. 10\n",
+       "11. 10\n",
+       "12. 9\n",
+       "13. 10\n",
+       "14. 13\n",
+       "15. 16\n",
+       "16. 12\n",
+       "17. 15\n",
+       "18. 13\n",
+       "19. 11\n",
+       "20. 14\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1]  9 10 12 11 15 12 14 17 13 10 10  9 10 13 16 12 15 13 11 14"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>10</li><li>12</li><li>12</li><li>14</li><li>10</li><li>10</li><li>10</li><li>16</li><li>12</li><li>14</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 10\n",
+       "\\item 12\n",
+       "\\item 12\n",
+       "\\item 14\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 16\n",
+       "\\item 12\n",
+       "\\item 14\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 10\n",
+       "2. 12\n",
+       "3. 12\n",
+       "4. 14\n",
+       "5. 10\n",
+       "6. 10\n",
+       "7. 10\n",
+       "8. 16\n",
+       "9. 12\n",
+       "10. 14\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] 10 12 12 14 10 10 10 16 12 14"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>9</li><li>11</li><li>15</li><li>17</li><li>13</li><li>9</li><li>13</li><li>15</li><li>13</li><li>11</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 9\n",
+       "\\item 11\n",
+       "\\item 15\n",
+       "\\item 17\n",
+       "\\item 13\n",
+       "\\item 9\n",
+       "\\item 13\n",
+       "\\item 15\n",
+       "\\item 13\n",
+       "\\item 11\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 9\n",
+       "2. 11\n",
+       "3. 15\n",
+       "4. 17\n",
+       "5. 13\n",
+       "6. 9\n",
+       "7. 13\n",
+       "8. 15\n",
+       "9. 13\n",
+       "10. 11\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1]  9 11 15 17 13  9 13 15 13 11"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# We have used this operators to get the letters that occupy \n",
+    "# even positions in the vector letters but they can also be \n",
+    "# used to get the even (or odd) components of a vector:\n",
+    "\n",
+    "(x <- rbinom(20, 40, prob=1/3))\n",
+    "x[x %% 2==0]\n",
+    "x[x %% 2!=0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'a'</li><li>'c'</li><li>'e'</li><li>'g'</li><li>'i'</li><li>'k'</li><li>'m'</li><li>'o'</li><li>'q'</li><li>'s'</li><li>'u'</li><li>'w'</li><li>'y'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'a'\n",
+       "\\item 'c'\n",
+       "\\item 'e'\n",
+       "\\item 'g'\n",
+       "\\item 'i'\n",
+       "\\item 'k'\n",
+       "\\item 'm'\n",
+       "\\item 'o'\n",
+       "\\item 'q'\n",
+       "\\item 's'\n",
+       "\\item 'u'\n",
+       "\\item 'w'\n",
+       "\\item 'y'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'a'\n",
+       "2. 'c'\n",
+       "3. 'e'\n",
+       "4. 'g'\n",
+       "5. 'i'\n",
+       "6. 'k'\n",
+       "7. 'm'\n",
+       "8. 'o'\n",
+       "9. 'q'\n",
+       "10. 's'\n",
+       "11. 'u'\n",
+       "12. 'w'\n",
+       "13. 'y'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"a\" \"c\" \"e\" \"g\" \"i\" \"k\" \"m\" \"o\" \"q\" \"s\" \"u\" \"w\" \"y\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# If the indexing vector is shorter than the object to which it is \n",
+    "# being applied, it is recycled:\n",
+    "\n",
+    "letters[c(T,F)]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "'data.frame':\t31 obs. of  3 variables:\n",
+      " $ Girth : num  8.3 8.6 8.8 10.5 10.7 10.8 11 11 11.1 11.2 ...\n",
+      " $ Height: num  70 65 63 72 81 83 66 75 80 75 ...\n",
+      " $ Volume: num  10.3 10.3 10.2 16.4 18.8 19.7 15.6 18.2 22.6 19.9 ...\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>26</li><li>27</li><li>28</li><li>29</li><li>30</li><li>31</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 26\n",
+       "\\item 27\n",
+       "\\item 28\n",
+       "\\item 29\n",
+       "\\item 30\n",
+       "\\item 31\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 26\n",
+       "2. 27\n",
+       "3. 28\n",
+       "4. 29\n",
+       "5. 30\n",
+       "6. 31\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 26 27 28 29 30 31"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 3</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Girth</th><th scope=col>Height</th><th scope=col>Volume</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>26</th><td>17.3</td><td>81</td><td>55.4</td></tr>\n",
+       "\t<tr><th scope=row>27</th><td>17.5</td><td>82</td><td>55.7</td></tr>\n",
+       "\t<tr><th scope=row>28</th><td>17.9</td><td>80</td><td>58.3</td></tr>\n",
+       "\t<tr><th scope=row>29</th><td>18.0</td><td>80</td><td>51.5</td></tr>\n",
+       "\t<tr><th scope=row>30</th><td>18.0</td><td>80</td><td>51.0</td></tr>\n",
+       "\t<tr><th scope=row>31</th><td>20.6</td><td>87</td><td>77.0</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 3\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & Girth & Height & Volume\\\\\n",
+       "  & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t26 & 17.3 & 81 & 55.4\\\\\n",
+       "\t27 & 17.5 & 82 & 55.7\\\\\n",
+       "\t28 & 17.9 & 80 & 58.3\\\\\n",
+       "\t29 & 18.0 & 80 & 51.5\\\\\n",
+       "\t30 & 18.0 & 80 & 51.0\\\\\n",
+       "\t31 & 20.6 & 87 & 77.0\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 3\n",
+       "\n",
+       "| <!--/--> | Girth &lt;dbl&gt; | Height &lt;dbl&gt; | Volume &lt;dbl&gt; |\n",
+       "|---|---|---|---|\n",
+       "| 26 | 17.3 | 81 | 55.4 |\n",
+       "| 27 | 17.5 | 82 | 55.7 |\n",
+       "| 28 | 17.9 | 80 | 58.3 |\n",
+       "| 29 | 18.0 | 80 | 51.5 |\n",
+       "| 30 | 18.0 | 80 | 51.0 |\n",
+       "| 31 | 20.6 | 87 | 77.0 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "   Girth Height Volume\n",
+       "26 17.3  81     55.4  \n",
+       "27 17.5  82     55.7  \n",
+       "28 17.9  80     58.3  \n",
+       "29 18.0  80     51.5  \n",
+       "30 18.0  80     51.0  \n",
+       "31 20.6  87     77.0  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 3</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Girth</th><th scope=col>Height</th><th scope=col>Volume</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>26</th><td>17.3</td><td>81</td><td>55.4</td></tr>\n",
+       "\t<tr><th scope=row>27</th><td>17.5</td><td>82</td><td>55.7</td></tr>\n",
+       "\t<tr><th scope=row>28</th><td>17.9</td><td>80</td><td>58.3</td></tr>\n",
+       "\t<tr><th scope=row>29</th><td>18.0</td><td>80</td><td>51.5</td></tr>\n",
+       "\t<tr><th scope=row>30</th><td>18.0</td><td>80</td><td>51.0</td></tr>\n",
+       "\t<tr><th scope=row>31</th><td>20.6</td><td>87</td><td>77.0</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 3\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & Girth & Height & Volume\\\\\n",
+       "  & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t26 & 17.3 & 81 & 55.4\\\\\n",
+       "\t27 & 17.5 & 82 & 55.7\\\\\n",
+       "\t28 & 17.9 & 80 & 58.3\\\\\n",
+       "\t29 & 18.0 & 80 & 51.5\\\\\n",
+       "\t30 & 18.0 & 80 & 51.0\\\\\n",
+       "\t31 & 20.6 & 87 & 77.0\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 3\n",
+       "\n",
+       "| <!--/--> | Girth &lt;dbl&gt; | Height &lt;dbl&gt; | Volume &lt;dbl&gt; |\n",
+       "|---|---|---|---|\n",
+       "| 26 | 17.3 | 81 | 55.4 |\n",
+       "| 27 | 17.5 | 82 | 55.7 |\n",
+       "| 28 | 17.9 | 80 | 58.3 |\n",
+       "| 29 | 18.0 | 80 | 51.5 |\n",
+       "| 30 | 18.0 | 80 | 51.0 |\n",
+       "| 31 | 20.6 | 87 | 77.0 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "   Girth Height Volume\n",
+       "26 17.3  81     55.4  \n",
+       "27 17.5  82     55.7  \n",
+       "28 17.9  80     58.3  \n",
+       "29 18.0  80     51.5  \n",
+       "30 18.0  80     51.0  \n",
+       "31 20.6  87     77.0  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "### which\n",
+    "\n",
+    "# This function gives a list of the positions within an object \n",
+    "# occupied by entries that satisfy a certain condition. For \n",
+    "# the next example we use the data set trees which provides \n",
+    "# measurements of the Girth, Height and Volume of timber in \n",
+    "# 31 felled black cherry trees. Girth is the diameter of the \n",
+    "# tree (in inches) measured at 4 ft 6 in above the ground. \n",
+    "# The expression tree\\$Volume indicates the variable Volume \n",
+    "# of this data set.\n",
+    "\n",
+    "\n",
+    "str(trees)\n",
+    "which(trees$Volume > 50)\n",
+    "trees[which(trees$Volume > 50),]\n",
+    "trees[trees$Volume > 50,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>6</li><li>5</li><li>4</li><li>6</li><li>5</li><li>4</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 6\n",
+       "\\item 5\n",
+       "\\item 4\n",
+       "\\item 6\n",
+       "\\item 5\n",
+       "\\item 4\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 6\n",
+       "2. 5\n",
+       "3. 4\n",
+       "4. 6\n",
+       "5. 5\n",
+       "6. 4\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 6 5 4 6 5 4"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "1"
+      ],
+      "text/latex": [
+       "1"
+      ],
+      "text/markdown": [
+       "1"
+      ],
+      "text/plain": [
+       "[1] 1"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "3"
+      ],
+      "text/latex": [
+       "3"
+      ],
+      "text/markdown": [
+       "3"
+      ],
+      "text/plain": [
+       "[1] 3"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "# The functions which.max and  which.min that give the position \n",
+    "# of the (first) maximum and (first) minimum values of an vector:\n",
+    "\n",
+    "(b <- rep(6:4,2))\n",
+    "which.max(b); which.min(b)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 8 × 3</caption>\n",
+       "<thead>\n",
+       "\t<tr><th scope=col>age</th><th scope=col>weight</th><th scope=col>sex</th></tr>\n",
+       "\t<tr><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;fct&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><td>20</td><td>50</td><td>Male  </td></tr>\n",
+       "\t<tr><td>40</td><td>50</td><td>Male  </td></tr>\n",
+       "\t<tr><td>20</td><td>70</td><td>Male  </td></tr>\n",
+       "\t<tr><td>40</td><td>70</td><td>Male  </td></tr>\n",
+       "\t<tr><td>20</td><td>50</td><td>Female</td></tr>\n",
+       "\t<tr><td>40</td><td>50</td><td>Female</td></tr>\n",
+       "\t<tr><td>20</td><td>70</td><td>Female</td></tr>\n",
+       "\t<tr><td>40</td><td>70</td><td>Female</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 8 × 3\n",
+       "\\begin{tabular}{lll}\n",
+       " age & weight & sex\\\\\n",
+       " <dbl> & <dbl> & <fct>\\\\\n",
+       "\\hline\n",
+       "\t 20 & 50 & Male  \\\\\n",
+       "\t 40 & 50 & Male  \\\\\n",
+       "\t 20 & 70 & Male  \\\\\n",
+       "\t 40 & 70 & Male  \\\\\n",
+       "\t 20 & 50 & Female\\\\\n",
+       "\t 40 & 50 & Female\\\\\n",
+       "\t 20 & 70 & Female\\\\\n",
+       "\t 40 & 70 & Female\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 8 × 3\n",
+       "\n",
+       "| age &lt;dbl&gt; | weight &lt;dbl&gt; | sex &lt;fct&gt; |\n",
+       "|---|---|---|\n",
+       "| 20 | 50 | Male   |\n",
+       "| 40 | 50 | Male   |\n",
+       "| 20 | 70 | Male   |\n",
+       "| 40 | 70 | Male   |\n",
+       "| 20 | 50 | Female |\n",
+       "| 40 | 50 | Female |\n",
+       "| 20 | 70 | Female |\n",
+       "| 40 | 70 | Female |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  age weight sex   \n",
+       "1 20  50     Male  \n",
+       "2 40  50     Male  \n",
+       "3 20  70     Male  \n",
+       "4 40  70     Male  \n",
+       "5 20  50     Female\n",
+       "6 40  50     Female\n",
+       "7 20  70     Female\n",
+       "8 40  70     Female"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## expand.grid\n",
+    " \n",
+    "# This function creates a data frame with all possible \n",
+    "# combinations of vectors or factors that appear as arguments \n",
+    "# for the function. Let's look at an example:\n",
+    "\n",
+    "expand.grid(age=c(20,40),weight=c(50,70),sex=c('Male','Female'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'regular'</li><li>'bad'</li><li>'bad'</li><li>'regular'</li><li>'good'</li><li>'good'</li><li>'regular'</li><li>'bad'</li><li>'good'</li><li>'good'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'regular'\n",
+       "\\item 'bad'\n",
+       "\\item 'bad'\n",
+       "\\item 'regular'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'regular'\n",
+       "\\item 'bad'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'regular'\n",
+       "2. 'bad'\n",
+       "3. 'bad'\n",
+       "4. 'regular'\n",
+       "5. 'good'\n",
+       "6. 'good'\n",
+       "7. 'regular'\n",
+       "8. 'bad'\n",
+       "9. 'good'\n",
+       "10. 'good'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"regular\" \"bad\"     \"bad\"     \"regular\" \"good\"    \"good\"    \"regular\"\n",
+       " [8] \"bad\"     \"good\"    \"good\"   "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'good'</li><li>'good'</li><li>'good'</li><li>'good'</li><li>'good'</li><li>'good'</li><li>'good'</li><li>'good'</li><li>'good'</li><li>'bad'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'bad'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'good'\n",
+       "2. 'good'\n",
+       "3. 'good'\n",
+       "4. 'good'\n",
+       "5. 'good'\n",
+       "6. 'good'\n",
+       "7. 'good'\n",
+       "8. 'good'\n",
+       "9. 'good'\n",
+       "10. 'bad'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] \"good\" \"good\" \"good\" \"good\" \"good\" \"good\" \"good\" \"good\" \"good\" \"bad\" "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "## Sampling\n",
+    "\n",
+    "# The sample function generates random samples from a given set. \n",
+    "# The syntax is \n",
+    "###\n",
+    "# sample(x, size, replace = FALSE, prob = NULL)\n",
+    "###\n",
+    "# where x is the set from which we want to obtain the sample, \n",
+    "# size is the size of the sample, replace indicates if repetitions \n",
+    "# are allowed or not, and prob is a probability vector if we want \n",
+    "# to get a sample with a non-uniform distribution. Let's look at \n",
+    "# some examples. \n",
+    "\n",
+    "\n",
+    "xy <- c('bad','regular','good')\n",
+    "sample(xy,10,replace=T)\n",
+    "pp <- c(0.1,0.1,0.8)\n",
+    "sample(xy,10,replace=T,prob=pp)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>-1.59661530016901</li><li>-2.75595290435043</li><li>0.333708037769304</li><li>-0.498931876076869</li><li>1.35388429373378</li><li>0.843827008425952</li><li>-1.13379721483015</li><li>-0.27683200652119</li><li>-0.343797545803911</li><li>0.0824135261964889</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item -1.59661530016901\n",
+       "\\item -2.75595290435043\n",
+       "\\item 0.333708037769304\n",
+       "\\item -0.498931876076869\n",
+       "\\item 1.35388429373378\n",
+       "\\item 0.843827008425952\n",
+       "\\item -1.13379721483015\n",
+       "\\item -0.27683200652119\n",
+       "\\item -0.343797545803911\n",
+       "\\item 0.0824135261964889\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. -1.59661530016901\n",
+       "2. -2.75595290435043\n",
+       "3. 0.333708037769304\n",
+       "4. -0.498931876076869\n",
+       "5. 1.35388429373378\n",
+       "6. 0.843827008425952\n",
+       "7. -1.13379721483015\n",
+       "8. -0.27683200652119\n",
+       "9. -0.343797545803911\n",
+       "10. 0.0824135261964889\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       " [1] -1.59661530 -2.75595290  0.33370804 -0.49893188  1.35388429  0.84382701\n",
+       " [7] -1.13379721 -0.27683201 -0.34379755  0.08241353"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>7</li><li>10</li><li>10</li><li>10</li><li>9</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 7\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 10\n",
+       "\\item 9\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 7\n",
+       "2. 10\n",
+       "3. 10\n",
+       "4. 10\n",
+       "5. 9\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1]  7 10 10 10  9"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>0.380712508223951</li><li>0.49674351233989</li><li>0.141793910416894</li><li>0.0778103892407616</li><li>0.811463633753704</li><li>0.0638953247478043</li><li>1.20417384529329</li><li>2.11751319641683</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 0.380712508223951\n",
+       "\\item 0.49674351233989\n",
+       "\\item 0.141793910416894\n",
+       "\\item 0.0778103892407616\n",
+       "\\item 0.811463633753704\n",
+       "\\item 0.0638953247478043\n",
+       "\\item 1.20417384529329\n",
+       "\\item 2.11751319641683\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 0.380712508223951\n",
+       "2. 0.49674351233989\n",
+       "3. 0.141793910416894\n",
+       "4. 0.0778103892407616\n",
+       "5. 0.811463633753704\n",
+       "6. 0.0638953247478043\n",
+       "7. 1.20417384529329\n",
+       "8. 2.11751319641683\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 0.38071251 0.49674351 0.14179391 0.07781039 0.81146363 0.06389532 1.20417385\n",
+       "[8] 2.11751320"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>9</li><li>10</li><li>4</li><li>13</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 9\n",
+       "\\item 10\n",
+       "\\item 4\n",
+       "\\item 13\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 9\n",
+       "2. 10\n",
+       "3. 4\n",
+       "4. 13\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1]  9 10  4 13"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "\n",
+    "# \\begin{center\n",
+    "# \\begin{tabular{ll\n",
+    "# \\hline {\\bf Distribution & {\\bf Function\\\\\n",
+    "# \\hline Gaussian & rnorm(n, mean=0, sd=1)\\\\\n",
+    "# Exponential &rexp(n, rate=1)\\\\\n",
+    "# Gamma & rgamma(n, shape, scale=1)\\\\\n",
+    "# Poisson & rpois(n, lambda)\\\\\n",
+    "# Weibull & rweibull(n, shape, scale=1)\\\\\n",
+    "# Cauchy & rcauchy(n, location=0, scale=1)\\\\\n",
+    "# Beta & rbeta(n, shape1, shape2)\\\\\n",
+    "# t & rt(n, df)\\\\\n",
+    "# Fisher & rf(n, df1, df2)\\\\\n",
+    "# $\\chi^2$ & rchisq(n, df)\\\\\n",
+    "# Binomial & rbinom(n, size, prob)\\\\\n",
+    "# Multinomial & rmultinom(n, size, prob)\\\\\n",
+    "# Geometric & rgeom(n, prob)\\\\\n",
+    "# Hipergeometric & rhyper(nn, m, n, k)\\\\\n",
+    "# Logistic & rlogis(n, location=0, scale=1)\\\\\n",
+    "# Lognormal & rlnorm(n, meanlog=0, sdlog=1)\\\\\n",
+    "# Negative Binomial & rnbinom(n, size, prob)\\\\\n",
+    "# Uniform & runif(,n min=0, max=1)\\\\\n",
+    "#  \\hline\n",
+    "# \\end{tabular\n",
+    "# \n",
+    "# \\bigskip\n",
+    "# {\\small Table 1.3. Functions for generating random numbers.\n",
+    "# \\end{center\n",
+    "\n",
+    "# Let`s look at some examples:\n",
+    "\n",
+    "(rnorm(10))\n",
+    "(rbinom(5, 20, 0.5))\n",
+    "(rexp(8))\n",
+    "(rpois(4, lambda=10))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 68,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "0.97500210485178"
+      ],
+      "text/latex": [
+       "0.97500210485178"
+      ],
+      "text/markdown": [
+       "0.97500210485178"
+      ],
+      "text/plain": [
+       "[1] 0.9750021"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "1.95996398454005"
+      ],
+      "text/latex": [
+       "1.95996398454005"
+      ],
+      "text/markdown": [
+       "1.95996398454005"
+      ],
+      "text/plain": [
+       "[1] 1.959964"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Associated with these functions for generating random numbers \n",
+    "# are three others (for each distribution) that allow to obtain \n",
+    "# values for the density, distribution and quantile functions. \n",
+    "# The initial letter R must be replaced by d, p or q, respectively. \n",
+    "# The main argument for these functions is the vector of points \n",
+    "# where we want the function to be evaluated.\n",
+    "\n",
+    "pnorm(1.96)   ####number to prob\n",
+    "qnorm(0.975)###### prbo to number"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 71,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>-1.95996398454005</li><li>1.95996398454005</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item -1.95996398454005\n",
+       "\\item 1.95996398454005\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. -1.95996398454005\n",
+       "2. 1.95996398454005\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] -1.959964  1.959964"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# The quantiles for the normal distribution for a two-sided test \n",
+    "# at the 5\\% level are\n",
+    "qnorm(c(0.025,0.975))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 70,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAA0gAAANICAIAAAByhViMAAAACXBIWXMAABJ0AAASdAHeZh94\nAAAgAElEQVR4nOzde3zO9f/H8edlR8yGnBqGzXJoaZVDkoqEqdCBlFMOJefDz6lyrCSn0lcl\nSmTkUJSyiiY0xyikg2/McgpDYg4btv3++Hy7vvsOs82293V9rsf95tbts8/1ua7rucvi6fU5\nOdLT0wUAAAD3V8h0AAAAAOQNih0AAIBNUOwAAABsgmIHAABgExQ7AAAAm6DYAQAA2ATFDgAA\nwCYodgAAADZBsQMAALAJih0AAIBNUOwAAABsgmIHAABgExQ7AAAAm6DYAQAA2ATFDgAAwCYo\ndgAAADZBsQMAALAJih0AAIBNUOwAAABsgmIHAABgExQ7AAAAm6DYAQAA2ATFDgAAwCYodgAA\nADZBsQMAALAJih0AAIBNUOwAAABsgmIHAABgExQ7AAAAm6DYAQAA2ATFDgAAwCYodgAAADZB\nsQMAALAJih0AAIBNUOwAAABsgmIHAABgExQ7AAAAm6DYAQAA2ATFDgAAwCYodgDc3ieffOJw\nOBwOh7+/v3u9eDbfroAzGHlHAHmCYgfY3/vvv+/4xy233JKampppg3nz5lmPNm/e3EjCApPx\no7AUKlSoRIkSNWrU6NSp0+LFiy9evGg6IwDknrfpAAAK1M8//zxnzpxu3bqZDuIq0tPT//77\n77///nvXrl3R0dEhISFz5sxp1KiRc4PIyMg33nhDkrd3bv7APHr0aPny5VNTU3/77bfq1atf\nc/vrfLtcuGLCgo8BIE/wfyzgcUaOHNmuXbuiRYuaDmJYixYtfHx80tLS/vrrr+3bt589e1bS\n/v37mzRpsmTJktatW1ubVa1adcCAAbl+l8WLF18+Is3Cdb5dLlwxYcHHAJAn2BULeJzDhw9P\nmTLFdArz5s+f/9lnn33++efr1q07ceLEtGnTChcuLCktLa19+/aHDh3Kk3dZtGhRnrxO/nH9\nhACyj2IHeJDGjRs7HA5JkyZNOnLkyDW3P3369KuvvnrnnXeWLFnS19e3bNmyzZo1mz17dqYB\nzwcffGAdr3bvvfdeunSpf//+pUuXLlu2bMaH7rnnHkmffPLJbbfdVqRIkcqVK48YMcI6oO23\n335r2bJliRIlAgICmjZt+ssvv2R88fT09IULFzZr1qxMmTI+Pj6BgYH16tWbNm1ajsZg1+Tn\n59enT59PP/3U+nzOnTs3btw466GrnUZw6dKlmTNnNmnSxApWpkyZOnXqjB8//vjx49YGDz30\nkMPhWL9+vfVljRo1HA6HNQbL4hPL+qyFQoUKSfr000/vueeeoKCgwMDARo0arVmzJuM2I0aM\nsF7hzjvvzLj+s88+s9Y7965mkTCLGDn9qbB+6+Pi4h544AHrd7lhw4axsbHX/l0BkAvpAOzu\nvffes/5/79at2xNPPGEtP/vss84NoqOjrZXNmjVzrty+fXv58uWv+OdG/fr1jx8/7tzyo48+\nstbXqlXLOQv08vJKT09fuHCh9WVERMTixYut2uTUu3fvvXv3lipVKuPK0qVL//33384Xb9++\n/RUzPPTQQ2lpadY2H3/8sbXSz88vmx+FpJMnT16+QcuWLa1Hy5QpY73+FV/8woUL99133xWD\nhYaG7tmzJz09/cEHH7z80f79+2f9iV3x7ZwrAwICpk+fnuk1CxUqtHz5cufGL774orW+Xr16\nGb+1Tz/9NOMbZZ3wah9p9n8qMv7Wr1ixwtfXN+PGXl5esbGxWf9mAcgFJnaABzlz5syrr75q\n/RU7a9asX3/99Wpbnjx58sEHH7R2R1apUmX69OmfffbZsGHDrGHPxo0bO3fu7NzYx8fHWjh9\n+vTUqVN9fHwiIyOrVq0qycvLy3roxIkTgwYNevjhh/v06RMUFGStfP/993v37u3r69u/f/96\n9epZK48dOzZ79mxrefny5fPnz5dUqFChd955Z+fOnbNmzbIyLF++/JNPPsnDD8fy6KOPWguJ\niYm7du262mazZs2y5mTVq1dfsGDBhg0bvv7668cee0zS3r17rXNTJk6cuGzZMudT5s+fHxcX\n179/f2X5iWXt4sWLQ4cO7d69+4IFCyZOnGh9kmlpaT179rxw4UJOv9ksEl5Rjn4qMv7W9+jR\no2bNms8//3zTpk2tlampqS+88EJOAwO4Jk6eADzIpUuXQkNDe/XqNXXq1NTU1KFDhy5fvvyK\nW06bNs36+zswMHDdunXBwcGSWrVqFRER0bFjR0kxMTE//PDDHXfckfFZf/zxR3h4+N69eytU\nqJDpBQ8fPtymTZvFixdLatSokdWBUlJSVq9e/csvv4SGhl64cKFWrVr//ve/JX377bfWDsF9\n+/ZZU6WqVav27NlTUkRExLJlyz7//HNJy5cvb9OmTd5+RNWqVXMuHzlypEaNGlfcbPPmzdbC\nM888065dO2u5cePGnTt3vuGGGypUqJCWllazZs2SJUs6n3L77bdfflZsFp/YFaWkpHTp0sU5\ntAsNDX388cclHThwYNWqVVFRUdn6Jv+RnYQZ5e6n4vDhww0bNly5cqW1V7dDhw5WWd+6devF\nixedHRdAnmBiB3ickSNHFi9eXFJMTMy33357xW2WLl1qLTz66KPW39+WJ598skSJEtbyl19+\nefkTx44de7WOMmTIEGvh4Ycf9vPzs5YfeeSR0NBQSb6+vg8//LC18sCBA9ZC7969ly9fvnz5\n8qlTpzpfp1KlStZCdg4TzKmAgADnclJS0tU2CwwMtBbefPPN6Ojoo0ePSvLx8fnoo4+mTZs2\nbNgw62C47MjiE7ui3r17O5dbt27tTLJp06bsv0juXM9PhfNYvS5dulgLaWlpf/75Zz7GBTwS\nxQ7wOCVLlnz++eet5cGDB6enp2faID093XkGwy233JLxIS8vL+dQ57fffrv8xRs3bny1942I\niLAWfHx8SpcubS3XqlXLucGNN95oLWRsVLGxsa1btw4LC/P397cOxp82bZr1UN6eP2E5efKk\nc9lZVi7XpUuXIkWKSNq/f3+nTp3KlStXtWrV7t27L126NKepsvjELufj41OzZk3nl15eXs4d\nuPv378/R++bU9fxU1K5d27ns7OXKsjoDyB2KHeCJ+vXrFxISImnbtm3z5s3LdBHac+fOXbp0\nyVrOOMGyOC+Ad/nfyl5eXs7Glomfn591MRHnl9aCNTu0ZDq+XtL06dMfeOCBZcuW7d2719vb\nu0aNGrfeemumky3y1vbt253L1kd0RZGRkTExMTfffLNzTXx8/KxZsx577LGqVatu3Lgxm2+X\nxSd2RUWLFs00C7T6paTz589n/3VyIdc/FX5+fsWKFXN+yT3KgHxFsQM8kb+//yuvvGItv/ji\ni5mKXZEiRZxrTp8+nem5zr+5nedAOHl7e2d/F+Q1nTlzZvDgwdbyU089dezYsV9//XX79u1t\n27bNq7e4nPNcztDQ0Iyzpcvdd999O3fu3LBhw0svvdS8eXPnp/HHH3+0atXKutzxNeX0Ezt/\n/nymCavzjS6/4nRKSkrGLxMTE7P/RpfL9U8FgIJEsQM8VIcOHSIjIyUdOHDAefUNi8PhcO42\nzTjBknTx4kXnubQZ96Lmh23btp07d85aHjJkiHPgZ51gkR+s81ut5Q4dOlxze4fDUb9+/ZEj\nR3711VcnTpxYtmyZtff22LFj3333XX4kTElJyfjtX7p0ac+ePdZy5cqVrQXnOO3PP//M2AJ/\n/PHH63lrF/mpAJA1ih3goRwOx6RJk6zljNe8sDiv+vHZZ58dPHjQuX7OnDnWbMbhcDhvupVP\nMg6crEsZS/r1119Xr16daeX1S01Nfffdd59++mnry9KlS2dxQ63z58+PHz++S5curVq1SktL\ns1Z6eXm1bNmyTp06GcNnvG6f88LF12nmzJnO5aVLlzpHZXfffbe14DwVIzExMSYmxlq27oR7\n+avlKKEr/FQAyBqXOwE8V5MmTZo1a7ZixQpnO3Hq27fvzJkzDx48ePbs2UaNGg0cOLBcuXKb\nNm3617/+ZW3QrVu3m266KV/j1axZs1ChQla2l19++dVXX01ISOjZs2d4eLg1tdq+ffumTZus\nk2pzoX379ta1Ns6cObNjxw5nrfHx8Vm4cGEWZ04ULlx48eLF1tSqbdu23bp1K1OmzLlz51av\nXm2VTj8/v7vuuktSqVKlfHx8rAL6wgsv9O3bNygoyHktt+zLWB/ffvttSffdd9+ePXvGjh1r\nra9WrZp1gwdJd911l8PhsGZ17dq169ChQ7FixT744IPIyEjnPNIpRwld4acCwDWYvDoygALh\nvN3CY489lumhn376KeMxXtm888Sjjz5qHexlyeLGD1d7KCwszFo/ffp050rn6a5hYWHWmr59\n+2Z66+Dg4ISEhIzX2hg9enTu7jxxRRUqVIiLi7vmt7Bz586rXaOkUKFCs2bNcm6Z6dpyDz74\nYC4+sXnz5lkry5Qp47zXmZO/v//69eszvshzzz2XaZvw8PB169ZZyw6Hw3nTjpwmvP6fCue1\nbCTt3Lkz698vADnFrljAo91yyy0Z7xaQ0a233vrrr7++8sorderUCQoK8vHxufHGGx955JHP\nP/98yZIlBXNu45QpUyZMmFCzZs3ChQuXL1++e/fuW7ZsqVy58ocfflitWjVvb+8KFSpc7RrC\n2Wd9a1FRUdOnT9+9e7dzn2YWIiIitm7d+vLLL9euXbts2bI+Pj5FihSpXr36s88+u23btq5d\nuzq3fO+991q3bl28eHF/f/8qVapYk7ycSk5OthZKliz5wgsvzJ49OzIy0t/fv0SJEi1btty0\naVOml33rrbfGjx8fHh7u6+tbvnz5Z599dt26dc6D8NLT0zOeQpujhK7wUwEgC/8Z1wMAAMDd\n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\nAMiRc9Je6Q/pgHRAOijtkw5KhyTrSCY/qaxU/p//3iyVkspKZaRSUmnpBk+amZllq2I3adKk\nCRMmuM6B8/7SHNMZ8lZ8fLyky2/I269fv4iIiGnTpi1dujQ6OtrhcERFRb3zzjuVKlW6znes\nU6dO3bp1L19funRp57KPj891vgsAwPKX9Lu0S4qXEqS9UoJ0RJJUWKokVZAqSI2kClJFqbxU\nTiplODX+y1bFDvkqLS0tJiZG0j333HP5o40bN27cuHFKSkpcXNy8efPmzp3bpEmTX375xTq/\nIddatGjB5U4AIJ/sk36WfpF+l/4t7ZKOS5IqSqFSqNRCqiKFSlUk7jLkFih2yK4ZM2YkJCS0\nbNmybNmyV9vGz8/PuuhMkSJFpk+fvn379ivO2wAABS9J2i7tkHZKP0s/S6elwlINqZr0gNRb\nqibd9M85B3BHblPsateufc1tDh06VABJPFBaWtqMGTMGDBgQGBg4adKkTI9u2rTpscceGz9+\nfKdOnZwrCxUqpH92klq3ejt//r/noScnJ+/atatYsWJhYWEF8Q0AgEdKkrZJP/zz63fJIVWV\nbpGaSoOkW6Qwidtx2onbFLtt27bpWkdTXbp0qaDi2FxsbGxycrKk9PT0xMTE1atX79u3r0yZ\nMkuWLLnpppsybVy7du2SJUs+88wz69ati4yMdDgcW7dunTNnzt13322d3xAaGirptddeS0hI\naNiwYZ06dfbs2XPbbbfdf//9sbGxBf/dAYCN7ZE2SBul9dIvkkOqLt0h9ZRul25jGmd3blPs\nhgwZ8s477/z4449ZnPQ6fPjwCRMmFGQqu1q/fv369eut5cDAwGrVqnXr1q1Pnz4lSpS4fGNv\nb++1a9e+/PLLX3zxxfz58318fCpXrvzKK6/07dvX4XBIatmy5WOPPfbll1/u3r175syZOb0j\nGQAgC2nSDmm19J20UUqUykr1pY5SfZqc53G4zjmkWbt48WK9evW8vLw2bNhwtbmdVezy/Dua\nMWPG/PnzY2Njr/M8ALigqKioyMjI8ePHmw4CADnzq7Ra+lZaI/0l1ZDule6S6kuuctEv+7pw\n4YKfn9/69evvuusu01kyc5vLyvj4+MyfP/+XX3554YUXTGcBAMCA09InUlcpWLpZmiIVl/4l\n/Sn9Kk2XOtLqPJ7b7IqVVKNGjSNHjmRxIF1UVFTx4sULMhIAAPntV+lL6UtpneQnNZHGSk2k\nKqaDwQW5U7GTFBgYmMWj995777333ltgYQAAyD8/SEukT6Td0k3Sg9ILUkPJz3QwuDI3K3YA\nANhYuvT9P33uD6mO9Iz0CDtYkW0UOwAAzPu3FC3Nkw5Id0p9pUel670tIzwPxQ4AAGP+khZK\nc6XNUqTUX2orlTedCu6LYgcAQEFLk76SZkkx0g1Se+k96RbTqWADFDsAAApOovSBNEM6LD0i\nLZMe4KZeyDsUOwAACsIP0kwpWiopdZd6SWVMR4L9UOwAAMhHF6VF0mRppxQlfSxFudHtAeBu\n+NGCi2rXrp3D4Thy5IjpIACQS0nSG1JVqZd0v7RHWi49yF+9yE/8dOF/zJs3z5GBr69vuXLl\nmjZt+uabb546daogk0RGRjZr1szP7z9X4nzttdf27NlTkAEAINcSpTFSZek1qYv0hzSFG0Wg\nQLArFlfQoEGDu+++W9KFCxcOHToUFxf3zTffjB8/ft68eU2aNCmYDMOHDx8+fLi1fPjw4eef\nfz4yMrJqVS7SCcClHZTGS7OkUGmi1IEbRaBgUexwBU2aNBkzZozzy9TU1Dlz5vTr169ly5Zr\n166tU6dOAefZsmVLAb8jAOTUYek1aaZUTVootWSnGEzgpw7X5uXl1a1btw8//PD8+fP9+vVz\nrj969Gjv3r0rVark6+tbunTp1q1bZ2xgTz31lMPhOHPmzLBhwypXruzn51exYsU33ngjPT3d\n2iAlJWXSpEm33nprUFBQsWLFatWqNWnSpLS0NOtR5zF2Dz30UKtWrSRFRUU5HI5169Y1bNjQ\ny8vrwIEDGUOeOHHCx8enfv36+f5xAMD/Oi4Nl6pKsdIM6UepNX+/whB+8JBdjz/++O23375p\n06bdu3dLOnbsWL169ebPn//kk09+8MEHgwYN+uGHHxo2bLh27Vpre19fX+tZp0+fXrhw4erV\nq2vWrDlo0KA5c+ZYG/Ts2XPo0KERERETJkyYPHly1apVhw4dmrE4WkaMGNGxY0dJo0aN+vTT\nT2vWrNm9e/e0tLS5c+dm3GzJkiWXLl16+umn8/dTAIAMTksvSJWlz6T3pZ1SJ/5mhVHsikUO\nNGvW7Mcff9y0aVN4ePjo0aMPHTq0cePG2rVrW4926NDh5ptvHjx4sDW38/b2llSyZMnp06db\nG0yfPj0sLGzp0qVdunSRtGjRovr168+fP996tEePHoMGDdq/f39qaqqX13+v1nnnnXeuWbNG\nUv369Zs3by6pTZs2/fv3//DDD1988UXnZosXL/b392/Xrl3+fwwAoFRpljRKKiy9I7XnIsNw\nDRS7fHQhNX3Wrr9TUtMK8k0LORyPhwYGF82X39ny5ctLSkxMTE9P//jjj2vVqlWhQgXnFUl8\nfHzuuuuuFStWnDlzJiAgwFrZuXNn59NDQ0OLFCly8OBB5/b79u1LTEwsU+Y/F+l8/fXXsxOj\nSJEiTz755Lvvvrt+/foGDRpIOnbs2Jo1a9q2bRsUFJRH3ysAXNUq6f+kPdJgabjkbzoP4ESx\ny0e+Xo6mFYteTEsvyDd1SKUL59e/Gy9evCjJ29s7MTHx+PHjx48fv/HGGy/fbP/+/TVr1rSW\nQ0JCMj7k4+NjvYikl156qX///uHh4a1atWrUqFHTpk2t4pgd3bt3f/fdd+fMmWMVuyVLlqSm\nplqDQADIP/+WRkpLpPbS11I503mATCh2+Sss0Nd0hLwUHx8vKTg4OCkpSVJkZOT48eMv3yw4\nONi57OPjc7VX69evX0RExLRp05YuXRodHe1wOKKiot55551KlSpdM8kdd9xx2223LV68+F//\n+lfhwoUXL15csWLF+++/PzffFQBkwxlplDRNaiztkCJM5wGuiGKH7EpLS4uJiZF0zz33OFda\nB73lWuPGjRs3bpySkhIXFzdv3ry5c+c2adLkl19+sU68yFq3bt369OkTExNz9913r1279vnn\nny9UiEOWAeSLz6R+kpf0qfSQ6TBAFviLENk1Y8aMhISEli1bli1btmzZsqVKldq1a9fff/+d\ncZtjx47l4pX9/PyaNGkyZ86c5557bs+ePdu3b8/Os9q3b1+4cOFFixYtWrQoLS2N82EB5Ic/\npTZSG+kRaSetDi6PYodrS0tLmz59+oABAwIDAydNmmStbNOmTXJysvNLSceOHatVq9bDDz+c\nndfctGlT+fLlM12yxBq5Xb731jpJ9vz58xlXFi9e/NFHH/3yyy/nzJlz9913c1MKAHnrkvSm\nVF1KkDZJb0oBpiMB18SuWFxBbGxscnKypPT09MTExNWrV+/bt69MmTJLliy56aabrG3GjBkT\nExPz6quvHj58+N577/3zzz/ffffdEydOXH4huiuqXbt2yZIln3nmmXXr1kVGRjocjq1bt1oV\nLTIyMtPGoaGhkl577bWEhISGDRs6b33RvXv3+fPnb9++/f3338+zbx4ApJ+lznomOawAACAA\nSURBVFKCNFnqzhQE7oNihytYv379+vXrreXAwMBq1apZB7SVKFHCuU2ZMmU2b9780ksvLV++\nPDo6OiAg4J577vn444/r1q2bnbfw9vZeu3btyy+//MUXX8yfP9/Hx6dy5cqvvPJK3759HQ5H\npo1btmz52GOPffnll7t37545c6az2N13330hISHHjx9v27ZtXnzfAKBUaYo0SmohfSmVNZ0H\nyBGH8/5OuJoZM2bMnz8/NjY2O0f0oyAdOHAgLCysW7duzmsg51RUVNTVzu0F4IESpC7Sdmmi\n9KzpMHBZFy5c8PPzW79+/V133WU6S2ZMl+HG/u///k/SwIEDTQcB4PbSpZlSLclH2kmrg9ti\nVyzcz549e1auXLls2bKVK1eOHj3aedgfAOTOn1IXab00UeopZT4cBHAfFDu4n59++qlPnz6l\nSpV69dVXhw8fbjoOAPe2UuoohUrbJc6uh7uj2MH9PProo2lpBXoHXgC2lCq9LL0i9ZYmSRxG\nDRug2AEAPNFB6SnpV2mZ9KDpMEBe4eQJAIDHiZVqSynSFlod7IViBwDwIKnS81Lzf86WqGI6\nD5C32BULAPAUp6SnpI3SF1KU6TBAfqDYAQA8wh6plXRJ2iBVNx0GyCfsigUA2N/XUh2pkvQ9\nrQ62RrEDANjcm9JDUg9puRRkOgyQr9gVCwCwrWSpm/SZ9JHU1nQYoABQ7AAA9vSX1EraJ62X\nIk2HAQoGxQ4AYEN/SFGSt7Reqmg6DFBgOMYOAGA3O6WGUrC0jlYHD0OxAwDYSqx0t9RI+opT\nJeB52BWbXd9++623Nx+X3Zw4ccJ0BAB56UPpGamn9AajC3gkmkq2xMXFRUVxlXJ76tChg+kI\nAPLGOGmMNE16znQSwBSKXXYlJSUFBASYTgEAuLLh0lTpE6mV6SSAQRQ7AIB7S5cGSTOlz6Wm\npsMAZlHsAABuLFV6VlosfSE1Nh0GMI5iBwBwV6lSV+lz6RvpTtNhAFdAsQMAuKUL0pPSOmmN\ndKvpMICLoNgBANzPeekR6WdprVTddBjAdVDsAABuJkV6TNolfSeFmg4DuBSKHQDAnaRKHaWf\npLW0OuAyFDsAgNuwWt1aabUUZjoM4IIodgAA95AmPS19I62WapoOA7gmih0AwA2kS72kL6RV\nUoTpMIDLotgBAFxdutRXWiB9I91hOgzgyih2AABXN1z6UPpaqms6CeDiKHYAAJf2ujRV+lJq\nYDoJ4PoodgAA17VAGirNlu43nQRwC4VMBwAA4Mq+lbpIk6WOppMA7oJiBwBwRVulVtIgaYDp\nJIAbodgBAFxOvPSQ1FoaZzoJ4F4odgAA13JMipJqS7Mlh+kwgHuh2AEAXMgZqblUUlrE+X1A\nzvF/DQDAVaRJ7aUkaYNU1HQYwB1R7AAArmKYtEbaIJUynQRwUxQ7AIBLmC29KX0l3Ww6CeC+\nOMYOAGBenPSc9CYXIgauD8UOAGDYXulRqY/U03QSwN1R7AAAJv0lRUl1pImmkwA2QLEDABhz\nUWoreUsLJC/TYQAb4OQJAIAx/aRfpM1SkOkkgD1Q7AAAZkRLs6RVUojpJIBtsCsWAGDANqmH\nNFVqaDoJYCcUOwBAQTshPSY9JvUynQSwGYodAKBApUpPSYHSDNNJAPvhGDsAQIEaJm2VtkhF\nTCcB7IdiBwAoOEulqdJyKdR0EsCW2BULACggu6SnpVel5qaTAHZFsQMAFITTUkupqTTEdBLA\nxih2AICC8KzkkGZLDtNJABvjGDsAQL6bIX0mbZSKmU4C2BsTOwBA/vpZGii9Id1mOglgexQ7\nAEA+Oiu1lR6UeppOAngCih0AIB/1klKk903HADwEx9gBAPLLbGmB9J0UZDoJ4CGY2AEA8sXv\nUn9pknSn6SSA56DYAQDyXrLUVrpX6mc6CeBR2BULAMh7A6W/pdVctQ4oWBQ7AEAe+1p6T4qV\nSphOAngaty92Fy9e/P3335OTkyMiIvz8/EzHAQBPd0zqIg2T7jOdBPBA7nSM3bffftuoUaMq\nVaq0aNFi8+bNklasWFG5cuWIiIjatWuXKVPmnXfeMZ0RADxdNylYGm06BuCZ3GZit3HjxmbN\nml26dCkwMHDFihXffffdN99807Zt26CgoE6dOiUnJ3/zzTe9e/cODQ1t3ry56bAA4KGmS99I\nWyRf00kAz+Q2E7vx48eXKlVqx44dp06dOnLkSN26ddu1a1elSpV///vfH3744aJFi+Lj4ytX\nrvzmm2+aTgoAHmqPNFSaIkWYTgJ4LLcpdhs2bOjdu3etWrUklS5deuLEifv37x84cGDhwoWt\nDUqUKNG9e/fvv//eaEwA8FCXpA5SA24dBhjlNrtiT506ValSJeeX5cuXl1S6dOmM29x4442n\nT58u6GQAAGmMFC/t5PomgFFuU+xuuOGG+Ph455e///67pD179mTcJj4+/oYbbijoZADg8dZL\nr0kLpXKmkwAezm12xTZq1GjatGmrV6++cOHCzp07+/btW6NGjSlTphw6dMja4Lfffps+fXrD\nhg3N5gQAT3NG6iR1lR43nQSA20zsRo8eHRMT07hxY+vLkiVLrlu3Lioq6qabbqpXr15ycvKW\nLVvS09OHDBliNicAeJphUpo0xXQMAHKjiV316tU3bNjw5JNP1qtX7+mnn96wYUONGjWWL18e\nERGxZs2ajRs3hoSELFmypG7duqaTAoAHWS29K82QiplOAkBuNLGTFBER8dFHH2Vas3nz5jNn\nzpw/fz7TiRQAgPx2VnpGek5qajoJAIs7FburCQgICAgIMJ0CADzOUClVes10DABOdih21+n0\n6dOpqalZbHDu3LkCCwMA7sLaCfsVO2EBV2KfYhcfH9+jRw9JsbGxOXpWeHh4enr6NbfMzjYA\n4CHYCQu4JvsUu6SkpFWrVuX0WWFhYX/88celS5ey2GbBggUjRoxwOLjoJgD8BzthAddkn2JX\nvXr1nTt35uKJISEhWW9QqlSpXCUCAHuydsJ+zU5YwPXYp9j5+/tHRHDjaQDIX86dsA+YTgLg\ncu5X7NLT0xMSEvbu3ZuUlCQpKCgoPDy8YsWKpnMBgEd4UUqVJpiOAeCK3KnYnTx5cty4cdHR\n0YmJiZkeCgkJ6d69++DBgwsXLmwkGwB4gi3SW9JnEpeYAlyT2xS7w4cPN2jQICEhITw8vEWL\nFpUqVSpatKik06dPx8fHr127dtSoUUuWLFm9enWJEiVMhwUAG7ok9ZDaSQ+ZTgLgatym2I0c\nOfLgwYOLFy9u06bN5Y+mpqbOmDGjT58+Y8eOnTp1asHHAwDbmyztk742HQNAFtzmXrExMTEd\nO3a8YquT5OXl1atXr7Zt2y5durSAgwGAJ/hDekWaIpUxnQRAFtym2J04cSIsLCzrbWrUqHH0\n6NGCyQMAHuVZqbbU2XQMAFlzm12xwcHBO3bsyHqbbdu2BQcHF0weAPAcc6TvpO0SF2oHXJzb\nTOxat2798ccfT548OSUl5fJHz549O3r06GXLlj3xxBMFnw0AbOyENFQaLVU3nQTANbnNxG7M\nmDFxcXFDhgx56aWX6tatW7FixYCAgPT09DNnzuzbt+/7778/d+5cw4YNR4wYYTopANhKf6mc\nNNh0DADZ4TbFrnjx4hs3bnz77bfnzp27Zs2a1NRU50M+Pj533HFH165du3bt6uXlZTAkANjM\nCmmBtE7yMZ0EQHa4TbGT5OvrO3DgwIEDByYnJx84cMC680RgYGBISIivr6/pdABgN+elXlJv\nqb7pJACyyZ2KnZO/v394eLjpFABgc+Olc9LLpmMAyD63LHYAgPy2R5okfSAFmU4CIPvc5qxY\nAEBB6i/VldqZjgEgR5jYAQAyWyLFcuE6wA0xsQMA/I9z0mBpkFTDdBIAOUWxAwD8jzFSqvSi\n6RgAcoFdsQCA//pVmiotkgJMJwGQC0zsAAD/1VdqJD1iOgaA3GFiBwD4j/nSeukn0zEA5BoT\nOwCAJJ2SBkvDpZtMJwGQaxQ7AIAkvSwVlYabjgHgerArFgCgPdJb0mLJ33QSANeDiR0AQP2k\nu6WWpmMAuE5M7ADA08VI30g/mo4B4PoxsQMAj3ZB+j+pt3SL6SQArh/FDgA82pvSMWmk6RgA\n8gS7YgHAcyVK46QJ0g2mkwDIE0zsAMBzDZeqSN1NxwCQV5jYAYCH+lGaK62SvEwnAZBXmNgB\ngCdKl/pLj0v3mk4CIA8xsQMATzRf+kGKNh0DQN5iYgcAHuecNFwaIlU2nQRA3qLYAYDHmSyl\nS0NNxwCQ59gVCwCe5ag0WXpTKmo6CYA8x8QOADzLi1Ko1Ml0DAD5gYkdAHiQn6Q50ldc4gSw\nKSZ2AOBBhkjNpQdMxwCQT5jYAYCn+FJaJe0wHQNA/mFiBwAeIVUaJvWQbjadBED+odgBgEd4\nT9onjTIdA0C+otgBgP0lSWOlF6WyppMAyFcUOwCwv/GSt9TXdAwA+Y2TJwDA5g5IU6X3pSKm\nkwDIb0zsAMDmRkk3S0+ajgGgADCxAwA7+1mKllZIDtNJABQAJnYAYGfDpQek+03HAFAwmNgB\ngG3FSV9JW03HAFBgmNgBgG0Nl9pLt5mOAaDAMLEDAHtaIm2Vok3HAFCQmNgBgA2lSiOl3lKo\n6SQAChLFDgBs6H3poDTcdAwABYxiBwB2c156RRoulTGdBEABo9gBgN1MkVKl/qZjACh4nDwB\nALZyXJosTZSKmk4CoOAxsQMAW3lVKid1NR0DgBFM7ADAPg5I06Vo/nAHPBUTOwCwj5ekm6XH\nTMcAYAr/qAMAm9gtzZG+kBymkwAwhYkdANjEKOlOqbnpGAAMYmIHAHawU1osfWs6BgCzmNgB\ngB28KDWX7jUdA4BZTOwAwO19L8VIW0zHAGAcEzsAcHvPS49Lt5uOAcA4JnYA4N6+kdZKO03H\nAOAKmNgBgHsbJXWWapiOAcAVMLEDADf2qfSj9JHpGABcBBM7AHBXadIoqYdUxXQSAC6CiR0A\nuKuF0l7pG9MxALgOJnYA4JZSpZel3lI500kAuA6KHQC4pWjpgDTYdAwALoViBwDu56L0itRf\nKmM6CQCXQrEDAPfzoXRM+j/TMQC4GoodALiZi9Kr0gCppOkkAFwNxQ4A3Mz70l/SANMxALgg\nih0AuJMUabz0f1IJ00kAuCCKHQC4kxnSOam/6RgAXBPFDgDcRrI0URosBZpOAsA1UewAwG28\nI6VIvU3HAOCyKHYA4B7OShOl4VIx00kAuCyKHQC4h7clh9TTdAwAroxiBwBu4Kw0RRouFTGd\nBIAro9gBgBt4RyokPWs6BgAXR7EDAFd3TposDZMKm04CwMVR7ADA1U2XHIzrAGQDxQ4AXFqy\n9Lo0lKPrAGQDxQ4AXNp0KVV6znQMAG6BYgcAritZmiwNYVwHIHsodgDgut6VLkg9TMcA4C4o\ndgDgoqxx3VApwHQSAO6CYgcALmqmlMLRdQBygmIHAK4oRZooDeHOsABygmIHAK5oppTMnWEB\n5BDFDgBcjjWuG8y4DkAOUewAwOV8IJ2TepuOAcDtUOwAwLVclCZKAxjXAcg5ih0AuJa50l9S\nH9MxALgjih0AuJBUaaLUVyphOgkAd+RtOsB1SU1N/fXXX5OSkipWrFixYkXTcQDgei2QDkn9\nTccA4KbcaWK3YcOGPn3+u3di3rx55cuXr1WrVoMGDUJCQiIjI7/77juD8QDgOqVJE6ReUmnT\nSQC4KbeZ2K1Zs6ZZs2a+vr7Tpk1zOByffPJJx44dAwIC2rRpU7p06d27d69atapp06br16+/\n4447TIcFgNz4RNojDTAdA4D7cptiN3bs2OLFi69fv97hcEgaOnRopUqVNm7ceOONN1obbN68\nuVGjRmPHjv3888+NJgWA3EiXJkjPSsGmkwBwX26zK/bHH3/s1KlT1apVJZ06dSohIWHQoEHO\nViepXr16HTp0iIuLM5cRAHLvc2mn9H+mYwBwa25T7FJTUwsXLmwt+/v7OxyOChUqZNqmQoUK\nycnJBR4NAPLAOKmrFGI6BgC35jbFLjIycuHChefOnZPk5+dXv379jRs3ZtwgJSVl6dKl1apV\nMxQQAHLva2m7NMx0DADuzm2K3fDhw3fv3t2wYcOVK1deunRp2rRp8+fPnzt37rlz5y5evLh5\n8+YWLVrs2LGjV69eppMCQI6NkzpIVUzHAODu3ObkiYceeui9994bMGBAs2bNChcuXKVKFV9f\n386dO3ft2lVSamqqw+EYNGjQM888YzopAOTMammjNMt0DAA24DbFTlL37t0ffvjh6Ojo2NjY\nXbt2/fXXX35+fgEBAZUrV27QoEHnzp1vv/120xkBIMfGSU9IN5mOAcAG3KnYSSpbtuzgwYMH\nDx5sOggA5I3vpW+lHaZjALAHtznGDgBs6RWplXSL6RgA7MHNJnb54c8//8z6IinHjx8vsDAA\nPMqvUoy0znQMALZhn2IXHx/fo0cPSbGxsTl6lnXR42tKT0/PZTIAuIqXpful+qZjALAN+xS7\npKSkVatW5fRZYWFhBw4cuHDhQhbbLFiwYMSIEdatzAAgr8RLn0jfmI4BwE7sU+yqV6++c+fO\nXDzx8jtYZFKqVKlcJQKArIyXakv3mY4BwE7sU+z8/f0jIiJMpwCAbDkoRUufmo4BwGbcr9il\np6cnJCTs3bs3KSlJUlBQUHh4eMWKFU3nAoAcmCTVkKJMxwBgM+5U7E6ePDlu3Ljo6OjExMRM\nD4WEhHTv3n3w4MGFCxc2kg0Asu+4NEuaLXHoLoC85TbF7vDhww0aNEhISAgPD2/RokWlSpWK\nFi0q6fTp0/Hx8WvXrh01atSSJUtWr15dokQJ02EBICtTpBulR03HAGA/blPsRo4cefDgwcWL\nF7dp0+byR1NTU2fMmNGnT5+xY8dOnTq14OMBQDadkt6V3pC8TCcBYD9uc+eJmJiYjh07XrHV\nSfLy8urVq1fbtm2XLl1awMEAIEemScWkp0zHAGBLblPsTpw4ERYWlvU2NWrUOHr0aMHkAYBc\nOCu9KQ2TfE0nAWBLblPsgoODd+y4xm2yt23bFhwcXDB5ACAX3pMKSV1NxwBgV25T7Fq3bv3x\nxx9Pnjw5JSXl8kfPnj07evToZcuWPfHEEwWfDQCy46L0hjRQ4ux9APnEbU6eGDNmTFxc3JAh\nQ1566aW6detWrFgxICAgPT39zJkz+/bt+/7778+dO9ewYcMRI0aYTgoAVxYt/S09ZzoGABtz\nm2JXvHjxjRs3vv3223Pnzl2zZk1qaqrzIR8fnzvuuKNr165du3b18uI8MwCuKE2aIvWWiptO\nAsDG3KbYSfL19R04cODAgQOTk5MPHDhg3XkiMDAwJCTE15cDkQG4tCXSXqmv6RgA7M2dip2T\nv79/eHi46RQAkAMTpG7SjaZjALA3tyx2AOBeVkg7pE9MxwBge25zViwAuK/x0lNSZdMxANge\nEzsAyF+bpe+kn0zHAOAJmNgBQP4aJ7WSIkzHAOAJmNgBQD76TYqR1pmOAcBDMLEDgHw0TrpP\nqm86BgAPwcQOAPJLgrRI+sp0DACeg4kdAOSXyVKk1MR0DACeg4kdAOSLRGm2FG06BgCPwsQO\nAPLFVClEesR0DAAehYkdAOS909J0aTL/egZQsPgzBwDy3nSpqNTRdAwAnoZiBwB5LEX6lzRQ\n8jWdBICnodgBQB6bI52XnjUdA4AHotgBQF5KlaZIfaRippMA8EAUOwDIS59Ih6S+pmMA8EwU\nOwDIS5OkblJp0zEAeCYudwIAeWaltEP6xHQMAB6LiR0A5JkJ0pNSZdMxAHgsJnYAkDe2SKul\nn0zHAODJmNgBQN6YID0oRZiOAcCTMbEDgDzwb+lTaa3pGAA8HBM7AMgDE6U60t2mYwDwcEzs\nAOB6HZLmcTIsABfAxA4ArtdUKUx60HQMAGBiBwDX5ZT0nvQv/qEMwAXwBxEAXJe3pWJSO9Mx\nAEAUOwC4HinSW9Jgydd0EgAQxQ4ArscHUorUzXQMALBQ7AAgl1Kl16W+UoDpJABgodgBQC59\nIv0p9TYdAwCcKHYAkEuTpG5SadMxAMCJy50AQG6slHZwUWIALoaJHQDkxgSpnVTZdAwAyIiJ\nHQDk2FZptbTddAwAyISJHQDk2EQpSqplOgYAZMLEDgByZq+0VFptOgYAXI6JHQDkzATpDqmh\n6RgAcDkmdgCQA0elaGmB6RgAcEVM7AAgB6ZKIdLDpmMAwBUxsQOA7EqS3pVe59/EAFwVfzoB\nQHa9KxWV2puOAQBXQ7EDgGy5KE2TBkq+ppMAwNVQ7AAgW+ZKp6XupmMAQBYodgBwbenS61Jv\nKch0EgDIAsUOAK7tMyle6mM6BgBkjWIHANc2Seoi3Wg6BgBkjcudAMA1rJW+lz40HQMAromJ\nHQBcw0TpUSncdAwAuCYmdgCQlZ+kr6TvTccAgOxgYgcAWZkg3S/VNh0DALKDiR0AXFWCtFj6\nynQMAMgmJnYAcFVTpAjpftMxACCbmNgBwJWdkOZIsyWH6SQAkE1M7ADgyt6UykqPmo4BANlH\nsQOAKzgrvSMNlbxMJwGA7KPYAcAVzJS8pU6mYwBAjlDsACCzi9JUaYBU2HQSAMgRih0AZDZf\nOik9ZzoGAOQUxQ4A/ke6NFnqKRU3nQQAcopiBwD/43Npj9TfdAwAyAWKHQD8j4lSRynYdAwA\nyAUuUAwA/7VO2iR9YDoGAOQOEzsA+K8J0iNSNdMxACB3mNgBwH/slGKkDaZjAECuMbEDgP+Y\nIN0v3Wk6BgDkGhM7AJCkBGmR9JXpGABwPZjYAYAkTZEipPtNxwCA68HEDgCUKH0gfSg5TCcB\ngOvBxA4A9C8pWHrUdAwAuE4UOwCeLkl6RxomeZlOAgDXiWIHwNO9K/lJHU3HAIDrR7ED4NFS\npKnSIMnfdBIAuH4UOwAeba50VnrWdAwAyBMUOwCeK02aLPWRgkwnAYA8QbED4LmWSPulPqZj\nAEBeodgB8FwTpa5SOdMxACCvcIFiAB7qG2mbtNB0DADIQ0zsAHio8dKTUpjpGACQh5jYAfBE\n30trpJ9MxwCAvMXEDoAnelV6WIowHQMA8hYTOwAe5zfpCynOdAwAyHNM7AB4nPHSPdJdpmMA\nQJ5jYgfAs+yXFkrLTccAgPzAxA6AZ5kg3Sw9YDoGAOQHOxS706dPDx8+fNeuXaaDAHB1idJs\n6UXJYToJAOQHmxS7CRMm7Nmzx3QQAK7uDSlEetR0DADIJ25zjF337t2v9tC5c+ckTZs27bPP\nPpP0/vvvF1wsAO7jtPSu9Lo9/kULAFfiNsVu1qxZWW+wcuVKa4FiB+CK3pYCpPamYwBA/nGb\nf7gOHDjQy8srMjLy66+/Pvm/fvnlF0kLFy60vjSdFIArSpamSYMlX9NJACD/uE2xe/311zdt\n2iQpKirqhRdecDgcxf8RGBgoqWjRotaXppMCcEWzpIvSVQ/pAABbcJtiJ6l27dpbtmwZP378\nnDlzatasuWTJEtOJALiHi9JkaYBU1HQSAMhX7lTsJHl7ew8bNmznzp01atR4/PHHW7ZseeDA\nAdOhALi6edJfUm/TMQAgv7lZsbOEhYXFxsbOnj17/fr1NWvW5GwJAFlIkyZIvSUO1ABge25Z\n7CxPP/30b7/99tBDD40dO9Z0FgCu6xPpgDTAdAwAKABuc7mTKypTpsyCBQs6deq0atWqsLAw\n03EAuKIJ0jNSGdMxAKAAuHexs0RFRUVFRZlOAcAVxUg7paWmYwBAwXDjXbEAcE3jpc5SJdMx\nAKBg2GFiZ4mPj+/Ro4ek2NjYHD3x4MGDFy5cyGKD48ePX1cyAIasljZJs03HAIACY59il5SU\ntGrVqpw+Kz4+vmrVqtnZMj09PeehAJj0qtRWCs/t0y9eTDtwICkh4dT+/acvXkzL9KiPT6GQ\nkMAqVYIqVizm48PeDwAuwT7Frnr16jt37szps8LCwg4dOpScnJzFNgsWLBgxYoTD4biOdAAK\n2hZplbQjJ0+Jj//722/3b958eO/eUwkJpw4eTLp0Kc3bu1DFisVKlvTPtPFffyUfOPCfDSpU\nKFalSlBoaFC9ejc2bhwSFsaVVQCYYZ9i5+/vHxERkYsnBgcHZ71BqVKlcpUIgEnjpIelW661\n2Z9/nvn22/3Wr337TgcHBzRsWOGuu4Lbt69RpUqQNZDz9r7yQO7Spf+M9Kxfe/b8PWbMhmef\nXVmpUmDjxiHWr+DggDz/1gDgatyv2KWnpyckJOzduzcpKUlSUFBQeHh4xYoVTecC4EJ+lb6Q\n4q6+wfHj5+fP/2327J07dhy74YbC991XcejQuo0bh1SvXjL77+LtXcgqfxlX7tr1l1UTBwxY\nfeLE+VtvLd2lyy3t29coVapwbr8bAMgudyp2J0+eHDduXHR0dGJiYqaHQkJCunfvPnjw4MKF\n+aMTgMZJjaS7Llufmpq+cuUfH3yw8/PP48uWLdK5881z5kTVqlW6UKE8O9aievWS1auX7NUr\nMi0t/aefji1Z8vuUKVuGDl3bsmVY1663NG1a2cuL4zoA5Be3KXaHDx9u0KBBQkJCeHh4ixYt\nKlWqVLRoUUmnT5+Oj49fu3btqFGjlixZsnr16hIlSpgOC8Ck36VF0jf/u/LIkbNvv71tzpxf\njh0717Jl1WXLWjdtWjkP+9zlChVyREaWiYwsM3Zsg5Ur//jgg58feeSz0qWLPP30zb1731au\nXNH8e2sAHsttit3IkSMPHjy4ePHiNm3aXP5oamrqjBkz+vTpM3bs2KlTpxZ8PACuY7xUV2r0\nz5eJiecmTPh++vTtVaoEDR5cp0OHGjfcUKCj/UKFHM2bV2nevMqJE+fnzftt5swdU6Zs7dkz\nctiwumXKFCnIJABsz21O0Y+JienYseMVW50kLy+vXr16tW3bdulSrjAPeLT90kfSaEnS8ePn\nx4zZEB7+/ldfJbz77gM//fR0//63F3Cry+iGGwr373/7zz93WbTo4W+/XdUfYQAAIABJREFU\n3V+lynv9+3975MhZU3kA2I/bFLsTJ05c826wNWrUOHr0aMHkAeCaxkkR0h0nzj//fFyVKjMX\nLtz1zjsP/Pzz05063ewiB7c5HHr44bAffug4c2bTFSv+CA9///nn406cOG86FwA7cJtiFxwc\nvGPHNa5ItW3btmteuwSAjR2UPkzXXe/vrHbT/7N332FR3XkXwM/QOzYsIGDDilgQiAV7LKiA\nhWJBIyrYXbtJbNlYotEotiwmooJdUbCgQVQ0KopdREVERKwIojTp8/7BGzdrEgvM3DvlfJ59\n8piZ4X5P2CnHO/f+7qbQ0HsbNnwZHz9y6NAmcj2Wrnw0NCRDhzaJjx+5YcOXoaH3Gjbc9Ouv\ncVwHnYgqSGmKnbu7+969e1esWFFQUPDXe3NzcxcsWBAeHu7l5SV8NiJSEN/cy9TuvmfT5BOT\nJrW+desrH5+mCrKX7p9oakp8fJrevj1y/vx2U6eedHbeeesWr2FIROUnUZYrZb1+/bpbt25X\nr141NjZ2dHS0tLQ0MjKSSqU5OTkpKSmxsbF5eXnOzs4RERFGRjJeDjQwMHDs2LHZ2dky3zIR\nycrbt8Xzl8Wu+OFi6+7Woeu61alj+vGfUTBPnuRMmXLy4MH748a1XLzY2chIW+xERPT3CgsL\ndXV1z507167dX1dVEpnSnBVbqVKlmJiY9evXBwcHR0dHl5SUvLtLW1vb3t7e19fX19dXU1NT\nxJBEJIpjx5InTIhKyy+x2Nbn0qCGSvNNxP+ysDDat8913757U6acPHw4af367r161RU7FBEp\nGaUpdgB0dHSmTp06derU/Pz81NTUsitPmJiYWFlZ6ejoiJ2OiETw9m3x9OnRGzfe8B3fauei\nDstMdJS01b0zaFDDHj3qzJ17tm/f/X5+LVau7Kyvr0xv1EQkLqV8v9DT07OxsRE7BRGJ7O7d\nV97eh169yj950uu3jrVrAKpxjK2Jic6aNV2HDm0yePDh6OjUXbv62tmZiR2KiJSDsv/llojU\nVHBwfJs2IXXqmF6/PqJFx9obgG+U9K+q/8DJqda1a8Pt7MycnLYHBFwVOw4RKQcWOyJSMllZ\nhUOGHPb3P754sfOBA+5VqugFACbAMLGDyZypqe6uXX0DA7/85pvfBwwIz8zMFzsRESk6Fjsi\nUiYXLz5r0WLr9esvL14cOmVKa4kE2UAAMAdQ1SNthw9vFhMz5O7dV61bh1y8+EzsOESk0Fjs\niEhpbNt2u3Pn3V26WF6+POzdYWfrAQPAV9xkcmZnZ3b58rAuXSw7d969bdttseMQkeJisSMi\nJSCVYuHC8yNHHlu4sF1QUC8Dg/9f4y0X+AmYDeiKm0/+DAy0g4J6BQR09fU9NmXKydJS5ViC\nlIgEpkqHGhORasrNLfLxiYiKSjlwwK1v3/+5ZvQ6QAsYJVYywfn52dWpY+Lldej+/dc7d/Y1\nMVHV75+JqJy4x46IFNqTJzmdOu26efPlhQtD32t1Zbvrvgb0xQonhh496sTGDnvw4HWHDjse\nPnwjdhwiUiwsdkSkuC5ceNamTYi+vlZMzJCmTau+d+96QAMYLUoyUdnYVD53boiZmYGDw7Yz\nZx6LHYeIFAiLHREpqAMHErt02e3qWv/kSS8zM4P37s0FVgJz1Gx33TtVqugdOzZowACbnj33\nHTiQKHYcIlIULHZEpIg2b77l6XlowYK2gYE9tLX/5p3qZ0ADGCN8MoWhra0RGNhjwYK2np6H\nNm++JXYcIlIIPHmCiBTO2rVXp02LXreum79/i799QP4fJ8O+vx9P/cyZ41SrltGYMb+lp7+d\nOdNB7DhEJDIWOyJSLMuWxc6ff2779j6eno3+6THrgVLAT8hYCmzEiGamprqDBx/OyHi7dGlH\niUTsQEQkHhY7IlIUpaXS8eOjQkJuh4e79+pV958eVra7bhZ31/2Ju3uDI0cGuLuHvXiR98sv\nPbS0eJgNkZrii5+IFEJhYcmQIUd2774bGTnoA60OwM9AIXfX/UXXrlYnTngePpzk4XEwP79Y\n7DhEJA4WOyISX0FByYAB4WfOpP7+++D27S0+8Mh8YAUwGzASLJzycHCoeeqU18WLzwYNOlhQ\nUCJ2HCISAYsdEYmssLBk0KCD16+nnT7tbWtb7cMPDgSKgXHCJFNCtrbVTp/2vn49bdCgg4WF\n7HZEaofFjojEVFRU6ul56NKlZ5GRHjY2lT/84DzgB2A6YChMOOVkY1P51Cmvq1dfuLuHcb8d\nkbphsSMi0RQVlXp6HoyJeXrypNdfLyzxVxuAYmC8AMmUXFm3u3Hj5YAB4ex2RGqFxY6IxFFS\nIh0+POL8+acnT3p+SqvLBX4EvuHRdZ+mYcPKJ096Xrv2YsiQw0VFpWLHISKBsNgRkQhKSqQ+\nPkdOnHh04oRns2YfOa6uzBpAE/CXdzIV0qhRlVOnvGJing4efLi4mN2OSC2w2BGR0EpKpEOH\nHomKenTypOdHz5YokwOsAr7m2nWfqVGjKpGRHmfOPB42LKKkRCp2HCKSOxY7IhKUVIpx445H\nRaVERXl8YqsD8BOgDYyWazIVZWtbLSrKIyoqZdy441JWOyJVx2JHRIL6+usz27ffCQ93t7Mz\n+8QfeQOsBuYB+nJNprrs7MwiIgbs3Hnnm29+FzsLEckXLylGRMJZu/bqqlVXwsPdP7wK8XtW\nAsaAr/xiqQFHx1rh4f1dXEKrVNGbOdNB7DhEJC8sdkQkkJCQ29OmRW/b5vLhK4a95zWwFlgB\n6MgvmXro2tVq165+Hh4Hq1TRGzWqudhxiEgu+FUsEQnh4MEkX99jK1d29vJq/Fk/uByoBPjI\nKZaacXdvsG5dN3//yH377omdhYjkgnvsiEjuoqNTvbwOffddu8mTW3/WD6YD64C13F0nO/7+\nLdLT3w4desTUVPfLL63FjkNEMsY9dkQkX1evvnBzOzBuXItvvvnic392GVATGCqPWGrs22+/\nmDCh5aBB4VevvhA7CxHJGIsdEclRSkpW37773dwarFzZ5XN/9jmwAVjIbxbkYOXKLm5uDfr2\n3Z+SkiV2FiKSJRY7IpKXrKzCfv32N2xY5Zdfekokn/3jS4B6gLccgpFEgk2betnaVuvdOzQz\nM1/sOEQkMyx2RCQXRUWlAweGl5RIDxxw09XV/NwfTwE2At/zTUputLU19u1z09bWcHcPKygo\nETsOEckG3zOJSPakUowe/Vt8fHpExMDKlfXKsYXvgOaAm8yT0Z+YmOhERAx88ODNV18d5UUp\niFQDix0Ryd78+Wf37bsXFuZubW1Sjh+/B4QAS4HP//6WPo+FhVF4uPvhw0kLFpwTOwsRyQAP\nSiYiGQsKilu69OL+/e6OjrXKt4W5QDugu2xj0T9o3brGnj2urq4HatUyHDeupdhxiKhCuMeO\niGTp1KlH48ZFBQR0dXWtX74t3ARCgR9kG4s+qHfvuj///OWUKSd/++2h2FmIqEJY7IhIZuLj\n093dw6ZNazNhQqtyb2QO0BdoK8NY9AlGj24+fbqDp+fB+Ph0sbMQUfmx2BGRbGRkvHV3D+ve\n3Xrx4g7l3shZ4DfgOxnGok+2ZImzi0u9vn0PpKXliZ2FiMqJxY6IZKCoqNTD45CxsU5wsIuG\nRvnPeZgHeAE8zksUEgmCgnqZmekPHBjOBVCIlBSLHRHJwMSJUXfuZISH9zc01C73Ro4CvwPz\nZRiLPpO+vlZYmHty8puxY4+LnYWIyoPFjogqauXKy8HBtw8ccLe0NC73RqTAQsAXaCy7YFQO\n5uZG4eH99+xJ+Omny2JnIaLPxuVOiKhCfvvt4Zw5Z7Zu7f3FF+Vc3KRMKHAT2CerWFQB9vY1\ntm7tPXjwYRubyv36lfPsZiISBffYEVH53bmT4eV16OuvnYYMaVKR7RQDc4FxgKWsklHFDBrU\ncM4cx6FDj8TF8SRZImXCYkdE5ZSe/rZv3/3du1t/9137Cm7qV+A58K1MYpGM/PvfHXr2rOPu\nfiA9/a3YWYjoU7HYEVF5FBeXengcrFRJLzi4t6RiV/56CywGZgFVZZSNZEIiwdatvStV0vPw\nOFhcXCp2HCL6JCx2RFQe06ZFx8Wl79vnamBQ/tNgy6wESoApMolFMmVgoH3ggNvt2xnTp0eL\nnYWIPgmLHRF9tpCQ2//5z/V9+1zr1jWt4KbSgRXAd4ChTJKRrFlZmezf7/af/9zYtClO7CxE\n9HEsdkT0ea5efeHvH7lqVZfOnWVwqsMioCYwsuIbIrlp395i5crOEyeeuHjxmdhZiOgjWOyI\n6DO8eJHn5hbm4dGoIleDfech8B9gKRdeUngTJ7YaNqxJ//5hT57kiJ2FiD6ExY6IPlVRUamn\n58HatY02buwhkw3OBVoA7jLZFsnZhg1f1q9fycPjIK82RqTIWOyI6FNNnBh1717m3r2uurqa\nFd/aTWAn8ANQsXNqSSDa2hp797o+epTFq40RKTIWOyL6JIGBN7ZsiQ8Ndatdu/zXDfuzmUAf\noItMtkWCqFnTcM8e1x077gQG3hA7CxH9PRY7Ivq4mJinkyefXLeuW7t25jLZYDRwAlgqk22R\ngNq1M1+3rtvkySdjYp6KnYWI/gaLHRF9xIsXeZ6eh0aMaDZmjJ1MNigFZgI+QDOZbI6ENWaM\n3fDhTQcMCH/6lCdSECkcFjsi+pDi4lIvr0NmZvoBAV1ltc2dQDzwb1ltjgS3bl13S0tjD4+D\nhYU8kYJIsbDYEdGHzJx5Oi7uZWiom76+bNYkyQe+AaYBMlgEj0Siq6sZGuqWmPh6zpwzYmch\nov/BYkdE/2jXrrtr117dsaNvxa8w8c4q4C0wS1abI5FYWhrv2tV37dprwcHxYmchov9isSOi\nv3f37is/v8ilSzv27FlHVtt8CSwDvgdMZLVFEk/XrlaLF3cYPz7q1q10sbMQ0f9jsSOiv5Gd\nXThgQHjXrlYzZjjIcLPzAXPAV4ZbJFHNnOno4lJvwIDw168LxM5CRACLHRH9lVSKr746Wloq\nDQ52kchu+eA7wK/AT7yAmAqRSBAU1EtbW2P48IjSUqnYcYiIxY6I/mLJkgvHj6eEhbmbmOjI\ncLPTgY5ALxlukRSAkZF2aKhbdHTq0qUXxc5CRPybMxH9r5MnHy1ceH7Hjj6NG1eR5WaBSOCa\nDLdICqNx4yohIS4DB4a3aVNThkdkElE5cI8dEf1Xamq2t/fhKVNae3g0kuFmS4GZgC/QXIYb\nJUXi5tZgyhT7IUMOP3z4RuwsRGqNxY6I/l9RUengwYcbNKi0ZImzbLe8GbgHfCfbjZKCWbas\no61tNS+vwwUFXLWYSDQsdkT0/6ZOPXX/fubeva46Opoy3GwOMA+YDdSS4UZJ8WhpaezZ4/r4\ncfaMGdFiZyFSXyx2RAQAu3bdDQy8sXt3PwsLI9lu+UdAA5gm242SQqpRw2DvXtfAwBtctZhI\nLCx2RISEhFd+fpFLljh36iTjC32lAiuA5YCBbLdLiqpdO/NFizqMHx8VH89Vi4lEwGJHpO5y\ncor69w/v0sVStmsRl5kOtAAGy3y7pMBmznTs1atu//7hb95w1WIiobHYEak7X99jxcWlsl2L\nuMxZIBRYDch6w6TQJBJs2tQTwJgxkWJnIVI7LHZEai0g4OqRIw9CQ91MTXVlu+USYCIwEnCU\n7XZJGZia6oaGuh058iAg4KrYWYjUC4sdkfq6cOHZrFmn16/v1rx5NZlvfCPwAPhe5tslJdG8\nebVffukxc2b02bNPxM5CpEZY7IjU1MuXeR4eB0eOtP3qK1uZbzwTmA8s4BIn6m3IkCYjR9p6\neBx8/jxX7CxE6oLFjkgdlZZKfXwiqlbVW7Wqizy2vwCoBEyUx6ZJqaxZ083Cwmjo0CMlJVKx\nsxCpBRY7InW0YMG52Njn+/e76+vL/oLRt4H/AAGAjI/aIyWkq6sZGup248bL7747L3YWIrXA\nYkekdqKiUpYuvRgU1KtePVN5bH8a0ANwkcemSQlZW5ts3dp7yZILR48mi52FSPWx2BGpl9TU\n7MGDD8+a5eju3kAe2w8DTgEr5bFpUlp9+tSbOdNx6NAjyclvxM5CpOJY7IjUSEFByaBBB21t\nq33/fQd5bD8fmAFMAhrJY+ukzBYt6tCihZm39+GCghKxsxCpMhY7IjUyfXp0amrWzp19NTXl\nsmbwD0AuME8emyYlp6kp2bmzb2pq1vTp0WJnIVJlLHZE6mL37ruBgTd27epXs6ahPLafBCwD\nVgJyOXCPlF/NmoahoW4bN94ICbktdhYilcViR6QWEhJe+flFLl3q3LFjbTmNmAI48LKw9EFt\n25ovXuw8btzx+Ph0sbMQqSYWOyLVl5tbNGBAeKdOltOnO8hpxH7gN2A9LwtLHzNjhkOvXnUH\nDAjPyioUOwuRCmKxI1J948YdLywsCQlxkcinduUB04FpQHO5bJ5UikSCzZt7SSQSP79IsbMQ\nqSAWOyIVt27dtb177+3e3c/UVF4LBv8bKOE5E/TJjI119uzpd+hQ0vr118TOQqRqWOyIVFls\n7LMZM6LXr+/WunUNOY24B6wGVgNGchpAqsjOzmzNmq5Tp546f/6p2FmIVAqLHZHKevUq39v7\nsIdHI19fOX5HOg7oBAyQ3wBSUaNGNffxaebtfSg9/a3YWYhUB4sdkWoqLZUOHXrExERn48Ye\n8puyAzgHrJHfAFJp69Z1q1JFz8cnorRUKnYWIhXBYkekmr7/PiYm5uneva76+lpyGpENzARm\n8zoTVF76+lp797rGxDz9/vsYsbMQqQiVKnaZmZkPHz4UOwWR+KKiUr7/PmbTpp42NpXlN+Vb\nQA+YI78BpAZsbCqHhLh8/33M0aPJYmchUgXKVOxu3rzZp0+fOnXqODs7b9iwoaTk/QsOLlu2\nrG7duqJkI1Icjx5lDR58eMYMh4EDG8pvyiVgA7AG0JffDFIP/frVnz7dYejQI8nJb8TOQqT0\nlKbYnTt3ztHRMSIi4uXLlxcvXpwwYUK3bt0yMzPFzkWkWAoKSgYNOmhrW23Rog7ym1IM+AOD\ngT7ym0HqZMkS5zZtagwYEP72bbHYWYiUm9IUu6VLl5aWlh44cCAnJyc7O/unn346f/58z549\nc3NzxY5GpECmTDmZmpq9fXsfLS05vrqXA4+AlfIbQGpGU1MSEtLn5cu8adNOiZ2FSLkpTbG7\nefOml5eXu7u7RCLR1dWdOnXqsWPHbty44enp+dfvZInU044dd4KC4vbs6WduLsdF5RKBRcBK\noLr8ZpD6qVHDYO9e16CgW1u23BI7C5ESU5pi9/z583r16v35lq5du/76668RERHTpk0TKxWR\n4oiLSx8zJnLZsk7OzrXlN0UKjAecgOHym0Hqqm1b86VLnceNi7p2LU3sLETKSl7rIMhcjRo1\nrl+//t6NPj4+d+7cWbp0ae3atWfOnClKMCJF8OZNwcCB4S4udf/1L3u5DtoCnANuAvK56iyp\nu6lT28TEPPXyOnTp0jD5XQSPSIUpzR67AQMGHDp0aN26dUVFRX++ffHixSNGjJg1a9bUqVPz\n8vLEikckIqkUI0Yc1dSUBAX1ksizcKUDs4EFQAM5DiG1JpEgKKiXpqZkxIijUi5aTPT5lKbY\nzZ8/39LSctKkSS4uLn++XSKRbN68efLkyatXr167dq1Y8YhEtGTJhRMnUvbtczU21pHroClA\nTYCHPpBcGRvrhIW5nzr1aOnSC2JnIVI+SlPsqlateuXKlfHjx9va2r53l0QiCQgICA0NrV+/\nvijZiER04sSjhQvPb9rUq1mzanId9BuwCwgEtOU6hgho1KjK1q0u8+efO3aMqxYTfR6JlDu7\nPyYwMHDs2LHZ2dlGRnI805CoHB49yrK3Dxk50nb58k5yHZQDNAfcgNVyHUP0JzNnng4Kirt8\n2aduXVOxsxD9j8LCQl1d3XPnzrVr107sLO9Tmj12RPSe/PzigQMPNm9utmSJs7xnlZ2a9L28\nxxD9yQ8/dLS356rFRJ+HxY5IWU2ceOLJE7mvRQzgFLAR2AgYy3UM0f/S1JRs29YnPf2tv3+k\n2FmIlIbSLHfyUUlJSf7+/gCioqI+6wcfPXpUXPyhvw6mp6dXKBmRHGzceDM4OP7UKa9atQzl\nOigXGAOMB76U6xiiv1O9usG+fa6dOu1ydq49Zoyd2HGIlIDqFLvs7OwTJ0587k8lJSXZ2Nh8\nyoGGPBiRFEds7LPJk0+sWdOtfXsLec+aAZQAS+Q9hugfODnVWrWqy4QJUU2bVhXgCU+k7FSn\n2DVu3DguLu5zf6p+/fqvX7/+8EXJtmzZMm3aNIlc1wcj+mRpaXmDBh0cPLjJ2LEt5D3rJLAR\nOMYvYUlU48a1jI19Pnjw4cuXfapXNxA7DpFCU51ip6en99eVUD6FiYnJhx9gYMD3EVIUxcWl\nXl6HqlXTX7++m7xn5QJ+/BKWFMPPP3fv2HHXgAHhJ0966uhoih2HSHEpX7GTSqXJyckPHjzI\nzs4GYGpqamNjY2lpKXYuIiFMnXoqLi790qVhBgZyX06u7EvYpfIeQ/QJ9PS0QkPd2rQJmTHj\n9Jo1XcWOQ6S4lKnYZWZmLl68OCQkJC3t/etDW1lZjR49esaMGfr6+qJkIxLAtm23AwNvREZ6\nCLCs17svYbl4IykIS0vj/fvdunbd07Klma9vc7HjECkopSl2z549a9++fXJyso2NjYuLi7W1\ntaGhIYCsrKykpKTTp0/Pnz8/NDT01KlTlStXFjsskexdu5bm73985crOnTvLff80v4QlxdS+\nvcWPP3aaMOFE8+ZmDg41xY5DpIiUptjNmzfv8ePHe/bs8fDw+Ou9JSUlgYGBEydO/O6771av\n5tr4pGoyMt4OHBg+YIDNpEmtBRg3FZDyS1hSSJMnt75x4+XAgeE8kYLobynNAsVHjhzx8fH5\n21YHQFNTc/z48Z6envv37xc4GJG8FReXDhp00NRUNzBQiD1o4UAQEMQvYUlRrV/frWZNwwED\nwgsLP7SgAZF6Uppil5GRUb9+/Q8/pkmTJi9evBAmD5Fgpk2LjotL37/fTYATJtIAf+AbQL6X\nniWqgLITKRITM2fOPC12FiKFozTFztzc/MaNGx9+zLVr18zNzYXJQySMzZtv/fzz9X37XAU4\nYUIK+AK1gXnynkRUMZaWxrt399uw4frmzbfEzkKkWJSm2Lm7u+/du3fFihUFBQV/vTc3N3fB\nggXh4eFeXl7CZyOSk5iYp+PGHV+9uosAJ0wAWA+cArYDct8xSFRhnTtbrlrVxd8/8syZx2Jn\nIVIgEmW5Utbr16+7det29epVY2NjR0dHS0tLIyMjqVSak5OTkpISGxubl5fn7OwcERFhZCTj\nQ4MCAwPHjh2bnZ0t8y0TfcDTpzkODtt69qwTFNRLgHF3gDbAT4C/AMOIZGTs2ONhYYmXLvlY\nWvLyKCScwsJCXV3dc+fOtWvXTuws71Oas2IrVaoUExOzfv364ODg6OjoP18ETFtb297e3tfX\n19fXV1OTK5KTKnj7ttjdPaxuXdP//EeIEyaKgBFAR8BPgGFEsrN2bbeEhFeurgfOnh1saMh9\nzUTKU+wA6OjoTJ06derUqfn5+ampqWVXnjAxMbGystLR0RE7HZHMSKXw9T2WlpYXGztMmKsn\nzQceAgcBXhGZlIu2tsa+fa5OTtuHD4/Yt8+N1/QmUqZi946enp6NjY3YKYjkZdGimMOHk86d\nGyLMMl1ngR+BAwDXeyVlVLWq/sGD/du23b548YW5c78QOw6RyJTm5AkiNREWdv+7785v2tTL\nzs5MgHGZwDBgDNBPgGFE8tG0adWtW10WLjy3Z0+C2FmIRMZiR6RAbt586eNzZP78dp6ejQQY\nJwVGAUbASgGGEcmTu3uD+fPbjRp17ObNl2JnIRITix2RonjxIs/V9YCLS71589oKMzEAiAT2\nALwwE6mAefPaurjUc3U98OJFnthZiETDYkekEPLzi/v3D6tWTX/z5l7CHAB+GZgDrAOaCjGN\nSO4kEmzZ0rtWLcO+fffn5RWJHYdIHCx2ROKTSjFq1G+PHmWFh/cX4LphALKBoUB/4CsBhhEJ\nRV9f68AB97S0vBEjjpaWKscqrUSyxWJHJL55884eOpR05MhACwuBFsEeC0iBjcIMIxJQzZqG\nR48OPH48ZcGCc2JnIRKBUi53QqRKdu++u2xZbGioW4sWQpwGC2ADsB+IAbhUP6mkpk2r7trV\nt1+/Aw0bVvHx4bEGpF64x45ITGfPPhkx4uhPP3V2da0vzMQ4YAYQALQUZh6RGHr1qrtyZedR\no46dOvVI7CxEgmKxIxJNcvKbgQPDfXyaTprUWpiJ2cAgwJWXDiM1MHlyaz+/Fh4ehxITM8XO\nQiQcFjsicbx6le/iEtq6dY2ffxbiarAApMBIHlpH6mT16i4ODjVdXQ+8epUvdhYigbDYEYkg\nP7/Y3T1MR0dz9+5+WloCvQyXAceA/YCJMPOIxKalpbF7dz8dHU1397D8/GKx4xAJgcWOSGhS\nKUaP/u3Bg9eHDw8wMdERZugJYB6wCbAVZh6RYjAx0Tl6dGBKStbw4VwAhdQCix2R0KZPP1W2\nuImlpUCnpaYA3sBUwEuYeUSKxNzc6OjRgVFRKTNnnhY7C5HcsdgRCernn6+vW3dNyMVN8oGB\nQHNgiTDziBRP06ZVDxxwW7/+2urVV8TOQiRfLHZEwjl4MGny5JO//tqze3drwYaOB9KA3Vy1\nktRbp06WW7b0njnz9L5998TOQiRHfKsnEsjFi88GDz68aFGH4cObCTZ0HbATOAMItHuQSIF5\nezd++PCNj09EzZqGHTpYiB2HSC64x45ICAkJr/r02T9iRLPZsx0FGxoDTAfWAQ6CjSRSbHPm\nOI0caevuHpaQ8ErsLERywWJHJHePH2f37LmvfXvztWu7CTb0ETAA8AVGCTaSSBmsXdutfXvz\nnj33PX6cLXYWItljsSOSr4yMtz177jM3N9q5s6+mpkSYoTmAK9Ac3b6pAAAgAElEQVQQCBBm\nHpHy0NSU7NrVz9rapGvXPWlpeWLHIZIxFjsiOcrLK3JzC9PUlBw5MsDAQFuYoaXAUCAbCAUE\nWiWPSKno62sdOjTA2FinX78DOTlFYschkiUWOyJ5KSoqHTjw4PPnuZGRHpUr6wk2dwZwFjgK\nVBNsJJGyMTHROXZs4Js3BW5uBwoKSsSOQyQzLHZEclFaKvXxibh58+Xx4x41axoKNjcIWAfs\nARoKNpJIOZmZGRw/7pGYmOntfaikhBelIBXBYkckF1Onnjp2LPnIkQF165oKNvQMMA5YCwh3\njgaRMrO0ND56dOCZM48nTIgSOwuRbLDYEcnevHlnf/01LiJiYMuW1QUbmgC4A1MAf8FGEim/\nZs2qHTo0ICTk9rx5Z8XOQiQDXKCYSMaWL49dvvxSWJh7u3bmgg1NB/oBzsAPgo0kUhXt2pnv\n2+fq7h5mbKwza5ZwK00SyQOLHZEsrV179Ztvft++vU/v3nUFG5oL9AWMge3cCU9ULr171921\nq6+n5yENDcmMGVzSm5QYix2RzAQFxU2bFr11q4uXV2PBhpYAw4CXwDnASLCpRCqnf3+bnTv7\nDh582NBQe9y4lmLHISonFjsi2QgOjvfzi9yw4cuhQ5sINlQK+AFngbNATcGmEqmoQYMa5ub2\nHDXqmJaWxpgxdmLHISoPFjsiGQgNvTdq1G9r1nTz8xP0w+BrYBdwAmgk5FQi1TViRLOSklJ/\n/+OGhtpDhgj3lzQiWWGxI6qosLD7gwcfXrLEefx4Qb++2QD8BBwCvhByKpGq8/VtnpNTNGLE\nUS0tDU9P/qWJlAyLHVGFHD6c5OV16N//bj9zpqAHXO8GJgObgJ5CTiVSD5Mnt87LK/LxiTAw\n0Orbt77YcYg+A4sdUfmFh9/39Dw0d+4Xc+Y4CTn3BDAcWA6MEHIqkTqZM8ep7KqAe/b0c3Nr\nIHYcok/FYkdUTvv23Rsy5PDcuW3nzWsr5NxzgDvwL2CakFOJ1M+8eW11dTUHDTq4ZUtvIU+K\nIqoIFjui8tizJ2Ho0CMLF7b79ltBj3C7BvQDvLkQMZEgZs1y1NTU+Oqro6WlUh+fpmLHIfo4\nFjuiz7Zr193hwyN+/LHTv/5lL+TcG0B3wA0IBCRCDiZSY9OntzE01Pb1PVZaKh0xopnYcYg+\ngsWO6PMEBcX5+UWuWtVl0qTWQs5NAHoC3YFfeXkJImGNHdtCQ0MyatSxvLwirl1MCo7Fjugz\nBAbemDAh6uefvxR48dJEoAvQHtgOaAo5mIgAAH5+dhIJxo07rqEh8fdvIXYcon/EYkf0qZYv\nj/3227O//trzq69shZybAnwJOAK7+IolEs+YMXba2hpjxkS+eVMwa5aj2HGI/h4/Jog+TirF\n11+fWbXqyvbtfQResPQB0BVoCuwGtIUcTER/8dVXtpUr63l7H37yJGf16q4SHutKiofFjugj\nSkqk48Yd37HjzsGD/Xv2rCPk6LtAd8AW2A/oCjmYiP6Bm1uDiIgB7u5hr18XbNrUU0uLh7yS\nYuEzkuhDCgpKvL0PhYbeO37cQ+BWFw90BVoBYYCekIOJ6IO6dLE6ccLz6NHkgQPD374tFjsO\n0f9gsSP6Rzk5Rf367T937kl0tHfbtuZCjr4CdAI6AvvZ6ogUT5s2Nc+c8b52La1379CsrEKx\n4xD9F4sd0d9LS8vr3HlXamr2hQtDmzevJuTo34GuQG9gG4+rI1JUjRtXOXt28IsXuV277k5L\nyxM7DtH/Y7Ej+hsJCa/att2uoSE5c8bbyspEyNGnABdgCLCVx8ASKTYrK5MzZ7w1NCRt225P\nSHgldhwigMWO6K/On3/aocPOhg2rnDjhaWZmIOTocKA3MAH4mS9OImVgZmZw6pRX8+Zmbdvu\niI5OFTsOET87iP7X3r0J3brtGTDA5tCh/sbGOkKO/g8wCJjH68ASKRVDQ+3QUDcfn6Y9e+4L\nCbktdhxSd/yqh+i/AgKuzpgRvWhRh9mzBV19VAp8BywG1gN+Qg4mIlnQ1JQEBHRt1qzaqFHH\nkpJeL1jQjkvckVhY7IgAoLi4dOLEE9u23d63z9XNrYGQowuBUUAYEA64CDmYiGTKz8/OysrY\n0/PQw4dvNm7soaPD6/+RCPhVLBEyMt727LkvPPz+qVNeAre6HMANiAKi2eqIlF+vXnVPnPD8\n7beHvXuHZmS8FTsOqSMWO1J3N2++dHDYlpHx9sKFoQ4ONYUc/QzoCNwHfgfshRxMRHLj4FDz\nwoWhGRlvHRy23bz5Uuw4pHZY7Eit7d2b0K7dDgeHmufODbG2FnRZk+uAE2AIXAQE3UlIRHJm\nbW1y4cJQZ+faTk7beToFCYzFjtSUVIply2IHDz48Y4bDrl39DA0FXQl4D9AecAaOA1WEHExE\ngtDT09q6tfcPP3QcOfLonDlnSkqkYicidcGTJ0gdZWcX+vhEnDr1aP9+d1fX+kKOlgLLgW+B\nucACgGfOEamwKVNaN25cZfDgwzduvNyxo0/lyrxAIMkd99iR2omPT2/TJiQxMfPyZR+BW10O\nMABYDIQCC9nqiNRAz551Ll4c+uhR1hdfbI+PTxc7Dqk+FjtSL5s333J03G5rW+3ChaE2NpWF\nHJ0EfAHEAxcBNyEHE5GobGwqX7gw1Na2mqPj9s2bb4kdh1Qcix2pi7dvi/38Iv38IufPb7tv\nn5vAV5U4CjgA1sAloImQg4lIARgb64SGuq1a1WXs2OPDh0fk5BSJnYhUFosdqYW7d185OW37\n7beHZ854z57tKOSi8MXA10A/wB84CJgKN5mIFIufn93580POn3/apk0IV0IhOWGxI9UXHBzf\npk1IvXqVrl8f3ratuZCjHwNdgF+BcGApwHXoidScvX2Nq1eHt2xZ3clpe0DAVbHjkApisSNV\n9uZNwbBhR/z8IpcudQ4Lcxf4lLQooA1QCFwC+gg5mIgUmImJzq5dfZcv7zh79ulhw468eVMg\ndiJSKSx2pLJOnnxkZ7f18uUX584NmTSptZCji4GFQC/ACzgL1BFyNhEpg0mTWp87N+Ty5Rd2\ndltPnnwkdhxSHSx2pILy84vnzDnTo8feXr3qXLniY29fQ8jp9wFn4GcgAggABF34mIiUh719\njWvXhg8e3LhHj73+/pG5uTyjgmSAxY5UTVxcupPT9q1b48PD+wcG9hDykhJSYAPQEjABrgE9\nBBtMRMpJX1/rhx86Hjs2KCIi2cFh2+XLz8VOREqPxY5UR3Fx6aJFF+ztg5s1q3r79sg+feoJ\nOf054ArMAOYBRwFBz9EgImXWvbv1zZsjWrY0a9dux6JFF4qLS8VOREqMlxQjFXHlyosxY35L\nSckKCXHx8mos8PS9wFigIXAdaCjwbCJSfpUr6+3Y0dfN7e748VH799/75ZeeAh9DQiqDe+xI\n6b19Wzxnzhknp20WFsY3b34lcKt7AQwAfIDZwFm2OiKqAC+vxrdv+9raVnN03ObvH8l1jKkc\nWOxIuUVHp7ZosTUk5PaePa6HDvW3sDASbHQpsBFoAqQAl4FZXKaOiCqsRg2D4GCXQ4f6//bb\nw+bNtxw7lix2IlIyLHakrF6+zBs27Ej37ntcXOomJIwaMMBGyOlxgDMwFZgMxAC2Qs4mIlXn\n4lLv1q2Rbm71+/bdP2zYkZcv88ROREqDxY6UT3Fx6dq1Vxs1CoqLSz9/fsjq1V2NjIQ79fUt\nsBBoA1QBbgMLAUEvOktE6sHISHv16q7nzw+Ji0tv1Cho7dqrPKmCPgWLHSmZU6cetW4dPH/+\nudmzHS9dGuboWEvI6YeBpkAQsBs4BFgLOZuI1I+jY60rV3x++KHjv/8dY2u75ehRfjNLH8Fi\nR0ojNTV7+PCI7t33tmxZPSFh1OzZjjo6wh3VdgvoCfQH+gO3AXfBBhORetPS0vDzs0tIGNWz\nZ51+/fb363fgwYM3YocixcViR0ogO7tw7tyzDRtuSknJunLFJzjYpXp1A8GmZwBTgFZAKXAV\n+AkQ7gQNIiIAQJUqegEBXS9f9snKKmjWbPPcuWezswvFDkWKiMWOFFpBQcnq1Vfq1/81JOT2\nli29oqO9W7asLtj0QiAAqA9EAmHAcaC5YLOJiP6iZcvq0dHeW7b0Cgm5Xb/+r6tXXykoKBE7\nFCkWFjtSUKWl0r17E5o2DVq06ML06W3u3vX18moskQg0vQQIBhoBS4HlwC2gj0CTiYg+RCKB\nl1fjxMRRixZ1+OGHizY2v27ceJPnVdA7LHakiKKiUlq3Dh458piHR6OkpNGzZzvq6wt0lZRS\nYCfQDBgPDAbuAX5coI6IFIyOjqafn939+2MmTGg1a9bp5s237N2bIJWKHYsUAIsdKRCpFGFh\n9x0ctvXtu79zZ8vk5DE//NDR1FRXoOnAIcAeGAl0Au4DSwATYWYTEX0+IyPt2bMdExNH9exZ\nx8cnwtFxW1jYfdY7NcdiRwqhpES6Y8cdO7st3t6HHBxqJiSMWr26q5mZQGdIlAJhQCvAE+gI\nJAOBQE1hZhMRVYyZmcHq1V0TEkY5ONT09j5kZ7dlx447JSXsd2qKxY5EVlRUGhwc36zZZj+/\nyK5drZKSxmzY0N3aWqA9ZQXAJsAW8AbaA4lAACDoynhERLJgbW2yYUP3R4/8Bw5sOH58lI3N\nrwEBV/Pzi8XORUJjsSPRvHqVv2xZbL16v0yZctLDo+HDh34BAV0Fu9hrNhAANACmAV8CScB6\noLYws4mI5KN6dYOFC9vdvz966NAmCxees7HZtGxZ7KtX+WLnIuGw2JEI4uPT/f0jLS0DN2y4\nPmlSq5QU/++/71Ctmr4w05OB6YAF8BMwDXgMBAAWwswmIpK/atX0v/++Q0qK/6RJrTZsuG5p\nGejvHxkfny52LhICix0Jp7RUGhWV0q/fgebNt1y58uLnn7vfvz961ixHExMhrrZaChwB+gIN\ngBPAeuA+MBUwFmA2EZHgTEx0Zs1yTE4es2tX3wcP3tjabunQYefevQk8/E61CbSEBKm5J09y\nNm++tXlz3OPHOV5ejS5d8rG3ryHY9NfAViAAeAK4Ab8B3QChVsQjIhKThoakX7/6/frVv3Ll\nRUDAlWHDImrXPjNyZPORI20FO/SFhMRiR3JUXFx6+PCDTZvijh59UK9eJT+/Fl99ZVujhkDn\nupYAx4GtwAGgFuAP+ALCXbaCiEiR2NvXCA52+fHHzlu23Nq0KW7hwnO9e9cbNap53771tLT4\n9Z3qYLEjuYiLS9+27XZwcPybNwWDBjU8ccKzY0dLwa4bEQcEA9uBDKAPEAr05mEHRERAjRoG\ns2c7zprleOZM6qZNcUOGHDY11R0+vNmwYU2bN68mdjqSARY7kqUHD97s2nVn5867t26lt2lT\nc+7cL4YObVqpkkArDD8B9gDBwHXACZgLeANVhJlNRKQ8JBJ06mTZqZPlmjXdtm+/vWVL/PLl\nsba21QYPbuzt3aRePVOxA1L5sdiRDDx9mrNv372dO+9cvPisUaMq3t6NQ0PdGjasLMz0FGA/\nsA+4AFgCw4BdQCNhZhMRKbNKlXQnTGg1YUKre/cyd+68ExJye+7cs05OtQYPbjJoUENzcx6E\np3wkUl585GMCAwPHjh2bnZ1tZMSn+P+4fTsjPPx+WNj9S5ee1a5t7OXVeMiQJq1aCXQY233g\nALAPuATUAQYBAwFHnhVBRFQB166l7dhxZ/fuu48fZzs41HJ3b+Dm1qBp06pi51IshYWFurq6\n586da9eundhZ3qd8e+ykUmlycvKDBw+ys7MBmJqa2tjYWFpaip1LXRQXl1648OzgwfthYfcT\nEzObNq3q5tZg7dquDg61BDiErgD4HYgAjgD3ABtgELABsJf7ZCIitdCqVfVWraovX97p0qVn\nYWH3t227/c03v9vYVHZ3b+Dq2uCLL2rxTAsFp0zFLjMzc/HixSEhIWlpae/dZWVlNXr06Bkz\nZujrC7TIrbp5+PBNZGRKZOTDEydSsrIK27Y1HzPGzt29gY2NEN+3JgNRQAQQBRQAHYAxgAvQ\nVIDZRETqRyKBo2MtR8daS5Y4JyZmhoXdDw+/v3LlZRMTnW7drHv0qNOjh3WdOjwUTxEpzVex\nz549a9++fXJyso2NTfv27a2trQ0NDQFkZWUlJSWdPn366dOnLVq0OHXqVOXKMq4aavtVbEbG\n27Nnn5w48Sgy8mFCwisLC6MePer07Fmne3frqlXlXqCfASeBk8ApIBmoBfQCXIAegEDXkSUi\noj/JyHgbFZXy228PIyMfPnmS06hRlR496nTrZtWhg4UAHwoKhV/FysC8efMeP368Z88eDw+P\nv95bUlISGBg4ceLE7777bvXq1cLHUxnPn+f+/vvjM2cenz6dGh+fYWCg1aFDbT8/ux496tja\nyv1M+PtADHAeOA3cAaoAnYHpQBfunCMiElvVqvpeXo29vBoDuHUrPTLy4fHjKZs3x+XlFTdr\nVrVTJ8uOHWs7O9euWdNQ7KRqTWn22NWqVcvFxWXTpk0feIy3t/f58+cfPXok29GqvceuqKj0\n+vW02NhnFy8+u3jx2b17maamus7Otcten23a1JDr4RS5wLU/ylwM8AKoDrQFOgJdgBZcfI6I\nSLEVF5devvyibI/A778/fvOmoGHDyk5OtZycajk61mrZsrq2tgq+kXOPnQxkZGTUr1//w49p\n0qTJgQMHhMmjvIqLS+/ceXX9etrVqy8uXnx27Vpafn6xjU1lJ6daEye26tChtp2dmaamvM6D\nKGtyV4ErwBXgLiAFmgHtgeVAO6CBnAYTEZEcaGlpfPFFrS++qDVzpkNJifTmzZdnzz6OjX0e\nEHA1MTFTT0+rVavqTk61Wreu0bJl9SZNqvDcC3lTmmJnbm5+48aNDz/m2rVr5ubmwuRRIunp\nb+Pj0+Pi0q9fT7t+Pe3WrfSCgpKaNQ1btares2edefPaOjnVqlJFTx6jS4AkIA64BdwC4oD7\ngBRoCNgDowB7oBVgLI/ZREQkLE1NSdlJtWX/+upV/sWLz8q+Edq16+7z57m6upq2ttVatqze\nsmX15s2rNWtWrVo19To4TwBKU+zc3d3XrFnj4OAwadIkXd33r2SQm5u7fPny8PDw2bNnixJP\nQUilePIkOyEh886djNu3M+7cyYiPz3j5Mk9DQ2JjU7lly+qDBjVctKhDy5bV5XEMRC5wD0gA\n7gF3gQTgDvAWMAFsAVtgItACaMkmR0SkBqpU0evdu27v3nXL/vX589yy/QvXr79ct+5aYmJm\naanUzMygWbOqTZpUbdq0apMmVRs1qmxhYSzY9SdVktIcY/f69etu3bpdvXrV2NjY0dHR0tLS\nyMhIKpXm5OSkpKTExsbm5eU5OztHRETI/Eg4xTzGrrCw5NGj7JSUrAcPXicmZt6///r+/cz7\n91+/fVuspaVRv36lspdKs2bVGjeu0qRJFT09WZb450Ay8OCPf5b9LxUAUA1oDDQCGgLNgGZA\nHRkOJiIilZCfX3znzqu7d1/Fx6eX7YZISnpdXFyqr6/VoEGlBg0qN2hQycamcr16laytTays\njHV0NMWO/F88xk4GKlWqFBMTs379+uDg4Ojo6JKSknd3aWtr29vb+/r6+vr6amoq0P/xFVda\nKn3xIu/Jk+ynT3NTU7OePMlJSclKSclKTn7z/HluaalUS0vD2tqk7DXQqZOljU2lBg0q161r\nKpODVdOB58ATIBV4DKQAj//4w1sAQE2gLlAPcAa+AhoDDXltViIi+gRlh9/9+WJFRUWlyclv\n7t/PTEx8nZiYefPmy/37E1NSsoqLSzU0JDVrGtata2ptbWJtbWJhYWRpaWJubmhhYVyjhoGG\nBnfx/ZfS7LH7s/z8/NTU1LIrT5iYmFhZWeno6MhvnPz22JWUSDMy3qanv83IeJuWlvfsWe7L\nl3nPn+c+f5778uXb1NTsFy9yi4pKARgb69SubWxhYVT2nLa2NqlTx7TsyV2+A1FLgQzgJZAO\npAEvgHTgJfAEePHHPwsAALqABVAbsAZqA5aAJVAHqAcYyPKXQURE9L7i4tKynRoPH74p27WR\nkpL15EnO48fZ2dmFALS1NWrUMLS0NDYz069Z07BmTUMzM4NatQyrVzeoWlW/WjX9qlX1ZX5G\nIPfYyZienp6NjY3YKcpp27bbP/98PSMjv6zPvbvdzMygenWD6tUNatUyrFevUtu25ubmRubm\nRhYWRrVrGxsbf7y5ZgPZQA7wBngDZAJvgNd//DMTyABeAa+AdOD1Hz8lAcyAaoAZUB2wBBwA\nC6DGH/8U6MqvREREf1H2xZS1tUnHjrXfuys7u/Dx4+wnT3KePs15+jTnxYu8tLS8339/kpaW\nl5aW9/Jl3rtH/tHw9MaNazlsmIqvi6qUxU6p1a1r2rt3vapV9cyqG+hV069SVV+/mr5hVf1S\nbY1coATIAgBkAlLgAZAA5ABvgXwgB8gHsv70h1wgB8j5U1ErowlUAkyByn/8oRLQHKgKVAWq\nAFWBan/0OZ56TkRESsfYWKdJk6pNmlT923uLikrffSeWnv42LS0vIyO/bl3Vvwya6hS7pKQk\nf39/AFFRUZ/1g7du3SooKPjAA2S74vGp9hbft7co/OBj9AE9QA/QB4wAbcAU0AJMAX2gMlDv\nj8dUBgwAI8AYqAQY//E/BTrLg4iISHDa2hpl38yKHURoqlPssrOzT5w48bk/lZSUZGdn9ykH\nGmpoyGbH1ijgCwCAMaAFaP2x9ocJoAkYAnI8WpCIiIhUmuoUu8aNG8fFxX3uT9WvXz8rK6uo\nqOgDj4mNje3Vq5eWlmx+V7WAWjLZEBEREdH/Up1ip6enZ2trW44f/Oi5rsbGXE+XiIiIlIDy\nFTupVJqcnPzgwYOy5U5MTU1tbGwsLS3FzkVEREQkMmUqdpmZmYsXLw4JCUlLS3vvLisrq9Gj\nR8+YMUNfn1edIyIiIjWlNMXu2bNn7du3T05OtrGxcXFxsba2NjQ0BJCVlZWUlHT69On58+eH\nhoaeOnWqcuXKYoclIiIiEoHSFLt58+Y9fvx4z549Hh4ef723pKQkMDBw4sSJ33333erVq4WP\nR0RERCQ6pVmb9siRIz4+Pn/b6gBoamqOHz/e09Nz//79AgcjIiIiUhBKU+wyMjLq16//4cc0\nadLkxYsXwuQhIiIiUjRKU+zMzc1v3Ljx4cdcu3bN3NxcmDxEREREikZpip27u/vevXtXrFjx\nt5f/ys3NXbBgQXh4uJeXl/DZiIiIiBSB5FOupqUIXr9+3a1bt6tXrxobGzs6OlpaWhoZGUml\n0pycnJSUlNjY2Ly8PGdn54iIiI8uOPy5zp8/3759+4KCAh0dXu6LiIhI3RUWFurq6p47d65d\nu3ZiZ3mf0pwVW6lSpZiYmPXr1wcHB0dHR5eUlLy7S1tb297e3tfX19fXV1NTU8SQRERERCJS\nmmIHQEdHZ+rUqVOnTs3Pz09NTS278oSJiYmVlRX3pREREREpU7F7R09Pz8bGRuwURERERIpF\naU6eICIiIqIPY7EjIiIiUhEsdkREREQqgsWOiIiISEWw2BERERGpCBY7IiIiIhXBYkdERESk\nIpRyHTuBla1+rKurK3YQIiIiUhSKeXEEpblWrLhu3LhRXFwsk03NnTs3Ly9vzJgxMtmaGho9\nevTEiRNbtmwpdhCldP369XXr1v36669iB1FWv/zyCwC+fsuNr9+K4Ou3gn755RcDA4NFixbJ\nZGtaWlotWrSQyaZki8VOaCNHjgSwefNmsYMoKyMjo927d/fp00fsIErpyJEjXl5eOTk5YgdR\nVnz9VhBfvxXB128Fqcnrl8fYEREREakIFjsiIiIiFcFiR0RERKQiWOyIiIiIVASLHREREZGK\nYLEjIiIiUhEsdkREREQqgsWOiIiISEWw2BERERGpCF4rVmiKeWk5JaKjo8PfYbnxt1dB/O1V\nEJ+BFcHfXgWpyW+PlxQTWmZmJoDKlSuLHURZPXz40MrKSkODO5vLo7S09NGjR3Xq1BE7iLLi\n67eC+PqtCL5+K0hNXr8sdkREREQqgn9tIiIiIlIRLHZEREREKoLFjoiIiEhFsNgRERERqQgW\nOyIiIiIVwWJHREREpCJY7IiIiIhUBIsdERERkYpgsSMiIiJSESx2RERERCqCxY6IiIhIRbDY\nEREREakIFjsiIiIiFcFiR0RERKQiWOyIiIiIVASLnQgePHjg5+dXv359XV1dMzMzd3f32NhY\nsUMpk8zMzBkzZlhbW+vq6tatW9fd3f3ChQtih1ImRUVFX3/9taamZps2bcTOojRev379r3/9\nq06dOjo6Oubm5qNHj3727JnYoZQJn3UVwTe9ClKrj12JVCoVO4N6SUhIaN++fXZ2tqenZ/36\n9e/fv79nzx4Ap0+fbtu2rdjplMCrV6/s7e0fPnzYp0+f1q1bP3jwYPfu3VpaWrGxsc2bNxc7\nnRK4c+fOsGHDEhMTc3NzW7VqdfnyZbETKYHCwsK2bdtevXp14MCBrVu3TkpKCgkJqV279pUr\nVypXrix2OiXAZ11F8E2vgtTuY1dKwvryyy8lEsnp06ff3bJ//34Anp6eIqZSIhMmTACwdu3a\nd7eEhoYCcHFxETGVsnjz5o2+vn6bNm0SExN1dXXt7e3FTqQcfvrpJwDLli17d8vu3bsBTJ8+\nXcRUyoLPugrim14FqdvHLr+KFZqTk9OcOXM6duz47hZXV1dtbe2EhAQRUykRbW3tbt26+fv7\nv7ulf//++vr68fHxIqZSFsXFxePHjz9//nyDBg3EzqJMgoODjY2Np0yZ8u4WT0/PBg0ahISE\nSPmlx8fwWVdBfNOrIHX72NUSO4Da+f7779+75fnz50VFRXXr1hUlj9JZtWrVe7cUFhYWFxfX\nrl1blDzKpUqVKitWrBA7hZLJz8+Pi4vr3Lmzrq7un2/v0KHDli1bkpOT69WrJ1Y2pcBnXQXx\nTa+C1O1jl3vsxJSXlxcdHe3i4mJsbPztt9+KHUdZBQYGFoKSZykAAAq7SURBVBUVeXt7ix2E\nVFNqampJSYmlpeV7t1tbWwN48OCBGKFIrfFNr9zU4WOXxU40lSpVMjQ07NKli52d3fXr13mm\nWPmcPn165syZHTp0GDt2rNhZSDVlZ2cDMDQ0fO92IyOjd/cSCYZveuWmJh+7/CpWXl6/fj1n\nzpx3/9qgQYMZM2b8+QHjxo179erVrVu3duzY8fDhw61bt/ILnT/76C8QwM6dO0eOHGlraxse\nHq6lxSfzf33Kb48+i0Qiee+WsqPr/no7kfzwTa8i1OVjV+yzN1RWamrqn3/P7du3/6dHnjp1\nytDQ0M7OrqSkRMiECu7Dv8DS0tL58+cD6NWrV1ZWllghFdanPP14fuInSkxMBDBixIj3bp87\ndy6AqKgoMUIpKz7ryo1vejKk2h+77PvyUrt2bemnnS7XuXNnNze3HTt2JCQkNGnSRN7BlMUH\nfoFSqXT06NFBQUGTJk1atWqVpqamwNkU36c//eijrKystLS0UlJS3rs9KSkJgI2NjRihSL3w\nTU+2VPtjl8fYCerJkyctWrQYPnz4e7fn5+cDyM3NFSOU8pk6dWpQUNCSJUvWrFnDNziSNx0d\nHXt7+9jY2Ly8vHc3lpaWnj592tLS0srKSsRspCb4plduavixy2InKAsLi1evXu3evfvixYvv\nbrx3715kZKSRkZGtra2I2ZTF/v37AwICpkyZ8vXXX4udhdTFqFGj8vLyfvzxx3e3bNy48enT\np6NHjxYxFakJvulVhBp+7PKSYkILCwsbNGiQhobGwIED69ev/+TJk7179+bm5q5bt65seXH6\nsAYNGiQlJU2aNMnAwOC9u2bPns3rO33Y6dOnjx49WvbnFStWmJmZjRgxouxfZ86cWbVqVfGi\nKbSSkpIuXbr8/vvvbm5urVu3vnPnzu7du21tbS9cuPDX5yG9h8+6CuKbXgWp3ceumAf4qasL\nFy64u7ubmZlpampWqlSpe/fuBw8eFDuU0vjAkzk5OVnsdIpu6dKl//TbS0xMFDudQsvOzi67\nCru2traFhcWECRMyMjLEDqUc+KyrIL7pVZxafexyjx0RERGRiuAxdkREREQqgsWOiIiISEWw\n2BERERGpCBY7IiIiIhXBYkdERESkIljsiIiIiFQEix0RERGRimCxIyIiIlIRLHZEREREKoLF\njoiIiEhFsNgRERERqQgWOyIiIiIVwWJHREREpCJY7IiIiIhUBIsdERERkYpgsSMiIiJSESx2\nRERERCqCxY6IiIhIRbDYEREREakIFjsiIiIiFcFiR0RERKQiWOyIiIiIVASLHREREZGKYLEj\nIiIiUhEsdkREREQqgsWOiIiISEWw2BERERGpCBY7IiIiIhXBYkdERESkIljsiIiIiFQEix0R\nERGRimCxIyIiIlIRLHZERB/i7e0tkUgeP34sdhAioo9jsSMi1dSnTx+JRHL27Nm/vbe0tNTK\nykpPTy8jI0PgYERE8sNiR0Sqyd/fH8CmTZv+9t7IyMjU1NSBAwdWrVpV2FxERHLEYkdEqqlP\nnz4WFhZ79+7Nzs7+671lhc/Pz0/wXEREcsRiR0SqSVNTc9SoUbm5ubt27XrvroyMjIMHDzZq\n1KhTp04AYmNj+/fvX61aNR0dnTp16vj4+Dx8+PBvt9m3b1+JRPL69et3txQXF0skku7du7+7\n5cWLFxMmTLC2ttbR0TEzM3N3d7906dK7ewsKCn788ccWLVqYmpoaGxvb2dn9+OOPpaWlMvwP\nJyJ1xmJHRCpr9OjRGhoaf/02NiQkpLCwsGx33ZUrVzp16hQbGztlypT169cPHjw4PDzcycmp\nfMfevXz50snJafv27YMHDw4KCpo2bdqVK1ecnZ1Pnz5d9oBx48bNmjXL1tZ22bJlK1asaNCg\nwaxZsyZPnlzB/1IiojJaYgcgIpIXS0vL3r17HzlyJD4+vlmzZu9uDwoK0tXVHTFiBIDY2Nim\nTZuuXLmyc+fOZfdaWFhMmjRp586dEydO/NyJCxYsePLkSUxMTJs2bcpuGTZsWLNmzWbMmFG2\n32737t1t27bdvn172b3+/v7Tpk179OhRSUmJpqZmxf5ziYi4x46I/q+d+wtpqo0DOP474TRF\nWUUx/2yIhFAStnAFSTlZBkq4GxdCF0YkK2+i625qEgkNKigiCHFsE4xUKPQiSgTXhaLJIJYR\nQThpkzmhUbDFlL0X521vb/LG2z+Cp+/n6vA858/Orr6cs2dK0x/Lff7QbnZ29vnz5y6XS182\n0dPT8+zZM73qstlsJpOpq6sTkf96G/sVuVzu/v379fX1ZrN5+RODwdDY2Dg3N/fhwwcRMRgM\ni4uLiUQif9S1a9eGh4epOgA/BWEHQGXHjh0zm836u1d9ZOOyiUAgYLfbt27dWlhYWFxcfOTI\nERFZW1v71mslEolkMjk/P1/xb48ePRKRaDQqIr29vbFYrLa2tqura2Bg4O3btz/lNgFAx6tY\nACrTl1B4PJ6HDx+6XK50Oj00NLRr166mpiZ9hwsXLvT19dlstuvXr9fU1BQVFUUike7u7u+4\nlr781mq19vX1bZytrKwUkXPnzu3Zs+fmzZujo6OBQEDTtLa2ttu3b1dXV//AXQLA3wg7AIrr\n7u6+fPlyf3+/y+UaGRlJpVIXL17UpzKZzI0bNywWy+TkZGlpqT6YSqX+/8nzDwJFpKysTN9o\nbW39yiEOh8PhcHz8+DEUCgWDQb/f39LSEolECgsLv+3GAGADXsUCUJzZbG5ra3v8+HEymQwG\ng5s3b9aXTYjI8vJyOp222Wz5qhOR/ArWjQwGg4hks9n8yJs3b/LbJpNp+/btL1++/Pz/UERk\nZWVl46mKiopaWlp8Pt/Zs2dfv34dDoe/9/4A4B+EHQD1ud3u9fX1u3fvTkxMdHR0bNu2TR83\nmUyapn2+TiIcDvv9fhHJZDIbz1NRUSEiCwsL+RF957zjx49nMhmv15sfWVlZqa+vb29vF5Hp\n6emqqqovDtm0aZN8SkYA+EFaLpf73Z8BAH6t9fX1mpqaZDKZTqenpqYOHz6cn2pvbx8bGztz\n5kxzc/OLFy9u3bo1ODjodDrLy8uvXr3qdDpPnz597969paUls9k8PT198ODBhoYGr9dbUlLy\n4MGDp0+fhsPhAwcOPHnyREQSicT+/fuj0eipU6fsdnssFrtz5048Hh8fHz969Oja2tq+ffte\nvXp18uRJq9Wqadrc3JzP52tsbJyamtI07fd9QwBUkQOAP8ClS5dEZPfu3V+MJxKJEydO7Nix\nw2g0OhyOUCiUy+U8Hk9paWl5eXk8Hu/s7BSRpaUlfX+fz1dXV1dcXGwymdxu97t37yorKw8d\nOpQ/YTwe7+npsVgsBQUFW7ZscTqdMzMz+dnV1dXz58/v3LmzpKTEaDTu3bv3ypUr79+///Vf\nAIA/Ak/sAAAAFMFv7AAAABRB2AEAACiCsAMAAFAEYQcAAKAIwg4AAEARhB0AAIAiCDsAAABF\nEHYAAACKIOwAAAAUQdgBAAAogrADAABQBGEHAACgCMIOAABAEYQdAACAIgg7AAAARRB2AAAA\niiDsAAAAFEHYAQAAKIKwAwAAUARhBwAAoAjCDgAAQBGEHQAAgCIIOwAAAEUQdgAAAIog7AAA\nABRB2AEAACiCsAMAAFAEYQcAAKAIwg4AAEARhB0AAIAi/gLk+TBro7XdYQAAAABJRU5ErkJg\ngg==",
+      "text/plain": [
+       "Plot with title “Normal Distribution”"
+      ]
+     },
+     "metadata": {
+      "image/png": {
+       "height": 420,
+       "width": 420
+      }
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Graph for the density and distribution function, standard normal \n",
+    "# distribution:\n",
+    "\n",
+    "points.x <- seq(-3,3,length=100)\n",
+    "points.den <- dnorm(points.x)\n",
+    "points.fd <- pnorm(points.x)\n",
+    "plot(points.x, points.fd,type='l',xlab='Values',\n",
+    "ylab='', main='Normal Distribution',col='cyan')\n",
+    "lines(points.x,points.den,col='darkblue')\n",
+    "legend('topleft',c('Dist. Fn','Density'),col=c('cyan','skyblue'),lty=rep(1,2))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
