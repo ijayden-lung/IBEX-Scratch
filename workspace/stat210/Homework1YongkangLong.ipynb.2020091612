@@ -1,0 +1,2607 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# ---\n",
+    "# author: Yongkang Long\n",
+    "---"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Question 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(a) Create a vector named `smpl1` with a sample of size 100 from the set of categories 'bad', 'reg', 'norm', 'good', 'exc'. The categories 'bad' and 'exc' should have probability 0.1, 'reg' and 'good' should have probability 0.2, and 'norm', probability 0.4.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'reg'</li><li>'reg'</li><li>'bad'</li><li>'norm'</li><li>'norm'</li><li>'bad'</li><li>'norm'</li><li>'reg'</li><li>'norm'</li><li>'norm'</li><li>'norm'</li><li>'good'</li><li>'bad'</li><li>'norm'</li><li>'exc'</li><li>'bad'</li><li>'reg'</li><li>'bad'</li><li>'norm'</li><li>'exc'</li><li>'norm'</li><li>'norm'</li><li>'good'</li><li>'good'</li><li>'reg'</li><li>'exc'</li><li>'norm'</li><li>'norm'</li><li>'good'</li><li>'good'</li><li>'norm'</li><li>'reg'</li><li>'norm'</li><li>'good'</li><li>'norm'</li><li>'norm'</li><li>'norm'</li><li>'bad'</li><li>'exc'</li><li>'exc'</li><li>'reg'</li><li>'norm'</li><li>'norm'</li><li>'good'</li><li>'exc'</li><li>'norm'</li><li>'good'</li><li>'norm'</li><li>'norm'</li><li>'bad'</li><li>'exc'</li><li>'norm'</li><li>'norm'</li><li>'good'</li><li>'reg'</li><li>'norm'</li><li>'exc'</li><li>'good'</li><li>'exc'</li><li>'exc'</li><li>'reg'</li><li>'norm'</li><li>'good'</li><li>'norm'</li><li>'norm'</li><li>'reg'</li><li>'norm'</li><li>'norm'</li><li>'reg'</li><li>'bad'</li><li>'good'</li><li>'good'</li><li>'norm'</li><li>'reg'</li><li>'norm'</li><li>'reg'</li><li>'bad'</li><li>'reg'</li><li>'exc'</li><li>'good'</li><li>'bad'</li><li>'norm'</li><li>'good'</li><li>'norm'</li><li>'exc'</li><li>'norm'</li><li>'norm'</li><li>'norm'</li><li>'good'</li><li>'norm'</li><li>'good'</li><li>'reg'</li><li>'good'</li><li>'reg'</li><li>'bad'</li><li>'exc'</li><li>'norm'</li><li>'reg'</li><li>'norm'</li><li>'norm'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'reg'\n",
+       "\\item 'reg'\n",
+       "\\item 'bad'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'bad'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'bad'\n",
+       "\\item 'norm'\n",
+       "\\item 'exc'\n",
+       "\\item 'bad'\n",
+       "\\item 'reg'\n",
+       "\\item 'bad'\n",
+       "\\item 'norm'\n",
+       "\\item 'exc'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'reg'\n",
+       "\\item 'exc'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'bad'\n",
+       "\\item 'exc'\n",
+       "\\item 'exc'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'exc'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'bad'\n",
+       "\\item 'exc'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'exc'\n",
+       "\\item 'good'\n",
+       "\\item 'exc'\n",
+       "\\item 'exc'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'bad'\n",
+       "\\item 'good'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'bad'\n",
+       "\\item 'reg'\n",
+       "\\item 'exc'\n",
+       "\\item 'good'\n",
+       "\\item 'bad'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'exc'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'reg'\n",
+       "\\item 'good'\n",
+       "\\item 'reg'\n",
+       "\\item 'bad'\n",
+       "\\item 'exc'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'norm'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'reg'\n",
+       "2. 'reg'\n",
+       "3. 'bad'\n",
+       "4. 'norm'\n",
+       "5. 'norm'\n",
+       "6. 'bad'\n",
+       "7. 'norm'\n",
+       "8. 'reg'\n",
+       "9. 'norm'\n",
+       "10. 'norm'\n",
+       "11. 'norm'\n",
+       "12. 'good'\n",
+       "13. 'bad'\n",
+       "14. 'norm'\n",
+       "15. 'exc'\n",
+       "16. 'bad'\n",
+       "17. 'reg'\n",
+       "18. 'bad'\n",
+       "19. 'norm'\n",
+       "20. 'exc'\n",
+       "21. 'norm'\n",
+       "22. 'norm'\n",
+       "23. 'good'\n",
+       "24. 'good'\n",
+       "25. 'reg'\n",
+       "26. 'exc'\n",
+       "27. 'norm'\n",
+       "28. 'norm'\n",
+       "29. 'good'\n",
+       "30. 'good'\n",
+       "31. 'norm'\n",
+       "32. 'reg'\n",
+       "33. 'norm'\n",
+       "34. 'good'\n",
+       "35. 'norm'\n",
+       "36. 'norm'\n",
+       "37. 'norm'\n",
+       "38. 'bad'\n",
+       "39. 'exc'\n",
+       "40. 'exc'\n",
+       "41. 'reg'\n",
+       "42. 'norm'\n",
+       "43. 'norm'\n",
+       "44. 'good'\n",
+       "45. 'exc'\n",
+       "46. 'norm'\n",
+       "47. 'good'\n",
+       "48. 'norm'\n",
+       "49. 'norm'\n",
+       "50. 'bad'\n",
+       "51. 'exc'\n",
+       "52. 'norm'\n",
+       "53. 'norm'\n",
+       "54. 'good'\n",
+       "55. 'reg'\n",
+       "56. 'norm'\n",
+       "57. 'exc'\n",
+       "58. 'good'\n",
+       "59. 'exc'\n",
+       "60. 'exc'\n",
+       "61. 'reg'\n",
+       "62. 'norm'\n",
+       "63. 'good'\n",
+       "64. 'norm'\n",
+       "65. 'norm'\n",
+       "66. 'reg'\n",
+       "67. 'norm'\n",
+       "68. 'norm'\n",
+       "69. 'reg'\n",
+       "70. 'bad'\n",
+       "71. 'good'\n",
+       "72. 'good'\n",
+       "73. 'norm'\n",
+       "74. 'reg'\n",
+       "75. 'norm'\n",
+       "76. 'reg'\n",
+       "77. 'bad'\n",
+       "78. 'reg'\n",
+       "79. 'exc'\n",
+       "80. 'good'\n",
+       "81. 'bad'\n",
+       "82. 'norm'\n",
+       "83. 'good'\n",
+       "84. 'norm'\n",
+       "85. 'exc'\n",
+       "86. 'norm'\n",
+       "87. 'norm'\n",
+       "88. 'norm'\n",
+       "89. 'good'\n",
+       "90. 'norm'\n",
+       "91. 'good'\n",
+       "92. 'reg'\n",
+       "93. 'good'\n",
+       "94. 'reg'\n",
+       "95. 'bad'\n",
+       "96. 'exc'\n",
+       "97. 'norm'\n",
+       "98. 'reg'\n",
+       "99. 'norm'\n",
+       "100. 'norm'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  [1] \"reg\"  \"reg\"  \"bad\"  \"norm\" \"norm\" \"bad\"  \"norm\" \"reg\"  \"norm\" \"norm\"\n",
+       " [11] \"norm\" \"good\" \"bad\"  \"norm\" \"exc\"  \"bad\"  \"reg\"  \"bad\"  \"norm\" \"exc\" \n",
+       " [21] \"norm\" \"norm\" \"good\" \"good\" \"reg\"  \"exc\"  \"norm\" \"norm\" \"good\" \"good\"\n",
+       " [31] \"norm\" \"reg\"  \"norm\" \"good\" \"norm\" \"norm\" \"norm\" \"bad\"  \"exc\"  \"exc\" \n",
+       " [41] \"reg\"  \"norm\" \"norm\" \"good\" \"exc\"  \"norm\" \"good\" \"norm\" \"norm\" \"bad\" \n",
+       " [51] \"exc\"  \"norm\" \"norm\" \"good\" \"reg\"  \"norm\" \"exc\"  \"good\" \"exc\"  \"exc\" \n",
+       " [61] \"reg\"  \"norm\" \"good\" \"norm\" \"norm\" \"reg\"  \"norm\" \"norm\" \"reg\"  \"bad\" \n",
+       " [71] \"good\" \"good\" \"norm\" \"reg\"  \"norm\" \"reg\"  \"bad\"  \"reg\"  \"exc\"  \"good\"\n",
+       " [81] \"bad\"  \"norm\" \"good\" \"norm\" \"exc\"  \"norm\" \"norm\" \"norm\" \"good\" \"norm\"\n",
+       " [91] \"good\" \"reg\"  \"good\" \"reg\"  \"bad\"  \"exc\"  \"norm\" \"reg\"  \"norm\" \"norm\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(smpl1 = sample(c('bad','reg','norm','good','exc'),100,replace=T,prob=c(0.1,0.2,0.4,0.2,0.1)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "(b) Create a factor named `fact1` using the vector `smpl1` as input."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>reg</li><li>reg</li><li>bad</li><li>norm</li><li>norm</li><li>bad</li><li>norm</li><li>reg</li><li>norm</li><li>norm</li><li>norm</li><li>good</li><li>bad</li><li>norm</li><li>exc</li><li>bad</li><li>reg</li><li>bad</li><li>norm</li><li>exc</li><li>norm</li><li>norm</li><li>good</li><li>good</li><li>reg</li><li>exc</li><li>norm</li><li>norm</li><li>good</li><li>good</li><li>norm</li><li>reg</li><li>norm</li><li>good</li><li>norm</li><li>norm</li><li>norm</li><li>bad</li><li>exc</li><li>exc</li><li>reg</li><li>norm</li><li>norm</li><li>good</li><li>exc</li><li>norm</li><li>good</li><li>norm</li><li>norm</li><li>bad</li><li>exc</li><li>norm</li><li>norm</li><li>good</li><li>reg</li><li>norm</li><li>exc</li><li>good</li><li>exc</li><li>exc</li><li>reg</li><li>norm</li><li>good</li><li>norm</li><li>norm</li><li>reg</li><li>norm</li><li>norm</li><li>reg</li><li>bad</li><li>good</li><li>good</li><li>norm</li><li>reg</li><li>norm</li><li>reg</li><li>bad</li><li>reg</li><li>exc</li><li>good</li><li>bad</li><li>norm</li><li>good</li><li>norm</li><li>exc</li><li>norm</li><li>norm</li><li>norm</li><li>good</li><li>norm</li><li>good</li><li>reg</li><li>good</li><li>reg</li><li>bad</li><li>exc</li><li>norm</li><li>reg</li><li>norm</li><li>norm</li></ol>\n",
+       "\n",
+       "<details>\n",
+       "\t<summary style=display:list-item;cursor:pointer>\n",
+       "\t\t<strong>Levels</strong>:\n",
+       "\t</summary>\n",
+       "\t<style>\n",
+       "\t.list-inline {list-style: none; margin:0; padding: 0}\n",
+       "\t.list-inline>li {display: inline-block}\n",
+       "\t.list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "\t</style>\n",
+       "\t<ol class=list-inline><li>'bad'</li><li>'exc'</li><li>'good'</li><li>'norm'</li><li>'reg'</li></ol>\n",
+       "</details>"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item reg\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item bad\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item bad\n",
+       "\\item exc\n",
+       "\\item exc\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item bad\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item good\n",
+       "\\item exc\n",
+       "\\item exc\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item good\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item reg\n",
+       "\\item exc\n",
+       "\\item good\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\emph{Levels}: \\begin{enumerate*}\n",
+       "\\item 'bad'\n",
+       "\\item 'exc'\n",
+       "\\item 'good'\n",
+       "\\item 'norm'\n",
+       "\\item 'reg'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. reg\n",
+       "2. reg\n",
+       "3. bad\n",
+       "4. norm\n",
+       "5. norm\n",
+       "6. bad\n",
+       "7. norm\n",
+       "8. reg\n",
+       "9. norm\n",
+       "10. norm\n",
+       "11. norm\n",
+       "12. good\n",
+       "13. bad\n",
+       "14. norm\n",
+       "15. exc\n",
+       "16. bad\n",
+       "17. reg\n",
+       "18. bad\n",
+       "19. norm\n",
+       "20. exc\n",
+       "21. norm\n",
+       "22. norm\n",
+       "23. good\n",
+       "24. good\n",
+       "25. reg\n",
+       "26. exc\n",
+       "27. norm\n",
+       "28. norm\n",
+       "29. good\n",
+       "30. good\n",
+       "31. norm\n",
+       "32. reg\n",
+       "33. norm\n",
+       "34. good\n",
+       "35. norm\n",
+       "36. norm\n",
+       "37. norm\n",
+       "38. bad\n",
+       "39. exc\n",
+       "40. exc\n",
+       "41. reg\n",
+       "42. norm\n",
+       "43. norm\n",
+       "44. good\n",
+       "45. exc\n",
+       "46. norm\n",
+       "47. good\n",
+       "48. norm\n",
+       "49. norm\n",
+       "50. bad\n",
+       "51. exc\n",
+       "52. norm\n",
+       "53. norm\n",
+       "54. good\n",
+       "55. reg\n",
+       "56. norm\n",
+       "57. exc\n",
+       "58. good\n",
+       "59. exc\n",
+       "60. exc\n",
+       "61. reg\n",
+       "62. norm\n",
+       "63. good\n",
+       "64. norm\n",
+       "65. norm\n",
+       "66. reg\n",
+       "67. norm\n",
+       "68. norm\n",
+       "69. reg\n",
+       "70. bad\n",
+       "71. good\n",
+       "72. good\n",
+       "73. norm\n",
+       "74. reg\n",
+       "75. norm\n",
+       "76. reg\n",
+       "77. bad\n",
+       "78. reg\n",
+       "79. exc\n",
+       "80. good\n",
+       "81. bad\n",
+       "82. norm\n",
+       "83. good\n",
+       "84. norm\n",
+       "85. exc\n",
+       "86. norm\n",
+       "87. norm\n",
+       "88. norm\n",
+       "89. good\n",
+       "90. norm\n",
+       "91. good\n",
+       "92. reg\n",
+       "93. good\n",
+       "94. reg\n",
+       "95. bad\n",
+       "96. exc\n",
+       "97. norm\n",
+       "98. reg\n",
+       "99. norm\n",
+       "100. norm\n",
+       "\n",
+       "\n",
+       "\n",
+       "**Levels**: 1. 'bad'\n",
+       "2. 'exc'\n",
+       "3. 'good'\n",
+       "4. 'norm'\n",
+       "5. 'reg'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  [1] reg  reg  bad  norm norm bad  norm reg  norm norm norm good bad  norm exc \n",
+       " [16] bad  reg  bad  norm exc  norm norm good good reg  exc  norm norm good good\n",
+       " [31] norm reg  norm good norm norm norm bad  exc  exc  reg  norm norm good exc \n",
+       " [46] norm good norm norm bad  exc  norm norm good reg  norm exc  good exc  exc \n",
+       " [61] reg  norm good norm norm reg  norm norm reg  bad  good good norm reg  norm\n",
+       " [76] reg  bad  reg  exc  good bad  norm good norm exc  norm norm norm good norm\n",
+       " [91] good reg  good reg  bad  exc  norm reg  norm norm\n",
+       "Levels: bad exc good norm reg"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(fact1 = factor(smpl1))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(c) Create an ordered factor named `fact2` using the vector `smpl1` as input. The levels should be in increasing order.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>reg</li><li>reg</li><li>bad</li><li>norm</li><li>norm</li><li>bad</li><li>norm</li><li>reg</li><li>norm</li><li>norm</li><li>norm</li><li>good</li><li>bad</li><li>norm</li><li>exc</li><li>bad</li><li>reg</li><li>bad</li><li>norm</li><li>exc</li><li>norm</li><li>norm</li><li>good</li><li>good</li><li>reg</li><li>exc</li><li>norm</li><li>norm</li><li>good</li><li>good</li><li>norm</li><li>reg</li><li>norm</li><li>good</li><li>norm</li><li>norm</li><li>norm</li><li>bad</li><li>exc</li><li>exc</li><li>reg</li><li>norm</li><li>norm</li><li>good</li><li>exc</li><li>norm</li><li>good</li><li>norm</li><li>norm</li><li>bad</li><li>exc</li><li>norm</li><li>norm</li><li>good</li><li>reg</li><li>norm</li><li>exc</li><li>good</li><li>exc</li><li>exc</li><li>reg</li><li>norm</li><li>good</li><li>norm</li><li>norm</li><li>reg</li><li>norm</li><li>norm</li><li>reg</li><li>bad</li><li>good</li><li>good</li><li>norm</li><li>reg</li><li>norm</li><li>reg</li><li>bad</li><li>reg</li><li>exc</li><li>good</li><li>bad</li><li>norm</li><li>good</li><li>norm</li><li>exc</li><li>norm</li><li>norm</li><li>norm</li><li>good</li><li>norm</li><li>good</li><li>reg</li><li>good</li><li>reg</li><li>bad</li><li>exc</li><li>norm</li><li>reg</li><li>norm</li><li>norm</li></ol>\n",
+       "\n",
+       "<details>\n",
+       "\t<summary style=display:list-item;cursor:pointer>\n",
+       "\t\t<strong>Levels</strong>:\n",
+       "\t</summary>\n",
+       "\t<style>\n",
+       "\t.list-inline {list-style: none; margin:0; padding: 0}\n",
+       "\t.list-inline>li {display: inline-block}\n",
+       "\t.list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "\t</style>\n",
+       "\t<ol class=list-inline><li>'bad'</li><li>'reg'</li><li>'norm'</li><li>'good'</li><li>'exc'</li></ol>\n",
+       "</details>"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item reg\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item bad\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item bad\n",
+       "\\item exc\n",
+       "\\item exc\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item bad\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item good\n",
+       "\\item exc\n",
+       "\\item exc\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item good\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item reg\n",
+       "\\item exc\n",
+       "\\item good\n",
+       "\\item bad\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item norm\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item good\n",
+       "\\item reg\n",
+       "\\item bad\n",
+       "\\item exc\n",
+       "\\item norm\n",
+       "\\item reg\n",
+       "\\item norm\n",
+       "\\item norm\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\emph{Levels}: \\begin{enumerate*}\n",
+       "\\item 'bad'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'exc'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. reg\n",
+       "2. reg\n",
+       "3. bad\n",
+       "4. norm\n",
+       "5. norm\n",
+       "6. bad\n",
+       "7. norm\n",
+       "8. reg\n",
+       "9. norm\n",
+       "10. norm\n",
+       "11. norm\n",
+       "12. good\n",
+       "13. bad\n",
+       "14. norm\n",
+       "15. exc\n",
+       "16. bad\n",
+       "17. reg\n",
+       "18. bad\n",
+       "19. norm\n",
+       "20. exc\n",
+       "21. norm\n",
+       "22. norm\n",
+       "23. good\n",
+       "24. good\n",
+       "25. reg\n",
+       "26. exc\n",
+       "27. norm\n",
+       "28. norm\n",
+       "29. good\n",
+       "30. good\n",
+       "31. norm\n",
+       "32. reg\n",
+       "33. norm\n",
+       "34. good\n",
+       "35. norm\n",
+       "36. norm\n",
+       "37. norm\n",
+       "38. bad\n",
+       "39. exc\n",
+       "40. exc\n",
+       "41. reg\n",
+       "42. norm\n",
+       "43. norm\n",
+       "44. good\n",
+       "45. exc\n",
+       "46. norm\n",
+       "47. good\n",
+       "48. norm\n",
+       "49. norm\n",
+       "50. bad\n",
+       "51. exc\n",
+       "52. norm\n",
+       "53. norm\n",
+       "54. good\n",
+       "55. reg\n",
+       "56. norm\n",
+       "57. exc\n",
+       "58. good\n",
+       "59. exc\n",
+       "60. exc\n",
+       "61. reg\n",
+       "62. norm\n",
+       "63. good\n",
+       "64. norm\n",
+       "65. norm\n",
+       "66. reg\n",
+       "67. norm\n",
+       "68. norm\n",
+       "69. reg\n",
+       "70. bad\n",
+       "71. good\n",
+       "72. good\n",
+       "73. norm\n",
+       "74. reg\n",
+       "75. norm\n",
+       "76. reg\n",
+       "77. bad\n",
+       "78. reg\n",
+       "79. exc\n",
+       "80. good\n",
+       "81. bad\n",
+       "82. norm\n",
+       "83. good\n",
+       "84. norm\n",
+       "85. exc\n",
+       "86. norm\n",
+       "87. norm\n",
+       "88. norm\n",
+       "89. good\n",
+       "90. norm\n",
+       "91. good\n",
+       "92. reg\n",
+       "93. good\n",
+       "94. reg\n",
+       "95. bad\n",
+       "96. exc\n",
+       "97. norm\n",
+       "98. reg\n",
+       "99. norm\n",
+       "100. norm\n",
+       "\n",
+       "\n",
+       "\n",
+       "**Levels**: 1. 'bad'\n",
+       "2. 'reg'\n",
+       "3. 'norm'\n",
+       "4. 'good'\n",
+       "5. 'exc'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  [1] reg  reg  bad  norm norm bad  norm reg  norm norm norm good bad  norm exc \n",
+       " [16] bad  reg  bad  norm exc  norm norm good good reg  exc  norm norm good good\n",
+       " [31] norm reg  norm good norm norm norm bad  exc  exc  reg  norm norm good exc \n",
+       " [46] norm good norm norm bad  exc  norm norm good reg  norm exc  good exc  exc \n",
+       " [61] reg  norm good norm norm reg  norm norm reg  bad  good good norm reg  norm\n",
+       " [76] reg  bad  reg  exc  good bad  norm good norm exc  norm norm norm good norm\n",
+       " [91] good reg  good reg  bad  exc  norm reg  norm norm\n",
+       "Levels: bad < reg < norm < good < exc"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'bad'</li><li>'reg'</li><li>'norm'</li><li>'good'</li><li>'exc'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'bad'\n",
+       "\\item 'reg'\n",
+       "\\item 'norm'\n",
+       "\\item 'good'\n",
+       "\\item 'exc'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'bad'\n",
+       "2. 'reg'\n",
+       "3. 'norm'\n",
+       "4. 'good'\n",
+       "5. 'exc'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"bad\"  \"reg\"  \"norm\" \"good\" \"exc\" "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(fact2 =  ordered(fact1,levels=c('bad','reg','norm','good','exc')))\n",
+    "levels(fact2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(d) Now, you want to reduce the number of categories to three: 'bad' and 'reg' will now be 'poor', 'norm' will be 'normal' and 'good' and 'exc' will now be 'great'. One easy way to do this is to use the `labels` argument in the function `factor` to rename the levels. Look up the help page for `factor`; there is an example that will show you how to do this. Name the resulting ordered factor `fact3`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "?factor"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>poor</li><li>poor</li><li>poor</li><li>normal</li><li>normal</li><li>poor</li><li>normal</li><li>poor</li><li>normal</li><li>normal</li><li>normal</li><li>great</li><li>poor</li><li>normal</li><li>great</li><li>poor</li><li>poor</li><li>poor</li><li>normal</li><li>great</li><li>normal</li><li>normal</li><li>great</li><li>great</li><li>poor</li><li>great</li><li>normal</li><li>normal</li><li>great</li><li>great</li><li>normal</li><li>poor</li><li>normal</li><li>great</li><li>normal</li><li>normal</li><li>normal</li><li>poor</li><li>great</li><li>great</li><li>poor</li><li>normal</li><li>normal</li><li>great</li><li>great</li><li>normal</li><li>great</li><li>normal</li><li>normal</li><li>poor</li><li>great</li><li>normal</li><li>normal</li><li>great</li><li>poor</li><li>normal</li><li>great</li><li>great</li><li>great</li><li>great</li><li>poor</li><li>normal</li><li>great</li><li>normal</li><li>normal</li><li>poor</li><li>normal</li><li>normal</li><li>poor</li><li>poor</li><li>great</li><li>great</li><li>normal</li><li>poor</li><li>normal</li><li>poor</li><li>poor</li><li>poor</li><li>great</li><li>great</li><li>poor</li><li>normal</li><li>great</li><li>normal</li><li>great</li><li>normal</li><li>normal</li><li>normal</li><li>great</li><li>normal</li><li>great</li><li>poor</li><li>great</li><li>poor</li><li>poor</li><li>great</li><li>normal</li><li>poor</li><li>normal</li><li>normal</li></ol>\n",
+       "\n",
+       "<details>\n",
+       "\t<summary style=display:list-item;cursor:pointer>\n",
+       "\t\t<strong>Levels</strong>:\n",
+       "\t</summary>\n",
+       "\t<style>\n",
+       "\t.list-inline {list-style: none; margin:0; padding: 0}\n",
+       "\t.list-inline>li {display: inline-block}\n",
+       "\t.list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "\t</style>\n",
+       "\t<ol class=list-inline><li>'poor'</li><li>'normal'</li><li>'great'</li></ol>\n",
+       "</details>"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item poor\n",
+       "\\item poor\n",
+       "\\item great\n",
+       "\\item normal\n",
+       "\\item poor\n",
+       "\\item normal\n",
+       "\\item normal\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\emph{Levels}: \\begin{enumerate*}\n",
+       "\\item 'poor'\n",
+       "\\item 'normal'\n",
+       "\\item 'great'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. poor\n",
+       "2. poor\n",
+       "3. poor\n",
+       "4. normal\n",
+       "5. normal\n",
+       "6. poor\n",
+       "7. normal\n",
+       "8. poor\n",
+       "9. normal\n",
+       "10. normal\n",
+       "11. normal\n",
+       "12. great\n",
+       "13. poor\n",
+       "14. normal\n",
+       "15. great\n",
+       "16. poor\n",
+       "17. poor\n",
+       "18. poor\n",
+       "19. normal\n",
+       "20. great\n",
+       "21. normal\n",
+       "22. normal\n",
+       "23. great\n",
+       "24. great\n",
+       "25. poor\n",
+       "26. great\n",
+       "27. normal\n",
+       "28. normal\n",
+       "29. great\n",
+       "30. great\n",
+       "31. normal\n",
+       "32. poor\n",
+       "33. normal\n",
+       "34. great\n",
+       "35. normal\n",
+       "36. normal\n",
+       "37. normal\n",
+       "38. poor\n",
+       "39. great\n",
+       "40. great\n",
+       "41. poor\n",
+       "42. normal\n",
+       "43. normal\n",
+       "44. great\n",
+       "45. great\n",
+       "46. normal\n",
+       "47. great\n",
+       "48. normal\n",
+       "49. normal\n",
+       "50. poor\n",
+       "51. great\n",
+       "52. normal\n",
+       "53. normal\n",
+       "54. great\n",
+       "55. poor\n",
+       "56. normal\n",
+       "57. great\n",
+       "58. great\n",
+       "59. great\n",
+       "60. great\n",
+       "61. poor\n",
+       "62. normal\n",
+       "63. great\n",
+       "64. normal\n",
+       "65. normal\n",
+       "66. poor\n",
+       "67. normal\n",
+       "68. normal\n",
+       "69. poor\n",
+       "70. poor\n",
+       "71. great\n",
+       "72. great\n",
+       "73. normal\n",
+       "74. poor\n",
+       "75. normal\n",
+       "76. poor\n",
+       "77. poor\n",
+       "78. poor\n",
+       "79. great\n",
+       "80. great\n",
+       "81. poor\n",
+       "82. normal\n",
+       "83. great\n",
+       "84. normal\n",
+       "85. great\n",
+       "86. normal\n",
+       "87. normal\n",
+       "88. normal\n",
+       "89. great\n",
+       "90. normal\n",
+       "91. great\n",
+       "92. poor\n",
+       "93. great\n",
+       "94. poor\n",
+       "95. poor\n",
+       "96. great\n",
+       "97. normal\n",
+       "98. poor\n",
+       "99. normal\n",
+       "100. normal\n",
+       "\n",
+       "\n",
+       "\n",
+       "**Levels**: 1. 'poor'\n",
+       "2. 'normal'\n",
+       "3. 'great'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  [1] poor   poor   poor   normal normal poor   normal poor   normal normal\n",
+       " [11] normal great  poor   normal great  poor   poor   poor   normal great \n",
+       " [21] normal normal great  great  poor   great  normal normal great  great \n",
+       " [31] normal poor   normal great  normal normal normal poor   great  great \n",
+       " [41] poor   normal normal great  great  normal great  normal normal poor  \n",
+       " [51] great  normal normal great  poor   normal great  great  great  great \n",
+       " [61] poor   normal great  normal normal poor   normal normal poor   poor  \n",
+       " [71] great  great  normal poor   normal poor   poor   poor   great  great \n",
+       " [81] poor   normal great  normal great  normal normal normal great  normal\n",
+       " [91] great  poor   great  poor   poor   great  normal poor   normal normal\n",
+       "Levels: poor < normal < great"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>'poor'</li><li>'normal'</li><li>'great'</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 'poor'\n",
+       "\\item 'normal'\n",
+       "\\item 'great'\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 'poor'\n",
+       "2. 'normal'\n",
+       "3. 'great'\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] \"poor\"   \"normal\" \"great\" "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(fact3 = factor(fact2,labels = c('poor','poor','normal','great','great')))\n",
+    "levels(fact3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(e) Use the function `table` to create tables for the three factors you have made. Comment on the differences."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "fact1\n",
+       " bad  exc good norm  reg \n",
+       "  11   13   18   41   17 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/plain": [
+       "fact2\n",
+       " bad  reg norm good  exc \n",
+       "  11   17   41   18   13 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/plain": [
+       "fact3\n",
+       "  poor normal  great \n",
+       "    28     41     31 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "table(fact1)\n",
+    "table(fact2)\n",
+    "table(fact3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Both fact1 and fact2 has 5 categories but fact2 is ordered. There are only 3 categoreis in fact3 and it is also ordered**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Question 2 \n",
+    "You will need the file Human_data.txt. Place this file on your working environment."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(a) Read the file Human_data.txt and store this in an object called `human`. Before reading the data, check whether the file has a header. If it does, use the appropriate argument in the read function to include the header."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 11</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Index</th><th scope=col>Gender</th><th scope=col>age</th><th scope=col>Ocupation</th><th scope=col>Head_size</th><th scope=col>Height_cm</th><th scope=col>Weight_kg</th><th scope=col>Salary</th><th scope=col>blood_type</th><th scope=col>Sugar_in_blood</th><th scope=col>X</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;lgl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>1</th><td>1</td><td>M</td><td>22</td><td>Nothing</td><td>34.4</td><td>205.5</td><td>105.3</td><td>    0</td><td>4</td><td> 95.2</td><td>NA</td></tr>\n",
+       "\t<tr><th scope=row>2</th><td>2</td><td>F</td><td>33</td><td>Nothing</td><td>28.0</td><td>162.8</td><td> 71.3</td><td>    0</td><td>4</td><td> 83.5</td><td>NA</td></tr>\n",
+       "\t<tr><th scope=row>3</th><td>3</td><td>M</td><td>46</td><td>Work   </td><td>27.0</td><td>162.4</td><td> 94.7</td><td>19268</td><td>4</td><td> 92.7</td><td>NA</td></tr>\n",
+       "\t<tr><th scope=row>4</th><td>4</td><td>F</td><td>24</td><td>student</td><td>24.8</td><td>156.0</td><td> 56.0</td><td> 2034</td><td>3</td><td> 95.8</td><td>NA</td></tr>\n",
+       "\t<tr><th scope=row>5</th><td>5</td><td>F</td><td>37</td><td>Work   </td><td>30.1</td><td>172.7</td><td>103.3</td><td>14829</td><td>2</td><td>114.1</td><td>NA</td></tr>\n",
+       "\t<tr><th scope=row>6</th><td>6</td><td>F</td><td>31</td><td>Work   </td><td>26.6</td><td>157.7</td><td> 47.0</td><td>10586</td><td>3</td><td> 95.1</td><td>NA</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 11\n",
+       "\\begin{tabular}{r|lllllllllll}\n",
+       "  & Index & Gender & age & Ocupation & Head\\_size & Height\\_cm & Weight\\_kg & Salary & blood\\_type & Sugar\\_in\\_blood & X\\\\\n",
+       "  & <int> & <fct> & <int> & <fct> & <dbl> & <dbl> & <dbl> & <int> & <int> & <dbl> & <lgl>\\\\\n",
+       "\\hline\n",
+       "\t1 & 1 & M & 22 & Nothing & 34.4 & 205.5 & 105.3 &     0 & 4 &  95.2 & NA\\\\\n",
+       "\t2 & 2 & F & 33 & Nothing & 28.0 & 162.8 &  71.3 &     0 & 4 &  83.5 & NA\\\\\n",
+       "\t3 & 3 & M & 46 & Work    & 27.0 & 162.4 &  94.7 & 19268 & 4 &  92.7 & NA\\\\\n",
+       "\t4 & 4 & F & 24 & student & 24.8 & 156.0 &  56.0 &  2034 & 3 &  95.8 & NA\\\\\n",
+       "\t5 & 5 & F & 37 & Work    & 30.1 & 172.7 & 103.3 & 14829 & 2 & 114.1 & NA\\\\\n",
+       "\t6 & 6 & F & 31 & Work    & 26.6 & 157.7 &  47.0 & 10586 & 3 &  95.1 & NA\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 11\n",
+       "\n",
+       "| <!--/--> | Index &lt;int&gt; | Gender &lt;fct&gt; | age &lt;int&gt; | Ocupation &lt;fct&gt; | Head_size &lt;dbl&gt; | Height_cm &lt;dbl&gt; | Weight_kg &lt;dbl&gt; | Salary &lt;int&gt; | blood_type &lt;int&gt; | Sugar_in_blood &lt;dbl&gt; | X &lt;lgl&gt; |\n",
+       "|---|---|---|---|---|---|---|---|---|---|---|---|\n",
+       "| 1 | 1 | M | 22 | Nothing | 34.4 | 205.5 | 105.3 |     0 | 4 |  95.2 | NA |\n",
+       "| 2 | 2 | F | 33 | Nothing | 28.0 | 162.8 |  71.3 |     0 | 4 |  83.5 | NA |\n",
+       "| 3 | 3 | M | 46 | Work    | 27.0 | 162.4 |  94.7 | 19268 | 4 |  92.7 | NA |\n",
+       "| 4 | 4 | F | 24 | student | 24.8 | 156.0 |  56.0 |  2034 | 3 |  95.8 | NA |\n",
+       "| 5 | 5 | F | 37 | Work    | 30.1 | 172.7 | 103.3 | 14829 | 2 | 114.1 | NA |\n",
+       "| 6 | 6 | F | 31 | Work    | 26.6 | 157.7 |  47.0 | 10586 | 3 |  95.1 | NA |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  Index Gender age Ocupation Head_size Height_cm Weight_kg Salary blood_type\n",
+       "1 1     M      22  Nothing   34.4      205.5     105.3         0  4         \n",
+       "2 2     F      33  Nothing   28.0      162.8      71.3         0  4         \n",
+       "3 3     M      46  Work      27.0      162.4      94.7     19268  4         \n",
+       "4 4     F      24  student   24.8      156.0      56.0      2034  3         \n",
+       "5 5     F      37  Work      30.1      172.7     103.3     14829  2         \n",
+       "6 6     F      31  Work      26.6      157.7      47.0     10586  3         \n",
+       "  Sugar_in_blood X \n",
+       "1  95.2          NA\n",
+       "2  83.5          NA\n",
+       "3  92.7          NA\n",
+       "4  95.8          NA\n",
+       "5 114.1          NA\n",
+       "6  95.1          NA"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "human = read.table('Human_data.txt',sep='\\t',header=TRUE)\n",
+    "head(human)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(b) Using `subset`, create a new data frame with the variables `Head_size, Height_cm, Weight_kg` from `human`. Call this new data frame `human1`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 3</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Head_size</th><th scope=col>Height_cm</th><th scope=col>Weight_kg</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>1</th><td>34.4</td><td>205.5</td><td>105.3</td></tr>\n",
+       "\t<tr><th scope=row>2</th><td>28.0</td><td>162.8</td><td> 71.3</td></tr>\n",
+       "\t<tr><th scope=row>3</th><td>27.0</td><td>162.4</td><td> 94.7</td></tr>\n",
+       "\t<tr><th scope=row>4</th><td>24.8</td><td>156.0</td><td> 56.0</td></tr>\n",
+       "\t<tr><th scope=row>5</th><td>30.1</td><td>172.7</td><td>103.3</td></tr>\n",
+       "\t<tr><th scope=row>6</th><td>26.6</td><td>157.7</td><td> 47.0</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 3\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & Head\\_size & Height\\_cm & Weight\\_kg\\\\\n",
+       "  & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t1 & 34.4 & 205.5 & 105.3\\\\\n",
+       "\t2 & 28.0 & 162.8 &  71.3\\\\\n",
+       "\t3 & 27.0 & 162.4 &  94.7\\\\\n",
+       "\t4 & 24.8 & 156.0 &  56.0\\\\\n",
+       "\t5 & 30.1 & 172.7 & 103.3\\\\\n",
+       "\t6 & 26.6 & 157.7 &  47.0\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 3\n",
+       "\n",
+       "| <!--/--> | Head_size &lt;dbl&gt; | Height_cm &lt;dbl&gt; | Weight_kg &lt;dbl&gt; |\n",
+       "|---|---|---|---|\n",
+       "| 1 | 34.4 | 205.5 | 105.3 |\n",
+       "| 2 | 28.0 | 162.8 |  71.3 |\n",
+       "| 3 | 27.0 | 162.4 |  94.7 |\n",
+       "| 4 | 24.8 | 156.0 |  56.0 |\n",
+       "| 5 | 30.1 | 172.7 | 103.3 |\n",
+       "| 6 | 26.6 | 157.7 |  47.0 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  Head_size Height_cm Weight_kg\n",
+       "1 34.4      205.5     105.3    \n",
+       "2 28.0      162.8      71.3    \n",
+       "3 27.0      162.4      94.7    \n",
+       "4 24.8      156.0      56.0    \n",
+       "5 30.1      172.7     103.3    \n",
+       "6 26.6      157.7      47.0    "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "human1 = subset(human,select = c(Head_size,Height_cm,Weight_kg))\n",
+    "head(human1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(c) Use the function `apply` twice to calculate the mean and standard deviation for each of the three variables in `human1`. Call the vectors you obtain `human.mean` and `human.sd`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".dl-inline {width: auto; margin:0; padding: 0}\n",
+       ".dl-inline>dt, .dl-inline>dd {float: none; width: auto; display: inline-block}\n",
+       ".dl-inline>dt::after {content: \":\\0020\"; padding-right: .5ex}\n",
+       ".dl-inline>dt:not(:first-of-type) {padding-left: .5ex}\n",
+       "</style><dl class=dl-inline><dt>Head_size</dt><dd>28.2132</dd><dt>Height_cm</dt><dd>169.268</dd><dt>Weight_kg</dt><dd>78.5232</dd></dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description*}\n",
+       "\\item[Head\\textbackslash{}\\_size] 28.2132\n",
+       "\\item[Height\\textbackslash{}\\_cm] 169.268\n",
+       "\\item[Weight\\textbackslash{}\\_kg] 78.5232\n",
+       "\\end{description*}\n"
+      ],
+      "text/markdown": [
+       "Head_size\n",
+       ":   28.2132Height_cm\n",
+       ":   169.268Weight_kg\n",
+       ":   78.5232\n",
+       "\n"
+      ],
+      "text/plain": [
+       "Head_size Height_cm Weight_kg \n",
+       "  28.2132  169.2680   78.5232 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".dl-inline {width: auto; margin:0; padding: 0}\n",
+       ".dl-inline>dt, .dl-inline>dd {float: none; width: auto; display: inline-block}\n",
+       ".dl-inline>dt::after {content: \":\\0020\"; padding-right: .5ex}\n",
+       ".dl-inline>dt:not(:first-of-type) {padding-left: .5ex}\n",
+       "</style><dl class=dl-inline><dt>Head_size</dt><dd>2.50738903234401</dd><dt>Height_cm</dt><dd>14.6384406235014</dd><dt>Weight_kg</dt><dd>17.944402607216</dd></dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description*}\n",
+       "\\item[Head\\textbackslash{}\\_size] 2.50738903234401\n",
+       "\\item[Height\\textbackslash{}\\_cm] 14.6384406235014\n",
+       "\\item[Weight\\textbackslash{}\\_kg] 17.944402607216\n",
+       "\\end{description*}\n"
+      ],
+      "text/markdown": [
+       "Head_size\n",
+       ":   2.50738903234401Height_cm\n",
+       ":   14.6384406235014Weight_kg\n",
+       ":   17.944402607216\n",
+       "\n"
+      ],
+      "text/plain": [
+       "Head_size Height_cm Weight_kg \n",
+       " 2.507389 14.638441 17.944403 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "human.mean = apply(human1, 2,mean)\n",
+    "human.mean\n",
+    "human.sd = apply(human1,2,sd)\n",
+    "human.sd"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(d) Use the function `sweep` twice, first to subtract the mean for each variable to the values in `human1` and then to divide by the standard deviation. Store the result in a data frame named `human.std`. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 3</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Head_size</th><th scope=col>Height_cm</th><th scope=col>Weight_kg</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>1</th><td> 2.46742724</td><td> 2.4751270</td><td> 1.4922091</td></tr>\n",
+       "\t<tr><th scope=row>2</th><td>-0.08502869</td><td>-0.4418503</td><td>-0.4025322</td></tr>\n",
+       "\t<tr><th scope=row>3</th><td>-0.48384993</td><td>-0.4691757</td><td> 0.9014956</td></tr>\n",
+       "\t<tr><th scope=row>4</th><td>-1.36125665</td><td>-0.9063807</td><td>-1.2551658</td></tr>\n",
+       "\t<tr><th scope=row>5</th><td> 0.75249591</td><td> 0.2344512</td><td> 1.3807537</td></tr>\n",
+       "\t<tr><th scope=row>6</th><td>-0.64337842</td><td>-0.7902481</td><td>-1.7567149</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 3\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & Head\\_size & Height\\_cm & Weight\\_kg\\\\\n",
+       "  & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t1 &  2.46742724 &  2.4751270 &  1.4922091\\\\\n",
+       "\t2 & -0.08502869 & -0.4418503 & -0.4025322\\\\\n",
+       "\t3 & -0.48384993 & -0.4691757 &  0.9014956\\\\\n",
+       "\t4 & -1.36125665 & -0.9063807 & -1.2551658\\\\\n",
+       "\t5 &  0.75249591 &  0.2344512 &  1.3807537\\\\\n",
+       "\t6 & -0.64337842 & -0.7902481 & -1.7567149\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 3\n",
+       "\n",
+       "| <!--/--> | Head_size &lt;dbl&gt; | Height_cm &lt;dbl&gt; | Weight_kg &lt;dbl&gt; |\n",
+       "|---|---|---|---|\n",
+       "| 1 |  2.46742724 |  2.4751270 |  1.4922091 |\n",
+       "| 2 | -0.08502869 | -0.4418503 | -0.4025322 |\n",
+       "| 3 | -0.48384993 | -0.4691757 |  0.9014956 |\n",
+       "| 4 | -1.36125665 | -0.9063807 | -1.2551658 |\n",
+       "| 5 |  0.75249591 |  0.2344512 |  1.3807537 |\n",
+       "| 6 | -0.64337842 | -0.7902481 | -1.7567149 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  Head_size   Height_cm  Weight_kg \n",
+       "1  2.46742724  2.4751270  1.4922091\n",
+       "2 -0.08502869 -0.4418503 -0.4025322\n",
+       "3 -0.48384993 -0.4691757  0.9014956\n",
+       "4 -1.36125665 -0.9063807 -1.2551658\n",
+       "5  0.75249591  0.2344512  1.3807537\n",
+       "6 -0.64337842 -0.7902481 -1.7567149"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "human.std <-sweep(sweep(human1,2, human.mean,'-'),2,human.sd,'/')\n",
+    "head(human.std)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(e) The previous procedure is known as *standardization*. The resulting columns in the `human.std` should now have mean zero and variance equal to one. Verify this using `apply`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 80,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".dl-inline {width: auto; margin:0; padding: 0}\n",
+       ".dl-inline>dt, .dl-inline>dd {float: none; width: auto; display: inline-block}\n",
+       ".dl-inline>dt::after {content: \":\\0020\"; padding-right: .5ex}\n",
+       ".dl-inline>dt:not(:first-of-type) {padding-left: .5ex}\n",
+       "</style><dl class=dl-inline><dt>Head_size</dt><dd>0</dd><dt>Height_cm</dt><dd>0</dd><dt>Weight_kg</dt><dd>0</dd></dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description*}\n",
+       "\\item[Head\\textbackslash{}\\_size] 0\n",
+       "\\item[Height\\textbackslash{}\\_cm] 0\n",
+       "\\item[Weight\\textbackslash{}\\_kg] 0\n",
+       "\\end{description*}\n"
+      ],
+      "text/markdown": [
+       "Head_size\n",
+       ":   0Height_cm\n",
+       ":   0Weight_kg\n",
+       ":   0\n",
+       "\n"
+      ],
+      "text/plain": [
+       "Head_size Height_cm Weight_kg \n",
+       "        0         0         0 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".dl-inline {width: auto; margin:0; padding: 0}\n",
+       ".dl-inline>dt, .dl-inline>dd {float: none; width: auto; display: inline-block}\n",
+       ".dl-inline>dt::after {content: \":\\0020\"; padding-right: .5ex}\n",
+       ".dl-inline>dt:not(:first-of-type) {padding-left: .5ex}\n",
+       "</style><dl class=dl-inline><dt>Head_size</dt><dd>1</dd><dt>Height_cm</dt><dd>1</dd><dt>Weight_kg</dt><dd>1</dd></dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description*}\n",
+       "\\item[Head\\textbackslash{}\\_size] 1\n",
+       "\\item[Height\\textbackslash{}\\_cm] 1\n",
+       "\\item[Weight\\textbackslash{}\\_kg] 1\n",
+       "\\end{description*}\n"
+      ],
+      "text/markdown": [
+       "Head_size\n",
+       ":   1Height_cm\n",
+       ":   1Weight_kg\n",
+       ":   1\n",
+       "\n"
+      ],
+      "text/plain": [
+       "Head_size Height_cm Weight_kg \n",
+       "        1         1         1 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "round(apply(human.std, 2,mean),15)\n",
+    "round(apply(human.std, 2,sd),15)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Question 3\n",
+    "This is an exercise on the use of lists. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(a) Start by creating two vectors. The first, called `vec1` has four numbers sampled uniformly at random from the integers between 11 and 19. The second, also of length four and called `vec2`, has a random sample of size four from the Poisson distribution with parameter 10."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 71,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>16</li><li>11</li><li>13</li><li>15</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 16\n",
+       "\\item 11\n",
+       "\\item 13\n",
+       "\\item 15\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 16\n",
+       "2. 11\n",
+       "3. 13\n",
+       "4. 15\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 16 11 13 15"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>7</li><li>11</li><li>11</li><li>10</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 7\n",
+       "\\item 11\n",
+       "\\item 11\n",
+       "\\item 10\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 7\n",
+       "2. 11\n",
+       "3. 11\n",
+       "4. 10\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1]  7 11 11 10"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(vec1 = sample(11:19,4,replace=T,prob=rep(1/9,9)))\n",
+    "(vec2 = rpois(4, lambda=10))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(b) Create a list named `q4.list` that has as a first component `vec1` and second component `vec2`. The names of these components should be `item1` and `item2`, respectively."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 72,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<dl>\n",
+       "\t<dt>$item1</dt>\n",
+       "\t\t<dd><style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>16</li><li>11</li><li>13</li><li>15</li></ol>\n",
+       "</dd>\n",
+       "\t<dt>$item2</dt>\n",
+       "\t\t<dd><style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>7</li><li>11</li><li>11</li><li>10</li></ol>\n",
+       "</dd>\n",
+       "</dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description}\n",
+       "\\item[\\$item1] \\begin{enumerate*}\n",
+       "\\item 16\n",
+       "\\item 11\n",
+       "\\item 13\n",
+       "\\item 15\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\item[\\$item2] \\begin{enumerate*}\n",
+       "\\item 7\n",
+       "\\item 11\n",
+       "\\item 11\n",
+       "\\item 10\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\end{description}\n"
+      ],
+      "text/markdown": [
+       "$item1\n",
+       ":   1. 16\n",
+       "2. 11\n",
+       "3. 13\n",
+       "4. 15\n",
+       "\n",
+       "\n",
+       "\n",
+       "$item2\n",
+       ":   1. 7\n",
+       "2. 11\n",
+       "3. 11\n",
+       "4. 10\n",
+       "\n",
+       "\n",
+       "\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "$item1\n",
+       "[1] 16 11 13 15\n",
+       "\n",
+       "$item2\n",
+       "[1]  7 11 11 10\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(q4.list <- list(item1 = vec1, item2 = vec2))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(c) Using the function `rm`, remove `vec1` and `vec2`. Create a new element in the list called `item3` that has the outer product of `item1` and `item2` in that order."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 73,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rm(vec1)\n",
+    "rm(vec2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 74,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<dl>\n",
+       "\t<dt>$item1</dt>\n",
+       "\t\t<dd><style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>16</li><li>11</li><li>13</li><li>15</li></ol>\n",
+       "</dd>\n",
+       "\t<dt>$item2</dt>\n",
+       "\t\t<dd><style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>7</li><li>11</li><li>11</li><li>10</li></ol>\n",
+       "</dd>\n",
+       "\t<dt>$item3</dt>\n",
+       "\t\t<dd><table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<tbody>\n",
+       "\t<tr><td>112</td><td>176</td><td>176</td><td>160</td></tr>\n",
+       "\t<tr><td> 77</td><td>121</td><td>121</td><td>110</td></tr>\n",
+       "\t<tr><td> 91</td><td>143</td><td>143</td><td>130</td></tr>\n",
+       "\t<tr><td>105</td><td>165</td><td>165</td><td>150</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n",
+       "</dd>\n",
+       "</dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description}\n",
+       "\\item[\\$item1] \\begin{enumerate*}\n",
+       "\\item 16\n",
+       "\\item 11\n",
+       "\\item 13\n",
+       "\\item 15\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\item[\\$item2] \\begin{enumerate*}\n",
+       "\\item 7\n",
+       "\\item 11\n",
+       "\\item 11\n",
+       "\\item 10\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\item[\\$item3] A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{llll}\n",
+       "\t 112 & 176 & 176 & 160\\\\\n",
+       "\t  77 & 121 & 121 & 110\\\\\n",
+       "\t  91 & 143 & 143 & 130\\\\\n",
+       "\t 105 & 165 & 165 & 150\\\\\n",
+       "\\end{tabular}\n",
+       "\n",
+       "\\end{description}\n"
+      ],
+      "text/markdown": [
+       "$item1\n",
+       ":   1. 16\n",
+       "2. 11\n",
+       "3. 13\n",
+       "4. 15\n",
+       "\n",
+       "\n",
+       "\n",
+       "$item2\n",
+       ":   1. 7\n",
+       "2. 11\n",
+       "3. 11\n",
+       "4. 10\n",
+       "\n",
+       "\n",
+       "\n",
+       "$item3\n",
+       ":   \n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "| 112 | 176 | 176 | 160 |\n",
+       "|  77 | 121 | 121 | 110 |\n",
+       "|  91 | 143 | 143 | 130 |\n",
+       "| 105 | 165 | 165 | 150 |\n",
+       "\n",
+       "\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "$item1\n",
+       "[1] 16 11 13 15\n",
+       "\n",
+       "$item2\n",
+       "[1]  7 11 11 10\n",
+       "\n",
+       "$item3\n",
+       "     [,1] [,2] [,3] [,4]\n",
+       "[1,]  112  176  176  160\n",
+       "[2,]   77  121  121  110\n",
+       "[3,]   91  143  143  130\n",
+       "[4,]  105  165  165  150\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "q4.list$item3 = q4.list$item1 %o% q4.list$item2\n",
+    "q4.list"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(d) Calculate the determinant of `item3`. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 75,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "0"
+      ],
+      "text/latex": [
+       "0"
+      ],
+      "text/markdown": [
+       "0"
+      ],
+      "text/plain": [
+       "[1] 0"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "det(q4.list$item3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(e) Add the matrix in `item3` to the matrix `diag(4)` and store this in a new element of `q4.list` called `item4`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<dl>\n",
+       "\t<dt>$item1</dt>\n",
+       "\t\t<dd><style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>16</li><li>11</li><li>13</li><li>15</li></ol>\n",
+       "</dd>\n",
+       "\t<dt>$item2</dt>\n",
+       "\t\t<dd><style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>7</li><li>11</li><li>11</li><li>10</li></ol>\n",
+       "</dd>\n",
+       "\t<dt>$item3</dt>\n",
+       "\t\t<dd><table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<tbody>\n",
+       "\t<tr><td>112</td><td>176</td><td>176</td><td>160</td></tr>\n",
+       "\t<tr><td> 77</td><td>121</td><td>121</td><td>110</td></tr>\n",
+       "\t<tr><td> 91</td><td>143</td><td>143</td><td>130</td></tr>\n",
+       "\t<tr><td>105</td><td>165</td><td>165</td><td>150</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n",
+       "</dd>\n",
+       "\t<dt>$item4</dt>\n",
+       "\t\t<dd><table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<tbody>\n",
+       "\t<tr><td>113</td><td>176</td><td>176</td><td>160</td></tr>\n",
+       "\t<tr><td> 77</td><td>122</td><td>121</td><td>110</td></tr>\n",
+       "\t<tr><td> 91</td><td>143</td><td>144</td><td>130</td></tr>\n",
+       "\t<tr><td>105</td><td>165</td><td>165</td><td>151</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n",
+       "</dd>\n",
+       "</dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description}\n",
+       "\\item[\\$item1] \\begin{enumerate*}\n",
+       "\\item 16\n",
+       "\\item 11\n",
+       "\\item 13\n",
+       "\\item 15\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\item[\\$item2] \\begin{enumerate*}\n",
+       "\\item 7\n",
+       "\\item 11\n",
+       "\\item 11\n",
+       "\\item 10\n",
+       "\\end{enumerate*}\n",
+       "\n",
+       "\\item[\\$item3] A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{llll}\n",
+       "\t 112 & 176 & 176 & 160\\\\\n",
+       "\t  77 & 121 & 121 & 110\\\\\n",
+       "\t  91 & 143 & 143 & 130\\\\\n",
+       "\t 105 & 165 & 165 & 150\\\\\n",
+       "\\end{tabular}\n",
+       "\n",
+       "\\item[\\$item4] A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{llll}\n",
+       "\t 113 & 176 & 176 & 160\\\\\n",
+       "\t  77 & 122 & 121 & 110\\\\\n",
+       "\t  91 & 143 & 144 & 130\\\\\n",
+       "\t 105 & 165 & 165 & 151\\\\\n",
+       "\\end{tabular}\n",
+       "\n",
+       "\\end{description}\n"
+      ],
+      "text/markdown": [
+       "$item1\n",
+       ":   1. 16\n",
+       "2. 11\n",
+       "3. 13\n",
+       "4. 15\n",
+       "\n",
+       "\n",
+       "\n",
+       "$item2\n",
+       ":   1. 7\n",
+       "2. 11\n",
+       "3. 11\n",
+       "4. 10\n",
+       "\n",
+       "\n",
+       "\n",
+       "$item3\n",
+       ":   \n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "| 112 | 176 | 176 | 160 |\n",
+       "|  77 | 121 | 121 | 110 |\n",
+       "|  91 | 143 | 143 | 130 |\n",
+       "| 105 | 165 | 165 | 150 |\n",
+       "\n",
+       "\n",
+       "$item4\n",
+       ":   \n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "| 113 | 176 | 176 | 160 |\n",
+       "|  77 | 122 | 121 | 110 |\n",
+       "|  91 | 143 | 144 | 130 |\n",
+       "| 105 | 165 | 165 | 151 |\n",
+       "\n",
+       "\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "$item1\n",
+       "[1] 16 11 13 15\n",
+       "\n",
+       "$item2\n",
+       "[1]  7 11 11 10\n",
+       "\n",
+       "$item3\n",
+       "     [,1] [,2] [,3] [,4]\n",
+       "[1,]  112  176  176  160\n",
+       "[2,]   77  121  121  110\n",
+       "[3,]   91  143  143  130\n",
+       "[4,]  105  165  165  150\n",
+       "\n",
+       "$item4\n",
+       "     [,1] [,2] [,3] [,4]\n",
+       "[1,]  113  176  176  160\n",
+       "[2,]   77  122  121  110\n",
+       "[3,]   91  143  144  130\n",
+       "[4,]  105  165  165  151\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "q4.list$item4 = q4.list$item3 + diag(4)\n",
+    "q4.list"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(f) Find the inverse of `item4` and verify it by matrix  multiplication."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 83,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<tbody>\n",
+       "\t<tr><td> 0.7874763</td><td>-0.3339658</td><td>-0.3339658</td><td>-0.3036053</td></tr>\n",
+       "\t<tr><td>-0.1461101</td><td> 0.7703985</td><td>-0.2296015</td><td>-0.2087287</td></tr>\n",
+       "\t<tr><td>-0.1726755</td><td>-0.2713472</td><td> 0.7286528</td><td>-0.2466793</td></tr>\n",
+       "\t<tr><td>-0.1992410</td><td>-0.3130930</td><td>-0.3130930</td><td> 0.7153700</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{llll}\n",
+       "\t  0.7874763 & -0.3339658 & -0.3339658 & -0.3036053\\\\\n",
+       "\t -0.1461101 &  0.7703985 & -0.2296015 & -0.2087287\\\\\n",
+       "\t -0.1726755 & -0.2713472 &  0.7286528 & -0.2466793\\\\\n",
+       "\t -0.1992410 & -0.3130930 & -0.3130930 &  0.7153700\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "|  0.7874763 | -0.3339658 | -0.3339658 | -0.3036053 |\n",
+       "| -0.1461101 |  0.7703985 | -0.2296015 | -0.2087287 |\n",
+       "| -0.1726755 | -0.2713472 |  0.7286528 | -0.2466793 |\n",
+       "| -0.1992410 | -0.3130930 | -0.3130930 |  0.7153700 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "     [,1]       [,2]       [,3]       [,4]      \n",
+       "[1,]  0.7874763 -0.3339658 -0.3339658 -0.3036053\n",
+       "[2,] -0.1461101  0.7703985 -0.2296015 -0.2087287\n",
+       "[3,] -0.1726755 -0.2713472  0.7286528 -0.2466793\n",
+       "[4,] -0.1992410 -0.3130930 -0.3130930  0.7153700"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<tbody>\n",
+       "\t<tr><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n",
+       "\t<tr><td>0</td><td>1</td><td>0</td><td>0</td></tr>\n",
+       "\t<tr><td>0</td><td>0</td><td>1</td><td>0</td></tr>\n",
+       "\t<tr><td>0</td><td>0</td><td>0</td><td>1</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{llll}\n",
+       "\t 1 & 0 & 0 & 0\\\\\n",
+       "\t 0 & 1 & 0 & 0\\\\\n",
+       "\t 0 & 0 & 1 & 0\\\\\n",
+       "\t 0 & 0 & 0 & 1\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "| 1 | 0 | 0 | 0 |\n",
+       "| 0 | 1 | 0 | 0 |\n",
+       "| 0 | 0 | 1 | 0 |\n",
+       "| 0 | 0 | 0 | 1 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "     [,1] [,2] [,3] [,4]\n",
+       "[1,] 1    0    0    0   \n",
+       "[2,] 0    1    0    0   \n",
+       "[3,] 0    0    1    0   \n",
+       "[4,] 0    0    0    1   "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<tbody>\n",
+       "\t<tr><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n",
+       "\t<tr><td>0</td><td>1</td><td>0</td><td>0</td></tr>\n",
+       "\t<tr><td>0</td><td>0</td><td>1</td><td>0</td></tr>\n",
+       "\t<tr><td>0</td><td>0</td><td>0</td><td>1</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{llll}\n",
+       "\t 1 & 0 & 0 & 0\\\\\n",
+       "\t 0 & 1 & 0 & 0\\\\\n",
+       "\t 0 & 0 & 1 & 0\\\\\n",
+       "\t 0 & 0 & 0 & 1\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "| 1 | 0 | 0 | 0 |\n",
+       "| 0 | 1 | 0 | 0 |\n",
+       "| 0 | 0 | 1 | 0 |\n",
+       "| 0 | 0 | 0 | 1 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "     [,1] [,2] [,3] [,4]\n",
+       "[1,] 1    0    0    0   \n",
+       "[2,] 0    1    0    0   \n",
+       "[3,] 0    0    1    0   \n",
+       "[4,] 0    0    0    1   "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(Inverse = solve(q4.list$item4))\n",
+    "round(q4.list$item4 %*% Inverse,12)\n",
+    "round(Inverse %*% q4.list$item4,12)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Question 4\n",
+    "\n",
+    "In this exercise we want to use the Montecarlo method to estimate an integral. Consider the function $f(x) = 4 - x^2$ for $-2\\leq x \\leq 2$. We want to estimate\n",
+    "$$\\int_{-2}^2 f(x) \\, dx$$\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 88,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAA0gAAANICAMAAADKOT/pAAADAFBMVEUAAAABAQECAgIDAwME\nBAQFBQUGBgYHBwcICAgJCQkKCgoLCwsMDAwNDQ0ODg4PDw8QEBARERESEhITExMUFBQVFRUW\nFhYXFxcYGBgZGRkaGhobGxscHBwdHR0eHh4fHx8gICAhISEiIiIjIyMkJCQlJSUmJiYnJyco\nKCgpKSkqKiorKyssLCwtLS0uLi4vLy8wMDAxMTEyMjIzMzM0NDQ1NTU2NjY3Nzc4ODg5OTk6\nOjo7Ozs8PDw9PT0+Pj4/Pz9AQEBBQUFCQkJDQ0NERERFRUVGRkZHR0dISEhJSUlKSkpLS0tM\nTExNTU1OTk5PT09QUFBRUVFSUlJTU1NUVFRVVVVWVlZXV1dYWFhZWVlaWlpbW1tcXFxdXV1e\nXl5fX19gYGBhYWFiYmJjY2NkZGRlZWVmZmZnZ2doaGhpaWlqampra2tsbGxtbW1ubm5vb29w\ncHBxcXFycnJzc3N0dHR1dXV2dnZ3d3d4eHh5eXl6enp7e3t8fHx9fX1+fn5/f3+AgICBgYGC\ngoKDg4OEhISFhYWGhoaHh4eIiIiJiYmKioqLi4uMjIyNjY2Ojo6Pj4+QkJCRkZGSkpKTk5OU\nlJSVlZWWlpaXl5eYmJiZmZmampqbm5ucnJydnZ2enp6fn5+goKChoaGioqKjo6OkpKSlpaWm\npqanp6eoqKipqamqqqqrq6usrKytra2urq6vr6+wsLCxsbGysrKzs7O0tLS1tbW2tra3t7e4\nuLi5ubm6urq7u7u8vLy9vb2+vr6/v7/AwMDBwcHCwsLDw8PExMTFxcXGxsbHx8fIyMjJycnK\nysrLy8vMzMzNzc3Ozs7Pz8/Q0NDR0dHS0tLT09PU1NTV1dXW1tbX19fY2NjZ2dna2trb29vc\n3Nzd3d3e3t7f39/g4ODh4eHi4uLj4+Pk5OTl5eXm5ubn5+fo6Ojp6enq6urr6+vs7Ozt7e3u\n7u7v7+/w8PDx8fHy8vLz8/P09PT19fX29vb39/f4+Pj5+fn6+vr7+/v8/Pz9/f3+/v7////i\nsF19AAAACXBIWXMAABJ0AAASdAHeZh94AAAgAElEQVR4nO3dd4BU1dmA8dm+C7vSF0QREcFo\nIigoGsUualRsEQVFETFYiCVqYomIqDEYS7BgRY1iVFAxYuKnorF3UbErwQoivUlbtnyw1F1m\n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",
+      "text/plain": [
+       "plot without title"
+      ]
+     },
+     "metadata": {
+      "image/png": {
+       "height": 420,
+       "width": 420
+      }
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "fig.align='center'\n",
+    "fig.width=4\n",
+    "curve(-(x)^2+4,-2,2, axes=FALSE, ylab='', xlab='') \n",
+    "segments(-2,0,-2,4); segments(2,0,2,4)\n",
+    "segments(-2,4,2,4); segments(-2,0,2,0)\n",
+    "axis(1); axis(2)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(a) Generate `n = 1000` random numbers with uniform distribution in the square $[-2,2]\\times [0,4]$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 135,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x = runif(1000,min=-2, max=2)\n",
+    "y = runif(1000,min=0,max=4)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(b) Count how many points fall below the curve $f(x) = 4 - x^2$. Estimate the integral using the fraction of these points with respect to the total number of points and the area of the square."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 136,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "10.256"
+      ],
+      "text/latex": [
+       "10.256"
+      ],
+      "text/markdown": [
+       "10.256"
+      ],
+      "text/plain": [
+       "[1] 10.256"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(my_integral = length(y[y <4-x^2])/length(y)*16)   #16 is the area of the squre"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(c) Compare with the value you obtain, calculating the value of the integral analytically."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$\n",
+    "\\int_{-2}^2 f(x) \\, dx = \\int_{-2}^2 4-x^2 \\, dx  = \\left.4x-\\frac{1}{3}x^3\\right|_{2} ^{-2} = \\frac{32}{3} = 10.66667\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 137,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "10.6666666666667"
+      ],
+      "text/latex": [
+       "10.6666666666667"
+      ],
+      "text/markdown": [
+       "10.6666666666667"
+      ],
+      "text/plain": [
+       "[1] 10.66667"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "integrate(function(x) {4-x^2},-2,2)$value"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 138,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "-0.410666666666666"
+      ],
+      "text/latex": [
+       "-0.410666666666666"
+      ],
+      "text/markdown": [
+       "-0.410666666666666"
+      ],
+      "text/plain": [
+       "[1] -0.4106667"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(error = my_integral - 32/3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "(d) Repeat for `n = 10000`, `100000`, and `1000000` and comment on the increase of accuracy in your estimate."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 134,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "-0.0682666666666663"
+      ],
+      "text/latex": [
+       "-0.0682666666666663"
+      ],
+      "text/markdown": [
+       "-0.0682666666666663"
+      ],
+      "text/plain": [
+       "[1] -0.06826667"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "x = runif(10000,min=-2, max=2)\n",
+    "y = runif(10000,min=0,max=4)\n",
+    "my_integral = length(y[y <4-x^2])/length(y)*16\n",
+    "(error = my_integral - 32/3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 133,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "-0.0493866666666669"
+      ],
+      "text/latex": [
+       "-0.0493866666666669"
+      ],
+      "text/markdown": [
+       "-0.0493866666666669"
+      ],
+      "text/plain": [
+       "[1] -0.04938667"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "x = runif(100000,min=-2, max=2)\n",
+    "y = runif(100000,min=0,max=4)\n",
+    "my_integral = length(y[y <4-x^2])/length(y)*16\n",
+    "(error = my_integral - 32/3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 132,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "0.0062453333333341"
+      ],
+      "text/latex": [
+       "0.0062453333333341"
+      ],
+      "text/markdown": [
+       "0.0062453333333341"
+      ],
+      "text/plain": [
+       "[1] 0.006245333"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "x = runif(1000000,min=-2, max=2)\n",
+    "y = runif(1000000,min=0,max=4)\n",
+    "my_integral = length(y[y <4-x^2])/length(y)*16\n",
+    "(error = my_integral - 32/3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The accuracy incerease as n increase"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
