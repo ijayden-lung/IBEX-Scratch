@@ -1,0 +1,1728 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# LONG Yongkang"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Style-Transfer and Texture Synthesis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In this project, the goal is to reimplement certain aspects of <b>three</b> papers for style transfer and texture synthesis."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Image Style Transfer Using Convolutional Neural Networks [1]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The goal of the approach described in [1] is to transfer the style of a style image $\\vec{a}$ to a content image $\\vec{p}$ by gradually applying changes to a target image $\\vec{x}$ that is initially showing white noise (or for performance reasons the content image $\\vec{p}$) such that $\\vec{x}$ converges to an image that shows the content of $\\vec{p}$ (e.g. KAUST) in the style of $\\vec{a}$ (similar colors, brush strokes etc.) (cf. figure below) Details about the method are provided in the paper [1] and in Appendix A."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<center><img src='img/overview.jpg' width=80% /></center>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Library imports and definition of some helper functions (do not change anything)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# import all needed resources\n",
+    "%matplotlib inline\n",
+    "\n",
+    "from PIL import Image\n",
+    "from io import BytesIO\n",
+    "import os\n",
+    "import math\n",
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "import time\n",
+    "import sys\n",
+    "\n",
+    "import torch\n",
+    "import torch.nn as nn\n",
+    "import torch.optim as optim\n",
+    "import torch.nn.functional as F\n",
+    "from torch.utils.data import Dataset\n",
+    "import requests\n",
+    "from torchvision import transforms, models"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def load_image(img_path, max_size = 400, shape = None):\n",
+    "    \n",
+    "    ''' Load and downscale an image if the shorter side is longer than <max_size> px '''\n",
+    "    \n",
+    "    if \"http\" in img_path:\n",
+    "        response = requests.get(img_path)\n",
+    "        image = Image.open(BytesIO(response.content)).convert('RGB')\n",
+    "    else:\n",
+    "        image = Image.open(img_path).convert('RGB')\n",
+    "    \n",
+    "    if min(image.size) > max_size:\n",
+    "        size = max_size\n",
+    "    else:\n",
+    "        size = min(image.size)\n",
+    "    \n",
+    "    if shape is not None:\n",
+    "        size = shape\n",
+    "    \n",
+    "    in_transform = transforms.Compose([\n",
+    "                        transforms.Resize(size),\n",
+    "                        transforms.ToTensor(),\n",
+    "                        transforms.Normalize((0.485, 0.456, 0.406), \n",
+    "                                             (0.229, 0.224, 0.225))])\n",
+    "\n",
+    "    # discard alpha channel (:3) and append the batch dimension (unsqueeze(0))\n",
+    "    image = in_transform(image)[:3,:,:].unsqueeze(0)\n",
+    "    \n",
+    "    return image"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# helper function for un-normalizing an image \n",
+    "# and converting it from a Tensor image to a NumPy image for display\n",
+    "def im_convert(tensor):\n",
+    "    \"\"\" Convert a PyTorch tensor to a NumPy image. \"\"\"\n",
+    "    \n",
+    "    image = tensor.to(\"cpu\").clone().detach()\n",
+    "    image = image.numpy().squeeze()\n",
+    "    image = image.transpose(1,2,0)\n",
+    "    image = image * np.array((0.229, 0.224, 0.225)) + np.array((0.485, 0.456, 0.406))\n",
+    "    image = image.clip(0, 1)\n",
+    "\n",
+    "    return image"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "RuntimeError",
+     "evalue": "CUDA error: out of memory",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mRuntimeError\u001b[0m                              Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-5-5db66ac27d1a>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[0;31m# load in content and style images\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m \u001b[0mcontent\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0mload_image\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'img/content/'\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0mc\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0;34m'.jpg'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mto\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdevice\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mc\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mcontent_files\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     10\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     11\u001b[0m \u001b[0;31m# Resize style images to match corresponding content, makes code easier\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m<ipython-input-5-5db66ac27d1a>\u001b[0m in \u001b[0;36m<listcomp>\u001b[0;34m(.0)\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[0;31m# load in content and style images\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m \u001b[0mcontent\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0mload_image\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'img/content/'\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0mc\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0;34m'.jpg'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mto\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdevice\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mc\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mcontent_files\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     10\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     11\u001b[0m \u001b[0;31m# Resize style images to match corresponding content, makes code easier\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mRuntimeError\u001b[0m: CUDA error: out of memory"
+     ]
+    }
+   ],
+   "source": [
+    "''' Define and load corresponding content/style pairs '''\n",
+    "\n",
+    "content_files = ['kaust', 'tesla', 'hamilton', 'mandela']\n",
+    "style_files = ['starry_night', 'jesuiten', 'scream', 'ben_passmore']\n",
+    "ref_vgg_files = ['vgg0_ref', 'vgg1_ref', 'vgg2_ref', 'vgg3_ref']\n",
+    "ref_resnet_files = ['res0_ref', 'res1_ref', 'res2_ref', 'res3_ref']\n",
+    "\n",
+    "# load in content and style images\n",
+    "content = [load_image('img/content/' + c + '.jpg').to(device) for c in content_files]\n",
+    "\n",
+    "# Resize style images to match corresponding content, makes code easier\n",
+    "style = [load_image('img/style/' + s + '.jpg', shape=content[n].shape[-2:]).to(device) for n, s in enumerate(style_files)]\n",
+    "\n",
+    "# Reference Solution\n",
+    "ref_vgg =  [load_image('img/ref/' + c + '.jpg').to(device) for c in ref_vgg_files]\n",
+    "\n",
+    "# Create Target image and prepare it for change (requires_grad_(True))\n",
+    "# Starting with the content image and applying the style is usually faster than starting from a random image\n",
+    "\n",
+    "# Target Image = Content Image\n",
+    "target = [c.clone().requires_grad_(True).to(device) for c in content]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# display the images\n",
+    "num_pairs = len(content)\n",
+    "fig, axs = plt.subplots(num_pairs, 2, figsize=(10, 10))\n",
+    "\n",
+    "axs[0, 0].set_title('Content Images', fontsize=20)\n",
+    "axs[0, 1].set_title('Style Images', fontsize=20)\n",
+    "#axs[0, 2].set_title('Target Images', fontsize=20)\n",
+    "\n",
+    "# content and correspoinding style image side-by-side\n",
+    "for row in range(0, num_pairs):\n",
+    "        axs[row, 0].imshow(im_convert(content[row]))\n",
+    "        axs[row, 1].imshow(im_convert(style[row]))\n",
+    "        # axs[row, 2].imshow(im_convert(target[row]))\n",
+    "\n",
+    "        for col in range(0, 2):\n",
+    "            axs[row, col].axis('off')\n",
+    "        \n",
+    "fig.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_features(image, model, layers):\n",
+    "    # Run an image forward through a model and get the features for a set of layers.\n",
+    "        \n",
+    "    features = {}\n",
+    "    x = image\n",
+    "    # model._modules is a dictionary holding each module in the model\n",
+    "    for name, layer in model._modules.items():\n",
+    "        x = layer(x)\n",
+    "        if name in layers:\n",
+    "            features[layers[name]] = x\n",
+    "            \n",
+    "    return features"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 1: Calculate the $d \\times d$ gram matrix corresponding to a $1 \\times d \\times h \\times w$ tensor (5 points)\n",
+    "\n",
+    "As described in [1], the style of an image can be represented by the Gram matrix of a layer consisting of a set of features maps. Ensure that the computation also works for batch sizes > 1 and that the result is a 4d rensor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def gram_matrix(tensor, normalize = False):\n",
+    "    \"\"\" Calculate the Gram Matrix of a given tensor \n",
+    "        Gram Matrix: https://en.wikipedia.org/wiki/Gramian_matrix\n",
+    "    \"\"\"\n",
+    "    \n",
+    "    # TODO Task 1: Implement the computation of the Gram Matrix\n",
+    "    \n",
+    "    ## get the batch_size b, depth c, height h, and width w of the Tensor\n",
+    "    ## reshape it, so we're multiplying the features for each channel\n",
+    "    ## calculate the gram matrix\n",
+    "    \n",
+    "    ## if normalize = True, normalize the gram matrix as it is done in Equation 3 of [5]\n",
+    "    \n",
+    "    gram = None\n",
+    "    \n",
+    "    return gram"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 2: Complete the Training Function (10 points)\n",
+    "\n",
+    "In order to complete this task, you might want to refer to the paper [1] and to the Appendix A. Note that the equations in Appendix A slightly differ from the originals in the paper. However, we highly recommend the equations in Appendix A since the equations in the paper seem to be inconsistent to the original implementation of the authors and are obviously missing normalization."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def run_model(model, layers, target, content_features, style_grams, content_layer, style_weights, content_weight = 1, style_weight = 1.0e12, steps = 5000, lr = 0.003):\n",
+    "    \n",
+    "    # for displaying the loss values, intermittently\n",
+    "    show_every = 500\n",
+    "\n",
+    "    # iteration hyperparameters\n",
+    "    optimizer = optim.Adam([target], lr=lr)\n",
+    "    \n",
+    "    # Values of the learning curve\n",
+    "    learning_curve = np.zeros(steps)\n",
+    "    \n",
+    "    print(learning_curve.shape)\n",
+    "\n",
+    "    start = time.time()\n",
+    "\n",
+    "    for ii in range(1, steps+1):\n",
+    "\n",
+    "        ## TODO Task 2: get the features from the target image w.r.t. the provided model and the required layers\n",
+    "        target_features = None\n",
+    "        \n",
+    "        ## TODO Task 2: calculate the content loss (refer to Appendix A for details about the formula)\n",
+    "        content_loss = None\n",
+    "\n",
+    "        # the style loss\n",
+    "        # initialize the style loss to 0\n",
+    "        style_loss = 0\n",
+    "        \n",
+    "        # then add to it for each layer's gram matrix loss\n",
+    "        for layer in style_weights:\n",
+    "\n",
+    "            target_feature = target_features[layer]\n",
+    "\n",
+    "            _, d, h, w = target_feature.shape\n",
+    "\n",
+    "            ## TODO Task 2: Calculate the target gram matrix\n",
+    "            target_gram = None\n",
+    "\n",
+    "            ## TODO Task 2: get the \"style\" style representation\n",
+    "            style_gram = None\n",
+    "\n",
+    "            ## TODO Task 2: Calculate the style loss for one layer, weighted appropriately (again, refer to Appendix A for details)\n",
+    "            layer_style_loss = None\n",
+    "            \n",
+    "            # add to the style loss\n",
+    "            style_loss += layer_style_loss / (h * w)**2\n",
+    "\n",
+    "        # TODO Task 2: calculate the *total* loss\n",
+    "        total_loss = None\n",
+    "\n",
+    "        learning_curve[ii - 1] = total_loss\n",
+    "\n",
+    "        # update your target image\n",
+    "        optimizer.zero_grad()\n",
+    "        total_loss.backward()\n",
+    "        optimizer.step()\n",
+    "\n",
+    "        # display intermediate images and print the loss\n",
+    "        if  ii % show_every == 0:\n",
+    "            print('Total loss: ', total_loss.item())\n",
+    "            print('Weighted Content loss: ', content_weight * content_loss.item())\n",
+    "            print('Weighted Style loss: ', style_weight * style_loss.item())\n",
+    "\n",
+    "            end = time.time()\n",
+    "            print('Time [s]: ', (end - start))\n",
+    "            plt.imshow(im_convert(target))\n",
+    "            plt.show()\n",
+    "\n",
+    "    end = time.time()\n",
+    "    print('Total Time [s]: ', (end - start))\n",
+    "    \n",
+    "    return [target, learning_curve]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## VGG Network\n",
+    "We want to use the VGG-19 network for feature extraction first, since it was also suggestend by the authors of [1]."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get the \"features\" portion of VGG19 (we will not need the \"classifier\" portion)\n",
+    "vgg = models.vgg19(pretrained=True).features.to(device)\n",
+    "\n",
+    "# freeze all VGG parameters since we're only optimizing the target image\n",
+    "for param in vgg.parameters():\n",
+    "    param.requires_grad_(False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# print out VGG19 structure so you can see the numbers of various layers\n",
+    "print(vgg)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 3: Complete the mapping from VGG layer numbers to layer names (5 points)\n",
+    "\n",
+    "Refer to the paper [1] to identify the layers that are suitable for content and style representation and complete the dictionary below that maps from layer numbers (in string representation!) to layer names.\n",
+    "You may also want to print the VGG network using the print command above to see the layer numbers together with the corresponding layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## TODO Task 3: Complete mapping layer names of PyTorch's VGGNet to names from the paper\n",
+    "## Need the layers for the content and style representations of an image\n",
+    "\n",
+    "# definition of all the layers needed from VGG net\n",
+    "layers_vgg = {'0': 'conv1_1'}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get content and style features only once before training\n",
+    "content_features_vgg = [get_features(c, vgg, layers_vgg) for c in content]\n",
+    "style_features_vgg = [get_features(s, vgg, layers_vgg) for s in style]\n",
+    "\n",
+    "# calculate the gram matrices for each layer of our style representation\n",
+    "#style_grams = {layer: gram_matrix(style_features[layer]) for layer in style_features}\n",
+    "style_grams_vgg = [{layer: gram_matrix(s[layer]) for layer in s} for s in style_features_vgg]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Weights for VGG net\n",
+    "# weights for each style layer \n",
+    "# weighting earlier layers more will result in *larger* style artifacts\n",
+    "# notice we are excluding `conv4_2` which is used for content representation\n",
+    "\n",
+    "style_weights_vgg = {'conv1_1': 1.,\n",
+    "                     'conv2_1': 0.8,\n",
+    "                     'conv3_1': 0.5,\n",
+    "                     'conv4_1': 0.3,\n",
+    "                     'conv5_1': 0.1}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 4: Styler Transfer using the VGG network (10 points - 4 examples, 2.5 points each)\n",
+    "\n",
+    "Experiment with different weights for style (1.0e3, 1.0e6, 1.0e9, 1.0e12), different numbers of steps (e.g. 500, 1000, 2000) and different learning rates (e.g. 0.1, 0.01, 0.001) to find a set of parameters with which you can create a stylized image that looks similar to the provided reference solution as fast / efficient as possible. Plot the learning curve and put both the learning curvevs and training times together with the final result to your final report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO Task 4: Style Transfer for content[0] and style[0] stored in target[0]\n",
+    "[s_0, slc_0] = run_model(vgg, layers_vgg, target[0], content_features_vgg[0], style_grams_vgg[0], 'conv4_2', style_weights_vgg, content_weight = 1, style_weight = 1.0e12, steps = 2000, lr = 0.003)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(slc_0)\n",
+    "plt.xlabel('Step')\n",
+    "plt.ylabel('Total Loss')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO Task 4: Style Transfer for content[1] and style[1] stored in target[1]\n",
+    "[s_1, slc_1] = run_model(vgg, layers_vgg, target[1], content_features_vgg[1], style_grams_vgg[1], 'conv4_2', style_weights_vgg, content_weight = 1, style_weight = 1.0e12, steps = 5000, lr = 0.003)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(slc_1)\n",
+    "plt.xlabel('Step')\n",
+    "plt.ylabel('Total Loss')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO Task 4: Style Transfer for content[2] and style[2] stored in target[2]\n",
+    "[s_2, slc_2] = run_model(vgg, layers_vgg, target[2], content_features_vgg[2], style_grams_vgg[2], 'conv4_2', style_weights_vgg, content_weight = 1, style_weight = 1.0e12, steps = 5000, lr = 0.003)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(slc_2)\n",
+    "plt.xlabel('Step')\n",
+    "plt.ylabel('Total Loss')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO Task 4: Style Transfer for content[3] and style[3] stored in target[3]\n",
+    "[s_3, slc_3] = run_model(vgg, layers_vgg, target[3], content_features_vgg[3], style_grams_vgg[3], 'conv4_2', style_weights_vgg, content_weight = 1, style_weight = 1.0e12, steps = 5000, lr = 0.003)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(slc_3)\n",
+    "plt.xlabel('Step')\n",
+    "plt.ylabel('Total Loss')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def result_to_hd(image, filePath):\n",
+    "    image = im_convert(image)\n",
+    "\n",
+    "    formatted = (image * 255 / np.max(image)).astype('uint8')\n",
+    "    pil_image = Image.fromarray(formatted, 'RGB')\n",
+    "    pil_image.save(filePath, \"JPEG\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Save results to hard disc\n",
+    "result_to_hd(s_0, \"s0.jpg\")\n",
+    "result_to_hd(s_1, \"s1.jpg\")\n",
+    "result_to_hd(s_2, \"s2.jpg\")\n",
+    "result_to_hd(s_3, \"s3.jpg\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Comparison to Reference Solution - Do not change anything, just execute to varify correctness of your solution\n",
+    "\n",
+    "fig, axs = plt.subplots(num_pairs, 2, figsize=(20, 20))\n",
+    "\n",
+    "axs[0, 0].set_title('Reference Solutions', fontsize=20)\n",
+    "axs[0, 1].set_title('Your Solutions', fontsize=20)\n",
+    "\n",
+    "# content and correspoinding style image side-by-side\n",
+    "for row in range(0, num_pairs):\n",
+    "        axs[row, 0].imshow(im_convert(ref_vgg[row]))\n",
+    "        axs[row, 1].imshow(im_convert(target[row]))\n",
+    "\n",
+    "        for col in range(0, 2):\n",
+    "            axs[row, col].axis('off')\n",
+    "        \n",
+    "fig.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Perceptual Losses for Real-Time Style Transfer and Super-Resolution [5]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Instead of solving an optimization problem for each target image, Johnson et al. [5] train a feed forward neural network for style transfer. Your task now is to re-implement certain aspects of their method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Helper Functions and classes, you do not have to change anything here, you can however if these functions do not fully satisfy your needs\n",
+    "\n",
+    "class ImageDataset(Dataset):\n",
+    "    def __init__(self, root):\n",
+    "        self.root = root\n",
+    "        self.total_imgs = os.listdir(root)\n",
+    "\n",
+    "    def __len__(self):\n",
+    "        return len(self.total_imgs)\n",
+    "\n",
+    "    def __getitem__(self, idx):\n",
+    "        return load_image(os.path.join(self.root, self.total_imgs[idx]))[0]\n",
+    "    \n",
+    "def get_checkpoint_dir(suffix = None):\n",
+    "    max_num = 0\n",
+    "\n",
+    "    dirs = [os.path.basename(x[0]) for x in os.walk('checkpoints')]\n",
+    "\n",
+    "    for dir in dirs:\n",
+    "        elems = dir.split('_')\n",
+    "        if len(elems) > 0:\n",
+    "            prefix = elems[0]\n",
+    "\n",
+    "            if len(prefix) > 0 and all(map(str.isdigit, prefix)):\n",
+    "                num = int(prefix)\n",
+    "\n",
+    "                if max_num <= num:\n",
+    "                    max_num = num + 1\n",
+    "\n",
+    "    checkpoint_dir = os.path.join('checkpoints', str(max_num).zfill(5) + '_checkpoint_' + (suffix if not suffix == None else ''))\n",
+    "\n",
+    "    return max_num, checkpoint_dir\n",
+    "\n",
+    "def write_checkpoint(checkpoint_dir, model, optimizer, iter_number):\n",
+    "    if not os.path.exists(checkpoint_dir):\n",
+    "        os.makedirs(checkpoint_dir)\n",
+    "\n",
+    "    torch.save({\n",
+    "        'state_dict': model.state_dict(),\n",
+    "        'optimizer_state_dict': optimizer.state_dict(),\n",
+    "        }, os.path.join(checkpoint_dir, str(iter_number).zfill(6) + '.pth'))\n",
+    "\n",
+    "def load_checkpoint(pth_path, model, optimizer = None):\n",
+    "    checkpoint = torch.load(pth_path)\n",
+    "\n",
+    "    model.load_state_dict(checkpoint['state_dict'])\n",
+    "\n",
+    "    if not optimizer is None:\n",
+    "        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])\n",
+    "\n",
+    "def asMinutes(s):\n",
+    "    m = math.floor(s / 60)\n",
+    "    s -= m * 60\n",
+    "    return '%dm %ds' % (m, s)\n",
+    "\n",
+    "def timeSince(since, percent):\n",
+    "    now = time.time()\n",
+    "    s = now - since\n",
+    "    es = s / (percent)\n",
+    "    rs = es - s\n",
+    "    return '%s (- %s)' % (asMinutes(s), asMinutes(rs))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 5.1: Implement the Residual Block (5 points)\n",
+    "\n",
+    "The authors of [5] explain the details about the proposed neural network in [6]. Start with implementing the residual block."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class ResidualBlock(nn.Module):\n",
+    "    def __init__(self, num_filters):\n",
+    "        super(ResidualBlock, self).__init__()\n",
+    "        \n",
+    "        # TODO Task 5.1\n",
+    "    \n",
+    "    def forward(self, x):\n",
+    "        \n",
+    "        # TODO Task 5.1\n",
+    "\n",
+    "        out = None\n",
+    "        return out"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 5.2: Implement the Convolutional Block (5 points)\n",
+    "\n",
+    "Refer to [5] and [6] for details. Note that the convolutional block shown in [6] in Figure 1 is only for explanatory reasons. Here the goal is to implement a convolutional block consisting of one convolutional layer, batch normalization and activation layer. However, feel free to adapt the structure, e.g. also to implement a convolutional block consisting of two conv layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class ConvolutionalBlock(nn.Module):\n",
+    "    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, padding_mode = \"reflect\", activation = \"ReLU\"):\n",
+    "        super(ConvolutionalBlock, self).__init__()\n",
+    "        \n",
+    "        # TODO Task 5.2\n",
+    "\n",
+    "    def forward(self, x):\n",
+    "        \n",
+    "        # TODO Task 5.2\n",
+    "\n",
+    "        return None"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 5.3: Implement the Deconvolutional Block (5 points)\n",
+    "\n",
+    "In [6], the authors refer to the deconvolution as a convolution with a stride of 1/2. In PyTorch, this is achieved using a `nn.ConvTranspose2d`  layer. Be careful when setting values for `padding` and `output_padding`, such that the output size matches the size explained in [6]."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class DeconvolutionalBlock(nn.Module):\n",
+    "    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, output_padding):\n",
+    "        super(DeconvolutionalBlock, self).__init__()\n",
+    "        \n",
+    "        # TODO Task 5.3\n",
+    "\n",
+    "    def forward(self, x):\n",
+    "        \n",
+    "        # TODO Task 5.3\n",
+    "\n",
+    "        return None"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 6: Put it all together (5 points)\n",
+    "\n",
+    "Using the blocks from Tasks 5.1 to 5.3, assemble a neural network structure for style transfer (so not the one for super resolution) as explained in [5] and [6]."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class StyleTransferNetwork(nn.Module):\n",
+    "    def __init__(self):\n",
+    "        super(StyleTransferNetwork, self).__init__()\n",
+    "        \n",
+    "        # TODO Task 5.4\n",
+    "        \n",
+    "    def forward(self, x):\n",
+    "        \n",
+    "        # TODO Task 5.4\n",
+    "        \n",
+    "        return x"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Training"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Hyperparameters\n",
+    "learning_rate = 1.0e-3\n",
+    "batch_size = 4\n",
+    "num_epochs = 2\n",
+    "\n",
+    "content_weight = 5e0\n",
+    "style_weight = 1e2\n",
+    "tv_weight = 1e-6\n",
+    "\n",
+    "plot_every = 1 # 1000\n",
+    "checkpoint_every = 1# 5000\n",
+    "\n",
+    "content_img_name = 'chicago'\n",
+    "content_img_path = os.path.join('img', 'content', content_img_name + '.jpg')\n",
+    "content_torch = load_image(content_img_path).to(device)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO: Choose a style that you like and that you would like to train your model on by setting style_idx appropriately\n",
+    "\n",
+    "style_names = ['candy', 'composition_vii', 'feathers', 'la_muse', 'mosaic', 'starry_night_crop', 'the_scream' 'udnie', 'wave_crop']\n",
+    "style_idx = 4\n",
+    "\n",
+    "print('Chosen Style:', style_names[style_idx])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Similiar to the authors of [5], we want to use vgg16 this time."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load VGG 16\n",
+    "# get the \"features\" portion of VGG16 (we will not need the \"classifier\" portion)\n",
+    "vgg16 = models.vgg16(pretrained = True).features.to(device)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 6.1 Complete the training method, refer to [5] and [6] for details (10 points)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def train_model(style_name):\n",
+    "\n",
+    "    coco_dir = 'MSCOCO_256x256'\n",
+    "\n",
+    "    train_dataset = ImageDataset(root = os.path.join(coco_dir, 'train2014'))\n",
+    "\n",
+    "    train_loader = torch.utils.data.DataLoader(\n",
+    "        train_dataset,\n",
+    "        batch_size = 4,\n",
+    "        num_workers = 0,\n",
+    "        shuffle = True\n",
+    "    )\n",
+    "\n",
+    "    model = StyleTransferNetwork().to(device)\n",
+    "\n",
+    "    learning_curve = []\n",
+    "\n",
+    "    # freeze all VGG parameters since we're only optimizing the target image\n",
+    "    for param in vgg.parameters():\n",
+    "        param.requires_grad_(False)\n",
+    "        \n",
+    "    # TODO Task 6.1: Similar as it was done before, find the correspondence of all image numbers and image names in vgg16 that are used in [5] for style transfer. You can again use the print(vgg16) command.\n",
+    "    layers_vgg = { 'layer_nr': 'layer_name' }\n",
+    "\n",
+    "    num_args = len(sys.argv)\n",
+    "\n",
+    "    style_image_path = os.path.join('img', 'style', style_name + '.jpg')\n",
+    "    style_image = load_image(style_image_path).to(device)\n",
+    "\n",
+    "    style_features = get_features(style_image, vgg16, layers_vgg)\n",
+    "    style_grams = {layer: gram_matrix(style_features[layer], normalize = True) for layer in style_features}\n",
+    "\n",
+    "    optimizer = optim.Adam(model.parameters(), lr = learning_rate)\n",
+    "    \n",
+    "    # TODO Task 6.1: Find the name of the content layer in vgg16 that is used in [5] for style transfer\n",
+    "    content_layer = None\n",
+    "\n",
+    "    # TODO Task 6.1: Find the names of the style layers in vgg16 that is used in [5] for style transfer and create a dictionary with entries 'name': 1.0\n",
+    "    style_weights = {'layer_name': 1.0}\n",
+    "\n",
+    "    num_batches = len(train_loader)\n",
+    "    num_iters = num_epochs * num_batches\n",
+    "\n",
+    "    num_iter = 0\n",
+    "\n",
+    "    weight_string = '_content_weight_{}_style_weight_{}_tv_weight_{}'.format(content_weight, style_weight, tv_weight)\n",
+    "    run_id, checkpoint_dir = get_checkpoint_dir(style_names[style_idx] + weight_string)\n",
+    "    \n",
+    "    print(\"Writing checkpoints to\", checkpoint_dir)\n",
+    "\n",
+    "    if not os.path.exists(checkpoint_dir):\n",
+    "        os.makedirs(checkpoint_dir)\n",
+    "\n",
+    "    running_loss = 0\n",
+    "\n",
+    "    start = time.time()\n",
+    "\n",
+    "    model.train()\n",
+    "\n",
+    "    for epoch in range(num_epochs):\n",
+    "\n",
+    "        for batch_idx, images in enumerate(train_loader):\n",
+    "\n",
+    "            b, c, h, w = images.shape\n",
+    "\n",
+    "            images = images.to(device)\n",
+    "            \n",
+    "            # TODO Task 6.1: Get the features for the current batch of images\n",
+    "            content_features = None\n",
+    "            \n",
+    "            # TODO Task 6.1: Send the batch of images through the network\n",
+    "            out = None\n",
+    "\n",
+    "            # TODO Task 6.1: Get the features for the model output\n",
+    "            target_features = None\n",
+    "        \n",
+    "            target_grams = {layer: gram_matrix(target_features[layer], normalize=True) for layer in target_features}\n",
+    "\n",
+    "            # Content Loss (Feature Loss)\n",
+    "            content_loss = torch.mean((target_features[content_layer] - content_features[content_layer]) ** 2)\n",
+    "\n",
+    "            # Style Loss\n",
+    "            style_loss = 0\n",
+    "\n",
+    "            # then add to it for each layer's gram matrix loss\n",
+    "            for layer in style_weights:\n",
+    "                target_gram = target_grams[layer]\n",
+    "                style_gram = style_grams[layer]\n",
+    "\n",
+    "                layer_style_loss = style_weights[layer] * (torch.sum((target_gram - style_gram) ** 2) / b)\n",
+    "\n",
+    "                style_loss += layer_style_loss\n",
+    "                \n",
+    "            ## TODO Task 6.1: Compute the anisotropic Total Variation loss of out according to https://en.wikipedia.org/wiki/Total_variation_denoising\n",
+    "            tv_loss = 0\n",
+    "\n",
+    "            # TODO Task 6.1: Compute the total weighted loss consisting of content loss, style loss and total variation loss\n",
+    "            total_loss = 0\n",
+    "\n",
+    "            running_loss += total_loss\n",
+    "\n",
+    "            # update weights\n",
+    "            optimizer.zero_grad()\n",
+    "            total_loss.backward()\n",
+    "            optimizer.step()\n",
+    "\n",
+    "            num_iter += 1\n",
+    "\n",
+    "            if num_iter % plot_every == 0:\n",
+    "                model.eval()\n",
+    "                print('%s (%d %d%%) %.4f' % (timeSince(start, num_iter / num_iters),\n",
+    "                                                    num_iter, num_iter / num_iters * 100, running_loss / plot_every))\n",
+    "                \n",
+    "                learning_curve.append(running_loss / plot_every)\n",
+    "\n",
+    "                # Send current state image to Tensorboard\n",
+    "                out = model(content_torch)\n",
+    "\n",
+    "                plt.imshow(im_convert(out))\n",
+    "                plt.show()\n",
+    "\n",
+    "                running_loss = 0\n",
+    "\n",
+    "                model.train()\n",
+    "\n",
+    "            if num_iter % checkpoint_every == 0:\n",
+    "                # Write Checkpoint\n",
+    "                write_checkpoint(checkpoint_dir, model, optimizer, num_iter)\n",
+    "                \n",
+    "    return model, np.asarray(learning_curve)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Train the model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO: Train the model\n",
+    "model, learning_curvce = train_model(style_names[style_idx])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Inference"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Test the final model on the given content image, showing the skyline of Chicago."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO: Adapt the path so that it points to your model\n",
+    "pth_path = os.path.join('checkpoints', '00000_checkpoint_mosaic_content_weight_5.0_style_weight_100.0_tv_weight_1e-06', '000000.pth')\n",
+    "model = StyleTransferNetwork().to(device)\n",
+    "\n",
+    "load_checkpoint(pth_path, model)\n",
+    "\n",
+    "output_path = \"output\"\n",
+    "\n",
+    "out = model(content_torch)\n",
+    "result_to_hd(out[0], os.path.join(output_path, content_img_name + '_' + style_names[style_idx] + '.jpg'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Comparison to Reference Solution - Do not change anything, just execute to varify correctness of your solution\n",
+    "\n",
+    "content_torch = load_image(content_img_path).to(device)\n",
+    "\n",
+    "ref_output_path = os.path.join('img', 'ref', content_img_name + '_' + style_names[style_idx]  + '.jpg')\n",
+    "ref_output_torch = load_image(ref_output_path).to(device)\n",
+    "\n",
+    "fig, axs = plt.subplots(1, 2, figsize=(20, 20))\n",
+    "\n",
+    "axs[0].set_title('Reference Solution', fontsize=20)\n",
+    "axs[1].set_title('Your Solution', fontsize=20)\n",
+    "\n",
+    "# content and correspoinding style image side-by-side\n",
+    "axs[0].imshow(im_convert(ref_output_torch))\n",
+    "axs[1].imshow(im_convert(out))\n",
+    "\n",
+    "for col in range(0, 2):\n",
+    "    axs[col].axis('off')\n",
+    "        \n",
+    "fig.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(learning_curvce)\n",
+    "plt.xlabel('Iteration')\n",
+    "plt.ylabel('Loss')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Deep Correlations for Texture synthesis [2]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The paper [2] presents a texture synthesis technique that builds upon convolutional neural networks and extracted statistics of pre-trained deep features. The main contribution is the introduction of *deep correlation matrices* that allow the synthesis of textures that not only resemble local but also global structure of an example image."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 7: VGG Layer Replacement (5 points)\n",
+    "\n",
+    "The authors of [2] suggest to replace all MaxPool layers with Averaging layers for better results. This should be done in the cell below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Replace MaxPool Layers in VGG19 network with average pooling layers\n",
+    "\n",
+    "# TODO Task 7: Identify maxpool layer indices\n",
+    "maxpool_idx = []\n",
+    "\n",
+    "for i in maxpool_idx:\n",
+    "    # TODO Task 7: Replace maxpool layer with averaging layer\n",
+    "    vgg[i] = None"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define the layers from which the features are extracted\n",
+    "\n",
+    "layers_deepcorr = {'0': 'conv1',\n",
+    "                   '4': 'pool1',\n",
+    "                   '9': 'pool2', \n",
+    "                  '18': 'pool3', \n",
+    "                  '27': 'pool4'}  ## content representation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 8: Implement the computation of the deep correlation matrices $R^{l,n}_{i,j}$ for a given tensor representing layer $l$ as decribed in [2] (10 points)\n",
+    "\n",
+    "Note that the computation of $R^{l,n}_{i,j}$ requires a convolution (or more correctly, a cross-correlation) of each feature map with itself. Instead of trying to implement this convolution using nested `for` loops, use the `nn.Conv2d` module for performance reasons. Do not forget to use appropriate zero-padding that allows an output size equal to `output_size` and to set `bias=False`. Further do not forget to compute appropriate weights $w_{i,j}$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def deep_corr_matrix_stack(tensor, output_size = None):\n",
+    "    \"\"\" Calculate the set of Deep Correlation Matrices for a given tensor as described in [2]\n",
+    "    \"\"\"\n",
+    "    \n",
+    "    # TODO Task 8: implement the computation of the deep correlation matrices\n",
+    "    \n",
+    "    deep_corr = None\n",
+    "    \n",
+    "    return deep_corr"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 9: Implement the computation of the smoothness loss $E^l_{smooth}$ for a given tensor representing layer $l$ as decribed in [2] (10 points)\n",
+    "\n",
+    "Note that Equation 10 defining $E^l_{smooth}$ in the paper [2] is missing an important factor for the sum of exponentials. Please refer to Appendix B for the correct version that directly reflects the equation as it was also implemented by the authors. Further note that the equation implicitly requires each pixel to have exactly 4 neighbors in its 4-connected neighborhood. We therefore have two options to handle boarder pixels:\n",
+    "\n",
+    "* If we access an index beyond the image limits, we access the pixel on the opposite image boarder (`circ = True`).\n",
+    "* The pixel values of non-existing neighbors beyond the image limits are assumed to have value 0 (`circ = False`).\n",
+    "\n",
+    "You can experiment with both versions, but you only have to implement one to get full points."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def E_smooth(tensor, sigma = 0.001, circ = True):\n",
+    "    \n",
+    "    # get the batch_size, depth, height, and width of the Tensor\n",
+    "    _, d, Q, M = tensor.size()\n",
+    "    \n",
+    "    # TODO Task 8: Implement the computation of E^l_{smooth}\n",
+    "\n",
+    "    e_smooth = None\n",
+    "\n",
+    "    return e_smooth"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def white_gauss_noise(size, mu = 0, sigma = 1.0e-3):\n",
+    "    m = torch.distributions.normal.Normal(mu, sigma)\n",
+    "    return m.sample(size)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "''' Define and load texture files '''\n",
+    "\n",
+    "texture_files = ['Texture13', 'Texture25', 'Texture62', 'Texture115']\n",
+    "ref_tex_files = ['tex0_ref', 'tex1_ref', 'tex2_ref', 'tex3_ref']\n",
+    "\n",
+    "# load in texture images\n",
+    "texture_size = 225\n",
+    "texture = [load_image('img/texture/' + t + '.png', texture_size).to(device) for t in texture_files]\n",
+    "\n",
+    "ref_tex = [load_image('img/ref/' + t + '.jpg', texture_size).to(device) for t in ref_tex_files]\n",
+    "\n",
+    "target = [white_gauss_noise((t.shape[0], t.shape[1], t.shape[2], t.shape[3]), mu = 0, sigma = 0.01).to(device).requires_grad_(True) for t in texture]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# display the images\n",
+    "num_textures = len(texture)\n",
+    "fig, axs = plt.subplots(num_pairs, 2, figsize=(10, 10))\n",
+    "\n",
+    "axs[0, 0].set_title('Texture Images', fontsize=20)\n",
+    "axs[0, 1].set_title('Target Images', fontsize=20)\n",
+    "\n",
+    "# content and correspoinding style image side-by-side\n",
+    "for row in range(0, num_pairs):\n",
+    "        axs[row, 0].imshow(im_convert(texture[row]))\n",
+    "        axs[row, 1].imshow(im_convert(target[row]))\n",
+    "\n",
+    "        for col in range(0, 2):\n",
+    "            axs[row, col].axis('off')\n",
+    "        \n",
+    "fig.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# weights and parameters (cf. Table 1 in the paper [2])\n",
+    "\n",
+    "# alpha, beta, gamma and delta corresponding to the loss weights for E_Grm, E_DCor, E_Div and E_Smooth\n",
+    "alpha = 0.5\n",
+    "beta = 0.5\n",
+    "gamma = -1.0e-4\n",
+    "delta = -0.75e-3\n",
+    "\n",
+    "gram_layer_weights = {'pool1': 0.25,\n",
+    "                      'pool2': 0.25,\n",
+    "                      'pool3': 0.25,\n",
+    "                      'pool4': 0.25}\n",
+    "\n",
+    "dcor_layer_weights = {'pool2': 1}\n",
+    "div_layer_weights = {'pool2': 1}\n",
+    "smooth_layer_weights = {'conv1': 1}\n",
+    "\n",
+    "sigma = 1.0e-3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get texture features only once before training\n",
+    "texture_features = [get_features(t, vgg, layers_deepcorr) for t in texture]\n",
+    "#style_features = [get_features(s, vgg) for s in style]\n",
+    "\n",
+    "# calculate gram matrices G\n",
+    "texture_grams = [{layer: gram_matrix(t[layer]) for layer in t if layer in gram_layer_weights} for t in texture_features]\n",
+    "\n",
+    "# calculate deep correlation matrices R\n",
+    "texture_dcors = [{layer: deep_corr_matrix_stack(t[layer]) for layer in t if layer in dcor_layer_weights} for t in texture_features]\n",
+    "\n",
+    "# pick features for E_Div\n",
+    "texture_divs = [{layer: t[layer] for layer in t if layer in div_layer_weights} for t in texture_features]\n",
+    "\n",
+    "# pick features for E_Smooth\n",
+    "texture_smooths = [{layer: t[layer] for layer in t if layer in smooth_layer_weights} for t in texture_features]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 10: Texture Synthesis Function (10 points - 4 examples, 2.5 points each)\n",
+    "\n",
+    "Complete the texture synthesis function below. Note that we do not use the Adam optmizer this time but LBFGS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def texture_synthesis_lbfgs(tex_idx, lr = 1):\n",
+    "\n",
+    "    # for displaying the target image, intermittently\n",
+    "    save_every = 10\n",
+    "    print_every = 10\n",
+    "    \n",
+    "    def closure():\n",
+    "\n",
+    "        # get the features from your target image\n",
+    "        target_features = get_features(target[tex_idx], vgg, layers_deepcorr)\n",
+    "\n",
+    "        # E_Grm\n",
+    "        E_Grm = 0\n",
+    "        if alpha != 0:\n",
+    "            for layer in gram_layer_weights:\n",
+    "                target_feature = target_features[layer]\n",
+    "                _, d, Q, M = target_feature.size()\n",
+    "                \n",
+    "                # TODO Task 10: Compute E_l_Grm as defined in [2] and shown in Appendix B\n",
+    "                E_l_Grm = None\n",
+    "                \n",
+    "                E_Grm = E_Grm + E_l_Grm\n",
+    "                \n",
+    "        # E_DCor\n",
+    "        E_DCor = 0\n",
+    "        if beta != 0:\n",
+    "            for layer in dcor_layer_weights:\n",
+    "                target_feature = target_features[layer]\n",
+    "                _, d, Q, M = target_feature.size()\n",
+    "\n",
+    "                # TODO Task 10: Compute E_l_Dcor as defined in [2] and shown in Appendix B\n",
+    "                E_l_Dcor = None\n",
+    "\n",
+    "                E_DCor = E_DCor + E_l_Dcor\n",
+    "    \n",
+    "        # E_Div\n",
+    "        E_Div = 0\n",
+    "        if gamma != 0:\n",
+    "            for layer in div_layer_weights:\n",
+    "                target_feature = target_features[layer]\n",
+    "                _, d, Q, M = target_feature.size()\n",
+    "                \n",
+    "                # TODO Task 10: Compute E_l_Div as defined in [2] and shown in Appendix B\n",
+    "                E_l_Div = None\n",
+    "\n",
+    "                E_Div = E_Div + E_l_Div\n",
+    "\n",
+    "        # E_Smooth\n",
+    "        E_Smooth = 0\n",
+    "        if delta != 0:\n",
+    "            for layer in smooth_layer_weights:\n",
+    "                \n",
+    "                # TODO Task 10: Compute E_l_Smooth as defined in [2] and shown in Appendix B\n",
+    "                E_l_Smooth = None\n",
+    "\n",
+    "                E_Smooth = E_Smooth + E_l_Smooth\n",
+    "\n",
+    "        # calculate the *total* loss\n",
+    "        \n",
+    "        # TODO Task 10: Compute the total loss as defined in [2] and shown in Appendix B\n",
+    "        total_loss = None\n",
+    "\n",
+    "        # update your target image\n",
+    "        optimizer.zero_grad()\n",
+    "        total_loss.backward()\n",
+    "        # optimizer.step()\n",
+    "        return total_loss\n",
+    "\n",
+    "    # iteration hyperparameters\n",
+    "    start = time.time()\n",
+    "    \n",
+    "    # Similar to the reference implementation by the authors of [2], we use LBFGS this time to optimize our texture\n",
+    "    \n",
+    "    # torch.optim.LBFGS(params, lr=1, max_iter=20, max_eval=None, tolerance_grad=1e-05, tolerance_change=1e-09, history_size=100, line_search_fn=None)\n",
+    "    optimizer = optim.LBFGS([target[tex_idx]], lr=lr, max_iter=300)\n",
+    "    optimizer.step(closure)\n",
+    "\n",
+    "    end = time.time()\n",
+    "    print('Total Time [s]: ', (end - start))\n",
+    "    \n",
+    "    return target[tex_idx]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Reset Targets to Noise if they have changed\n",
+    "\n",
+    "target = [white_gauss_noise((t.shape[0], t.shape[1], t.shape[2], t.shape[3]), mu = 0, sigma = 0.001).to(device).requires_grad_(True) for t in texture]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Task 11: Texture Synthesis (5 points, 1.25 points each)\n",
+    "Test you implementation for texture synthesis on four examples. Report the total time for synthesis together with the results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Texture Synthesis of a texture that is similar to target[0]\n",
+    "tex_0 = texture_synthesis_lbfgs(0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Texture Synthesis of a texture that is similar to target[1]\n",
+    "tex_1 = texture_synthesis_lbfgs(1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Texture Synthesis of a texture that is similar to target[2]\n",
+    "tex_2 = texture_synthesis_lbfgs(2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Texture Synthesis of a texture that is similar to target[3]\n",
+    "tex_3 = texture_synthesis_lbfgs(3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Save results to hard disc\n",
+    "result_to_hd(tex_0, \"tex0_ref.jpg\")\n",
+    "result_to_hd(tex_1, \"tex1_ref.jpg\")\n",
+    "result_to_hd(tex_2, \"tex2_ref.jpg\")\n",
+    "result_to_hd(tex_3, \"tex3_ref.jpg\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Comparison to Reference Solution - Do not change anything, just execute to varify correctness of your solution\n",
+    "\n",
+    "fig, axs = plt.subplots(num_pairs, 3, figsize=(20, 20))\n",
+    "\n",
+    "axs[0, 0].set_title('Input', fontsize=20)\n",
+    "axs[0, 1].set_title('Reference Solutions', fontsize=20)\n",
+    "axs[0, 2].set_title('Your Solutions', fontsize=20)\n",
+    "\n",
+    "# content and correspoinding style image side-by-side\n",
+    "for row in range(0, num_pairs):\n",
+    "        axs[row, 0].imshow(im_convert(texture[row]))\n",
+    "        axs[row, 1].imshow(im_convert(ref_tex[row]))\n",
+    "        axs[row, 2].imshow(im_convert(target[row]))\n",
+    "\n",
+    "        for col in range(0, 3):\n",
+    "            axs[row, col].axis('off')\n",
+    "        \n",
+    "fig.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Useful Commands\n",
+    "* For the computation of the gram matrix a stretching of each 2d activation map into a vector is required, this can be easily done by applying the [torch.Tensor.view](https://pytorch.org/docs/stable/tensors.html#torch.Tensor.view) command.\n",
+    "* The transpose of a torch matrix can be obtained using [torch.Tensor.transpose](https://pytorch.org/docs/stable/tensors.html?#torch.Tensor.transpose)\n",
+    "* Two torch matrices (tensors with 2 dimensions, a height and a width) can be multiplied using [torch.mm](https://pytorch.org/docs/stable/generated/torch.mm.html). For batch sizes > 1, consider [torch.matmul](https://pytorch.org/docs/stable/generated/torch.matmul.html)\n",
+    "* The scalar mean of an arbitrary shaped tensor can be computed using [torch.mean](https://pytorch.org/docs/stable/generated/torch.mean.html)\n",
+    "* The dimensionality of a tensor (`batch_size`, `num_channels`, `height`, `width`) can be queried using [torch.Tensor.size](https://pytorch.org/docs/stable/tensors.html?highlight=size#torch.Tensor.size)\n",
+    "* A subsection of a Pytorch tensor can be obtained by using the [torch.narrow](https://pytorch.org/docs/stable/generated/torch.narrow.html) command or by referring to the desired subsection with a command similar to `tensor[:, :, 1:, :]`. In this example, one would obtain a slice with the first index of the third dimension removed."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## References\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "[1]\tGatys, Ecker, and Bethge, “Image Style Transfer Using Convolutional Neural Networks”,\n",
+    "CVPR 2016, [Paper](https://ieeexplore.ieee.org/document/7780634)\n",
+    "\n",
+    "[2]\tSendik, and Cohen-Or, “Deep Correlations for Texture synthesis”, Siggraph 2017, [Paper](https://dl.acm.org/citation.cfm?id=3015461)\n",
+    "\n",
+    "[3]\ttorchvision.models, https://pytorch.org/docs/stable/torchvision/models.html\n",
+    "\n",
+    "[4]\tGramian Matrix, https://en.wikipedia.org/wiki/Gramian_matrix\n",
+    "\n",
+    "[5]\tJohnson, Alahi, and Fei-Fei, “Perceptual Losses for Real-Time Style Transfer and Super-Resolution”, ECCV 2016, [Paper](https://arxiv.org/abs/1603.08155)\n",
+    "\n",
+    "[6]\tJohnson, Alahi, and Fei-Fei, “Perceptual Losses for Real-Time Style Transfer and Super-Resolution: Supplementary Material” [PDF](https://cs.stanford.edu/people/jcjohns/papers/fast-style/fast-style-supp.pdf)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Appendix A - Details of [1]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let $N_l$ be the number of feature maps at layer $l$ and let $M_l$ be the number of scalar values in each feature map, hence the height times the width of each feature map at layer $l$. By stretching the $2d$ responses in each feature map into a $1d$ vector, the responses at layer $l$ can therefore be stored in a matrix $F^l \\in \\mathbb{R}^{N_l \\times M_l}$ where $F^l_{ij}$ is the activation value of the $i^{th}$ filter at position $j$ in layer $l$. Let further be $P^l$ and $F^l$ the feature representations of the content image $\\vec{p}$ and the target image $\\vec{x}$ in layer $l$ respectively."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Content Loss"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Since we want to keep the content of $\\vec{p}$ in our target image $\\vec{x}$, it is a reasonable choice to minimize the squared difference between their corresponding activations $P^l$ and $F^l$. Recall that in higher layers of a neural network, detailed pixel information about the input image is usually lost, while information about the high-level content is preserved. In order to preserve the content it is therefore a good idea to choose a layer number corresponding to one of the higher layers $l$ (e.g. corresponding to `conv4_2` in VGG19) to define the content loss $\\mathcal{L}_{\\textrm{content}}$:\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$ \\mathcal{L}_{\\textrm{content}} \\left( \\vec{p}, \\vec{x},l \\right) = \\frac{1}{N_l M_l} \\sum_{i,j} \\left( F^l_{ij} - P^l_{ij} \\right)^2 = \\textrm{mean}\\left( \\left( F^l - P^l \\right) \\odot \\left( F^l - P^l \\right) \\right)$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that this definition is slightly different from the original paper [1]. It is however highly recommended to take the mean of the sum of squares to be independet to the extent of the respective layer $l$."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Gram matrix"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In order to preserve the style of the style image a we can not directly compare the feature maps of $\\vec{a}$ and $\\vec{x}$, but we can (as described in [1]) compare feature correlations which are given by the Gram matrix [4] $G^l \\in \\mathbb{R}^{N_l \\times N_l}$ where $G^l_{ij}$ is the inner product between the vectorised feature maps $i$ and $j$ in layer $l$:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$G^l_{ij} = \\sum_{k} F^l_{ik} F^l_{jk}$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Style Loss"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We obtain a multi-scale representation of the style image by taking several layers l into account. Let $A^l$ and $G^l$ be the style representations (given by the corresponding Gram matrix) of the style image $\\vec{a}$ and the target image $\\vec{x}$ respectively, the contribution of layer $l$ to the style loss can then be defined as"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$ E_l = \\frac{1}{N^2_l M^2_l} \\sum_{i,j} \\left( G^l_{ij} - A^l_{ij} \\right)^2 = \\frac{1}{M_l^2} \\textrm{mean}\\left( \\left( G^l - A^l \\right) \\odot \\left( G^l - A^l \\right) \\right) $$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that this definition of the style loss is also a bit different from from the paper."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "By choosing a suitable weight $w_l$ for each layer $l$ we obtain the style loss $\\mathcal{L}_{\\textrm{style}}$ as"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$ \\mathcal{L}_{\\textrm{style}} \\left( \\vec{a}, \\vec{x} \\right) = \\sum_{l=0}^{L} w_l E_l $$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The total loss is simply a weighted sum of the content loss and the style loss:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$ \\mathcal{L}_{\\textrm{total}} \\left( \\vec{p}, \\vec{a}, \\vec{x} \\right) = \\alpha \\mathcal{L}_{\\textrm{content}} \\left( \\vec{p}, \\vec{x} \\right) + \\beta \\mathcal{L}_{\\textrm{style}} \\left( \\vec{a}, \\vec{x} \\right) $$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Although this has not to be done in code explicitly, it is highly recommended to verify that the necessary gradients $\\frac{\\partial \\mathcal{L}_{\\textrm{content}}}{\\partial F^l_{ij}}$ and $\\frac{\\partial E_l}{\\partial F^l_{ij}}$, both with respect to the activations in the layer $l$, can be analytically derived as"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$\\frac{\\partial \\mathcal{L}_{\\textrm{content}}}{\\partial F^l_{ij}} = \\begin{cases} \\begin{array}{lr} \\frac{2}{N_l M_l} \\left( F^l - P^l \\right)_{ij} & \\textrm{if} \\; F^l_{ij}>0 \\\\ 0 & \\textrm{if} \\; F^l_{ij} \\leq 0 \\end{array} \\end{cases}$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$\\frac{\\partial E_l}{\\partial F^l_{ij}} = \\begin{cases} \\begin{array}{lr} \\frac{2}{N_l^2 M^2_l} \\left( \\left( F^l \\right)^T \\left( G^l - A^l \\right) \\right)_{ji} & \\textrm{if} \\; F^l_{ij}>0 \\\\ 0 & \\textrm{if} \\; F^l_{ij} \\leq 0 \\end{array} \\end{cases}$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Appendix B - Details of [2]\n",
+    "\n",
+    "The approach presented in [2] is very similar to the method proposed in [1], the main contribution is the computation of the *deep correlation matrices* to obtain results that are similar to the input image both on a local and a global scale. For completeness (and in the case of $E^l_{smooth}$ for error correction), the essential equations of the proposed method are presented in the following."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$E^l_{smooth} = \\frac{1}{2 \\sigma} \\sum_{i,j,n} \\textrm{log} \\left( \\frac{1}{4} \\sum_{\\delta i, \\delta j} \\textrm{exp} \\left( -\\sigma \\cdot \\left( f^{l,n}_{i,j} - f^{l,n}_{i + \\delta i, j + \\delta j} \\right)^2 \\right) \\right)$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$E_{smooth} = \\sum_{l} w^S_l E^l_{Smoooth}$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$$  $$"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
