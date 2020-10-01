@@ -1,0 +1,641 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Loading required package: grid\n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " 'table' num [1:4, 1:2, 1:2, 1:2] 0 0 35 0 0 0 17 0 118 154 ...\n",
+      " - attr(*, \"dimnames\")=List of 4\n",
+      "  ..$ Class   : chr [1:4] \"1st\" \"2nd\" \"3rd\" \"Crew\"\n",
+      "  ..$ Sex     : chr [1:2] \"Male\" \"Female\"\n",
+      "  ..$ Age     : chr [1:2] \"Child\" \"Adult\"\n",
+      "  ..$ Survived: chr [1:2] \"No\" \"Yes\"\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "'table'"
+      ],
+      "text/latex": [
+       "'table'"
+      ],
+      "text/markdown": [
+       "'table'"
+      ],
+      "text/plain": [
+       "[1] \"table\""
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## | Contingency Tables\n",
+    "\n",
+    "# Statistical analysis of contingency tables \n",
+    "## Contingency tables \n",
+    "\n",
+    "library(vcd)\n",
+    "data(\"Titanic\")\n",
+    "str(Titanic)\n",
+    "class(Titanic)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 2 × 2 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Male</th><th scope=col>Female</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>No</th><td>1364</td><td>126</td></tr>\n",
+       "\t<tr><th scope=row>Yes</th><td> 367</td><td>344</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 2 × 2 of type dbl\n",
+       "\\begin{tabular}{r|ll}\n",
+       "  & Male & Female\\\\\n",
+       "\\hline\n",
+       "\tNo & 1364 & 126\\\\\n",
+       "\tYes &  367 & 344\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 2 × 2 of type dbl\n",
+       "\n",
+       "| <!--/--> | Male | Female |\n",
+       "|---|---|---|\n",
+       "| No | 1364 | 126 |\n",
+       "| Yes |  367 | 344 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Sex\n",
+       "Survived Male Female\n",
+       "     No  1364 126   \n",
+       "     Yes  367 344   "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 3 × 3 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Male</th><th scope=col>Female</th><th scope=col>Sum</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>No</th><td>1364</td><td>126</td><td>1490</td></tr>\n",
+       "\t<tr><th scope=row>Yes</th><td> 367</td><td>344</td><td> 711</td></tr>\n",
+       "\t<tr><th scope=row>Sum</th><td>1731</td><td>470</td><td>2201</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 3 × 3 of type dbl\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & Male & Female & Sum\\\\\n",
+       "\\hline\n",
+       "\tNo & 1364 & 126 & 1490\\\\\n",
+       "\tYes &  367 & 344 &  711\\\\\n",
+       "\tSum & 1731 & 470 & 2201\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 3 × 3 of type dbl\n",
+       "\n",
+       "| <!--/--> | Male | Female | Sum |\n",
+       "|---|---|---|---|\n",
+       "| No | 1364 | 126 | 1490 |\n",
+       "| Yes |  367 | 344 |  711 |\n",
+       "| Sum | 1731 | 470 | 2201 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Sex\n",
+       "Survived Male Female Sum \n",
+       "     No  1364 126    1490\n",
+       "     Yes  367 344     711\n",
+       "     Sum 1731 470    2201"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "image/png": "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\n/We59dZbW7dunbn57W9/O70wd+7czOlWmTocPHhwo0aNPm1Xe/jYyy+/fPbs2bNnz548eXLm\nsW3atEkvrFu3rtqvaWe33npr5sPQCy+8ML1QWVm5Zs2aau75lltuyc/P/+Se33///fTyvHnz\n0gs9evTY9j8aN27ctWvXJEm2bNmSOQeuJu3Fj2Dv3sMnn3wyvXD22Wdn/uQ0a9Zs/vz58+bN\nmzdv3vHHH1+9lwJ1iG/FQq131llnnXXWWe+///7ChQtffPHF3//+96+//noqlUqSZPPmzRde\neOGBBx6YOYNt75x22mlVbw4aNKhx48ZlZWWbNm363e9+17Nnz4qKitmzZ6fv/bTPYT/vY+fP\nn3/vvfe+/vrr77///scff1x1J1/EtTlOOumkzHImX5Ik2bJlyxe057KysiRJUqnUO++8k15z\n++2333777Z/cwxtvvHH66adXc4y98Hl/BHvxHqZSqTfffDO93LZt26p3de/efe/GhrrMETsI\nolWrVsOHD//pT3/62muvrV69+vrrr8+c/HTTTTdVZ8/16tXb6TJ4BQUFmU9U04dbFi9evHHj\nxiRJioqKdqrAnezhY++///4zzzzz8ccff/vtt/Py8jp27Hj88cc3bdq0Oi9kN/Lz8wsLCzM3\n9+EvvPrMPW/durWysnL3O/nggw/21Tx77vP+CPbuPdy6dWumEZs0aVLNmQFhB7Xe9u3bU//3\n2xKtW7e+/fbbMyfdr1ix4qOPPqq6wU5HX0pKSnaz/7y8vPQ1O6rKfKL6xBNPJEkya9as9M3z\nzz//kxt/3seWlZWNHTs2s3LDhg0rVqxYvnz5t771rd3vuTZq1KhRJsEnT568y5Nmbrnllhqe\nqsZ+BAUFBZk/MP/85z/37c6hDhJ2UFu9/fbbQ4YM6dixY6NGjRYsWPDJDVq2bJlZTp+Bl/kt\nBWvWrKnagq+88srnffY+ffoccsghSZKsXLnyr3/9aybOdv857B4+9tVXX926dWt6edy4cZmT\n6FeuXPl559z/5eTkZD6CzHwmm3U19iPIzc1t165dejnzmWzatGnTbrvttttuu63qF6iB3RN2\nUFsVFRU9//zzf/nLX3bs2DFq1Kg///nPVe8tKSm555570ssdO3ZMfy6W+QJESUnJnDlz0st/\n+ctfHn744c/77PXr1x86dGh6ecKECelLJR933HF7cp77Zz626gHF7du3pxdWrFjx3HPP7bQy\n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\ntiaHKSws/M1vflNZWZmbm7tq1arKysrS0tKaHAAAIKP2hV3fvn0nTZp0wgknvPTSS+k1lZWV\n//7v/3788ccvW7ZswoQJNTnMnXfeeeGFF5aVlQ0bNqxr166dOnXyUSwAkC2178sTc+fOnTlz\n5jXXXNOjR4/vf//7I0aM+N73vrd48eLevXv/7Gc/a9euXU0O07dv35KSkvz8/CuvvLJDhw7r\n1q0bMmRITQ4AAJBR+8IuSZIhQ4acddZZt9xyy6RJk4qLiw855JAHH3zwu9/9blaGyc/PTy/0\n6dMnKwMAAKTVyrBLkiQvL++AAw6oV6/ejh078vLyCgoKaniApk2bftpdGzdurMlJAADSamXY\nzZ8//3vf+97f/va30aNHX3TRRVdcccV555338MMPT5ky5fDDD6+ZGdJXrevXr9+55567m8gD\nAKgxte/LE+eff/6ZZ565ffv2BQsW3HfffV27dl2yZElxcfGCBQs6depUY1cbeeutt6ZNm7Z9\n+/Zvfetbt91225o1a4477rguXbp06dKlZgYAANhJ7Qu7Rx999LLLLnv99dd79+6dXpObmzt2\n7Njly5d37tz5mmuuqbFJevXq9dBDD61ateqss866/fbb27Rpc/3117/11ls1NgAAQFW1L+ye\nffbZ+++/v3Hjxjut79Chw5IlS+66664anqewsHDUqFEvvvjij3/84wcffLBjx441PAAAQFrt\nO8fu9NNPTy9s2bJl9erVrVq1Ovjgg9NrcnNzv//979fwPOvXr//Vr37185//fPv27aNHjx45\ncmQNDwAAkFb7jtglSbJo0aKTTjrpwAMPPPbYYzOXKR40aNCCBQtqbIbKysq5c+cOHjy4bdu2\ny5Ytu/fee99+++2bb765devWNTYDAEBVte+I3csvv9ynT5/8/Py+ffs+/fTT6ZUbNmxYunRp\nv379fve735144ok1MEabNm1ycnL69+8/e/bs9Ldi33jjjfRdxx57bA0MAACwk9oXdhMmTGjR\nosWLL76Yl5fXsmXL9MpmzZq99tprX/nKV370ox/NmjWrBsZI/7La6dOnT58+fae7XMcOAMiK\n2hd2L7300tixY1u3br1u3bqq6w899NDLLrusuLi4ZsZQbwDA/qb2nWP3j3/847DDDtvlXS1b\ntiwrK6vheQAA9hO1L+xatGjx5ptv7vKuF154oaioqIbnAQDYT9S+sOvXr9+UKVNeeeWVqitL\nS0tvuOGGBx98sH///tkaDAAgu2pf2N16662NGzfu1q1buuHGjx9/wgkntGzZ8o477jj88MNv\nvvnmbA8IAJAdtS/sWrRosWzZsosvvnjVqlVJkixfvnz58uWFhYWjR49eunRp8+bNsz0gAEB2\n1L5vxSZJcuihh06ZMuW+++4rKSnZsmVLYWGhngMAqH1hV1lZmZubmyRJTk5O8+bNc3NzX3jh\nhbKyst69ex9++OHZng4AIGtq00exL7zwwgknnPDcc89l1jz77LNHHXXU0KFDv/vd77Zt2/ae\ne+7J4ngAANlVa47YvfLKK1//+te3bt26du3a9JqysrLzzz+/vLx87NixBx100P3333/11Vd3\n7969Zn6lGADA/qbWHLG76667ysvL58yZc8EFF6TXTJs2bePGjcXFxcXFxTfeeONzzz1Xr169\n+++/P7tzAgBkS60Ju9/97nf9+vXr169fZs3cuXMbNGgwfPjw9M327dv36dNn8eLFWRoQACDL\nak3YrVu37oQTTsjcTKVSixcvPvnkkw866KDMyg4dOrz33nvZmA4AIPtqTdglSVJYWJhZXrFi\nxQcffNCjR4+dNigvL6/xuQAA9gu1JuxatGixfv36zM0FCxYkSdKzZ8+q26xfv77qATwAgDql\n1oTdscceO3PmzIqKiiRJtm/f/vOf//yAAw449dRTMxtUVFTMmTOnY8eOWRsRACCrak3Yfec7\n33n77bfPOOOM++67b8iQIa+//vpFF11UUFCQvreysvIHP/jBu++++41vfCO7cwIAZEutuY7d\nkCFDhg4dOmPGjOeffz5JkhNPPPG2227L3Dto0KA5c+YcddRRl112WdZGBADIqloTdrm5uY89\n9tjzzz+/YsWKww47rF+/fnl5/zt869atzzrrrAceeKBx48ZZHBIAIItqTdglSZKTk9O7d+/e\nvXt/8q777ruvXr16NT8SAMD+ozaF3W6oOoBaql69eh8u+MmWF+7O9iBEkPr4n/WOuSDbU2RT\nkLADoJaaMmXKa6+9lu0piOOrX/1qtkfIJmEHQDa1b9++ffv22Z4Cgqg1lzsBAGD3hB0AQBDC\nDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQbhAMQDZtH79+vfeey/bUxDHl7/85SZNmmR7\niqwRdgBk04gRI5555plsT0EcF1988dSpU7M9RdYIOwCyqby8/PRLf3jGpbdke4WRLgUAABJB\nSURBVBAimHHLyPLy8mxPkU3OsQMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEH\nABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewA\nAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0A\nQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMA\nCELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAA\nQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAg\nCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAE\nIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAg\nhB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCE\nsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQ\ndgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDC\nDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELY\nAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7\nAIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEH\nABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewA\nAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0A\nQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMA\nCELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAA\nQQg7AIAghB0AQBDCDgAgCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAg\nCGEHABCEsAMACELYAQAEIewAAIIQdgAAQQg7AIAghB0AQBDCDgAgiLxsD8B/y8nJSW37sGTK\nmdkeBGDfqNz2YZIkOTk52R4E6hBht7845ZRTfnzHbalUKtuDAOwzBx10YaNGjbI9BdQhwm5/\n0bRp0+uuuy7bUwAAtZhz7AAAghB2AABBCDsAgCCEHQBAEMIOACAIYQcAEISwAwAIQtgBAATh\nAsX7kS1btuzYsSPbUwDsMwUFBQ0bNsz2FFCHCLv9xXPPPXfaaadlewqAfalx48abNm1q0KBB\ntgeBukLY7S8++OCDho0PGvWzBdkeBGDfKHl7xWM3jdi+fbuwgxoj7PYjufXyWnU8MdtTAOwb\nqcrKbI8AdY4vT1TX/PnzL7nkknPOOSdJkoULF5aXl2d7IgCgjhJ21TJlypQRI0YUFhYuWbIk\nSZJZs2aNHTs220MBAHWUsKuW4uLiZcuWTZw4MT8/P31z7ty52R4KAKijhF215OfnFxUVVb2Z\nSqWyOA8AUJcJu2pp2rTpI488krk5c+bMli1bZnEeAKAu863Yapk4ceKgQYPGjRu3adOm9u3b\nb968ec6cOdkeCgCoo4RdtXTr1m3lypVPPfVUaWlpq1atevfuXVhYmO2hAIA6StjtpbKysvRC\nXl7egAEDqq5v3LhxloYCAOo0YbeXdnNkzvcnAICsEHZ76d13393l+kWLFtXwJAAAacJuL7Vu\n3Tq98Oabb7711luVlZVJkpSVlY0ZM2bYsGFZHQ0AqKOEXbVMmjRp3LhxRUVFJSUlTZo02bp1\n6xVXXJHtoQCAOsp17Krl7rvvfvXVV1evXt2lS5e1a9dOmDDh6KOPzvZQAEAdJeyqJScn57jj\njkuSJP1R7JgxYyZPnpztoQCAOkrYVUthYeFvfvObysrK3NzcVatWVVZWlpaWZnsoAKCOEnbV\ncuedd1544YVlZWXDhg3r2rVrp06dfBQLAGSLL09US9++fUtKSvLz86+88soOHTqsW7duyJAh\n2R4KAKijhF115eTkvPvuuxUVFe3bt2/fvv2GDRsOOOCAbA8FANRFwq5a7rrrrhtuuKG8vLzq\nSr95AgDICufYVcvUqVOXLl26bdu27VVkeygAoI5yxK5a2rdv37lz52xPAQCQJMKumvr37z9p\n0qSBAwc2btw4s7JFixZZHAkAqLOEXbWsXbv29ttvv/baa6uudI4dAJAVwq5afv3rX7/88svt\n2rXLzXW2IgCQZcKuWo455pgTTzwx21MAACSJb8VW09lnn33vvfe+9957m6vI9lAAQB3liF21\nXHrppalU6sorr6y60jl2AEBWCLtqeffdd/Pz87M9BQBAkvgotppatWq1fPny66+/fvTo0U2b\nNv3Tn/504IEHZnsoAKCOEnbVMmXKlBEjRhQWFi5ZsiRJklmzZo0dOzbbQwEAdZSwq5bi4uJl\ny5ZNnDgx/YFscXHx3Llzsz0UAFBHCbtqyc/PLyoqqnrTNycAgGwRdtXStGnTRx55JHNz5syZ\nLVu2zOI8AEBd5lux1TJx4sRBgwaNGzdu06ZN7du337x585w5c7I9FABQRwm7aunWrdvKlSuf\neuqp0tLSVq1a9e7du7CwMNtDAQB1lI9i99INN9yQXjj44IO3bds2evToQYMGqToAIIuE3V76\nyU9+klm+8MILszgJAECasAMACELYAQAEIewAAILwrdi9lEqlZs2alblZdfnss8/OxkQAQF0n\n7PZSkyZNRo0alV4+5JBDMsuJsAMAskTY7aWNGzdmewQAgP/DOXYAAEEIOwCAIHwUux/Zvm3r\nU3f/INtTAOwbWzau3cMt//aH+Ts+3vaFDkMd8f6KZcf26JrtKbJJ2O0vjjnmmN69ela+98ds\nDwKwb3wpSc4555yCgoLdb/b1r3/92WefTfzrx75w7BHNe/fune0psiknlUplewYAAPYB59gB\nAAQh7AAAghB2AABBCDsAgCCEHQBAEMIOACAIYQcAEISwAwAIQtgBAAQh7AAAghB2AABBCDsA\ngCCEHQBAEMIOACAIYQcAEISwAwAIQtgBAAQh7AAAghB2AABBCDsAgCCEHQBAEMIOACAIYQcA\nEISwAwAIQtgBAAQh7AAAghB2AABBCDsAgCCEHQBAEMIOYC+dd955OTk569at+4L2n5eXd/LJ\nJ39BOwdCEnZArVdZWTljxowBAwYceeSRBQUFBQUFbdu2HT58+GuvvfaFPm+XLl369u2bn5//\nhT4LwJ7LSaVS2Z4BoFrOPffcxx57rE2bNkOHDm3RosU//vGPP/7xj88880zDhg3nzZvXs2fP\nbA+4l/Ly8k466aSXXnop24MAtUZetgcAqJbnnnvuscce69Wr1/z58/Py/vfftCeffHLQoEFj\nxox59dVXszgeQE3yUSxQu61YsSJJknPOOadq1SVJMnDgwIcffri4uLiysjJJkgEDBuTk5Gze\nvDmzwY4dO3Jycs4444z0zfQJcyUlJWeeeWZBQcETTzzxta99LTc3d82aNVV3+9577+Xm5vbq\n1Supco7dZ26ZJMn69esvv/zyNm3aNGjQoFmzZmefffbSpUurbj9nzpwTTzyxoKDg0EMPHTVq\nVNVRAfaQsANqt8MOOyxJkmeffXbHjh073XXBBRecccYZubl79A9dgwYNkiS55ppr6tevf/PN\nN3/5y18+//zzU6nUb37zm6qbzZgxI5VKXXDBBVVXfuaWGzZs6Nat2yOPPPLtb3/7l7/85bXX\nXvvHP/6xZ8+eixYtSm+8ZMmSb3zjG+vWrbv55pvvuOOOjz/+eNCgQXs4OcD/SgHUZuXl5Sec\ncEKSJF26dLn77rvfeOONysrKT27Wv3//JElKS0sza7Zv354kyemnn56+OXLkyCRJ+vTpU1FR\nkV5TUlKSl5d36qmnVt3PV7/61fz8/PR+zj333CRJ1q5d+5lbjh49Oi8vb+nSpZl7V69eXVhY\neNJJJ6VvnnXWWUmSvPzyy5kNvve97yVJ0q1bt2q8N0Cd438Hgdqtfv36zz///OWXX75y5cox\nY8Ycc8wxzZo1++Y3v/nLX/5y69ate76fnJycJEm+853vZI6TNWvW7Iwzzli8eHFJSUl6zXvv\nvffSSy/179//4IMPrvrY3W+ZSqWmT5/euXPn1q1br/sf9evX7969+7Jly8rKyiorKxctWtS2\nbduvfOUrmX1efPHF1XlbgLpJ2AG13oEHHnjvvfdu2LDhiSee+H//7/916NBhzpw5F1100RFH\nHDF//vzPtasOHTpUvfntb3+7oqJi1qxZ6Zu7/Bz2M7csKSnZuHHjK6+80vL/evrpp5MkWb16\n9dq1az/66KMvf/nLVXd49NFHf67JARJhB4RxwAEHDBw48Mc//vGLL764fv36u++++8MPPxw6\ndOjGjRv3fCcHHXRQ1Zvf/OY3CwoKZs6cmb752GOPNWnSJP2p7k52s+WWLVuSJOnSpcu8XSkq\nKkofWWzYsGHVHTZs2DB9EBFgz7ncCRBQkyZNrrzyylWrVk2cOHHRokVDhgz55Dbl5eWfuZ/C\nwsL+/fvPmjWrtLT0n//850svvXTxxRenv2ax51sWFhamt0mfSPdJZWVlSZJs27Ztp5Up1xkF\nPidH7IBarKKiYvTo0QMHDkxf02Qn6TPh0tlUv379JEnSX5hIe+edd/bkKc4///wdO3bMmTNn\nN5/D7n7L5s2bN23a9C9/+ctOVzDZsGFDeqFFixYNGjTYaZ4//elPezIeQFXCDqjF6tWr9847\n78yePXv8+PEVFRVV7/r73//+s5/9LP1l1SRJWrZsmSTJm2++mdng17/+9Z48Rb9+/Q466KB5\n8+bNmjWrTZs2X/va1/Ziy3POOWfbtm3FxcWZNRs2bOjcufPAgQOTJMnLy+vevfvf/va3qle2\nu++++/ZkPICqfBQL1G4PPPDAqaeeeuedd/7nf/5n//79mzdvXlZWtnLlymeeeWb79u3/9m//\n1qZNmyRJRowYcf/991977bXFxcWNGjV6/PHHf//732c+JN2N/Pz8wYMHP/744x9++OF11123\nm/PedrPlLbfcMmfOnDvuuGPt2rW9evVas2bNT3/6002bNo0ZMya9wXXXXbdo0aIBAwaMHDny\nkEMOWbRo0datW3c64Q/gs2XzWisA+8KHH3744x//uHv37l/60pfq1atXUFDQvn37kSNHVr1u\nXCqVeuihhzp16lRQUNC8efNLLrlk8+bNRUVFX/va19L3XnTRRUmSvPXWW5/c/zPPPJP+B3PF\nihVV12euY/eZW6ZSqbVr144ePfqwww7Ly8s7+OCDBw0a9Ic//KHqBo8++uhxxx2X/r0UI0eO\nLC0tPeyww0444YTqvDNAXZOTcnIuAEAIzrEDAAhC2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQ\nwg4AIAhhBwAQhLADAAhC2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQwg4AIAhhBwAQhLADAAhC\n2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQwg4AIAhhBwAQhLADAAhC2AEABCHsAACCEHYAAEEI\nOwCAIIQdAEAQwg4AIAhhBwAQhLADAAhC2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQwg4AIAhh\nBwAQhLADAAhC2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQwg4AIAhhBwAQhLADAAhC2AEABCHs\nAACCEHYAAEEIOwCAIIQdAEAQwg4AIAhhBwAQhLADAAhC2AEABCHsAACCEHYAAEEIOwCAIIQd\nAEAQwg4AIAhhBwAQhLADAAhC2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQwg4AIAhhBwAQhLAD\nAAhC2AEABCHsAACCEHYAAEEIOwCAIIQdAEAQ/x8M4v/u/hs9HAAAAABJRU5ErkJggg==",
+      "text/plain": [
+       "Plot with title “Survival in the Titanic”"
+      ]
+     },
+     "metadata": {
+      "image/png": {
+       "height": 420,
+       "width": 420
+      }
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(titanic.table <- apply(Titanic, c(4, 2), sum))\n",
+    "addmargins(titanic.table)\n",
+    "mosaicplot(titanic.table[1:2,1:2], \n",
+    "           col = c('dodgerblue','skyblue1'),\n",
+    "           main = 'Survival in the Titanic')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "also installing the dependencies ‘selectr’, ‘rvest’\n",
+      "\n",
+      "\n",
+      "Updating HTML index of packages in '.Library'\n",
+      "\n",
+      "Making 'packages.html' ...\n",
+      " done\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "install.packages('kableExtra')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "ERROR while rich displaying an object: Error in viewer(index_html): 'browser' must be a non-empty character string\n",
+      "\n",
+      "Traceback:\n",
+      "1. FUN(X[[i]], ...)\n",
+      "2. tryCatch(withCallingHandlers({\n",
+      " .     if (!mime %in% names(repr::mime2repr)) \n",
+      " .         stop(\"No repr_* for mimetype \", mime, \" in repr::mime2repr\")\n",
+      " .     rpr <- repr::mime2repr[[mime]](obj)\n",
+      " .     if (is.null(rpr)) \n",
+      " .         return(NULL)\n",
+      " .     prepare_content(is.raw(rpr), rpr)\n",
+      " . }, error = error_handler), error = outer_handler)\n",
+      "3. tryCatchList(expr, classes, parentenv, handlers)\n",
+      "4. tryCatchOne(expr, names, parentenv, handlers[[1L]])\n",
+      "5. doTryCatch(return(expr), name, parentenv, handler)\n",
+      "6. withCallingHandlers({\n",
+      " .     if (!mime %in% names(repr::mime2repr)) \n",
+      " .         stop(\"No repr_* for mimetype \", mime, \" in repr::mime2repr\")\n",
+      " .     rpr <- repr::mime2repr[[mime]](obj)\n",
+      " .     if (is.null(rpr)) \n",
+      " .         return(NULL)\n",
+      " .     prepare_content(is.raw(rpr), rpr)\n",
+      " . }, error = error_handler)\n",
+      "7. repr::mime2repr[[mime]](obj)\n",
+      "8. repr_text.default(obj)\n",
+      "9. paste(capture.output(print(obj)), collapse = \"\\n\")\n",
+      "10. capture.output(print(obj))\n",
+      "11. evalVis(expr)\n",
+      "12. withVisible(eval(expr, pf))\n",
+      "13. eval(expr, pf)\n",
+      "14. eval(expr, pf)\n",
+      "15. print(obj)\n",
+      "16. print.kableExtra(obj)\n",
+      "17. print(html_kable)\n",
+      "18. print.shiny.tag.list(html_kable)\n",
+      "19. html_print(x)\n",
+      "20. viewer(index_html)\n",
+      "21. stop(\"'browser' must be a non-empty character string\")\n"
+     ]
+    }
+   ],
+   "source": [
+    "library(knitr)\n",
+    "library(kableExtra)\n",
+    "\n",
+    "kable(titanic.table, booktabs = T, \n",
+    "      caption = 'Observed values') %>%\n",
+    "  kable_styling(bootstrap_options = \"hover\",\n",
+    "                full_width = F, position = \"center\",\n",
+    "                latex_options ='striped')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Expected values\n",
+    "tab.exp <- data.frame(Male = c(1171.89,559.11,1731),\n",
+    "                      Female = c(318.19,151.81,470),\n",
+    "                      Total = c(1490,711,2201))\n",
+    "row.names(tab.exp) <- c('No','Yes','Total')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "ERROR while rich displaying an object: Error in viewer(index_html): 'browser' must be a non-empty character string\n",
+      "\n",
+      "Traceback:\n",
+      "1. FUN(X[[i]], ...)\n",
+      "2. tryCatch(withCallingHandlers({\n",
+      " .     if (!mime %in% names(repr::mime2repr)) \n",
+      " .         stop(\"No repr_* for mimetype \", mime, \" in repr::mime2repr\")\n",
+      " .     rpr <- repr::mime2repr[[mime]](obj)\n",
+      " .     if (is.null(rpr)) \n",
+      " .         return(NULL)\n",
+      " .     prepare_content(is.raw(rpr), rpr)\n",
+      " . }, error = error_handler), error = outer_handler)\n",
+      "3. tryCatchList(expr, classes, parentenv, handlers)\n",
+      "4. tryCatchOne(expr, names, parentenv, handlers[[1L]])\n",
+      "5. doTryCatch(return(expr), name, parentenv, handler)\n",
+      "6. withCallingHandlers({\n",
+      " .     if (!mime %in% names(repr::mime2repr)) \n",
+      " .         stop(\"No repr_* for mimetype \", mime, \" in repr::mime2repr\")\n",
+      " .     rpr <- repr::mime2repr[[mime]](obj)\n",
+      " .     if (is.null(rpr)) \n",
+      " .         return(NULL)\n",
+      " .     prepare_content(is.raw(rpr), rpr)\n",
+      " . }, error = error_handler)\n",
+      "7. repr::mime2repr[[mime]](obj)\n",
+      "8. repr_text.default(obj)\n",
+      "9. paste(capture.output(print(obj)), collapse = \"\\n\")\n",
+      "10. capture.output(print(obj))\n",
+      "11. evalVis(expr)\n",
+      "12. withVisible(eval(expr, pf))\n",
+      "13. eval(expr, pf)\n",
+      "14. eval(expr, pf)\n",
+      "15. print(obj)\n",
+      "16. print.kableExtra(obj)\n",
+      "17. print(html_kable)\n",
+      "18. print.shiny.tag.list(html_kable)\n",
+      "19. html_print(x)\n",
+      "20. viewer(index_html)\n",
+      "21. stop(\"'browser' must be a non-empty character string\")\n"
+     ]
+    }
+   ],
+   "source": [
+    "kable(tab.exp, booktabs = T, escape = FALSE) %>%\n",
+    "  kable_styling(bootstrap_options = \"hover\",\n",
+    "                full_width = F, position = \"center\",\n",
+    "                latex_options ='striped') %>%\n",
+    "  column_spec(1,width='7em', background ='white') %>%\n",
+    "  column_spec(2:4, width = '5em') "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Observed values\n",
+    "kable(titanic.table, booktabs = T, \n",
+    "      caption = 'Observed values') %>%\n",
+    "  kable_styling(bootstrap_options = \"hover\",\n",
+    "                full_width = F, position = \"center\",\n",
+    "                latex_options ='striped')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "456.897269317305"
+      ],
+      "text/latex": [
+       "456.897269317305"
+      ],
+      "text/markdown": [
+       "456.897269317305"
+      ],
+      "text/plain": [
+       "[1] 456.8973"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "0"
+      ],
+      "text/latex": [
+       "0"
+      ],
+      "text/markdown": [
+       "0"
+      ],
+      "text/plain": [
+       "[1] 0"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## Test\n",
+    "(chi.st <- sum((tab.exp[1:2,1:2]\n",
+    "            -titanic.table[1:2,1:2])^2/tab.exp[1:2,1:2]))\n",
+    "1-pchisq(chi.st,1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "\tPearson's Chi-squared test\n",
+       "\n",
+       "data:  titanic.table[1:2, 1:2]\n",
+       "X-squared = 456.87, df = 1, p-value < 2.2e-16\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "\tPearson's Chi-squared test with Yates' continuity correction\n",
+       "\n",
+       "data:  titanic.table[1:2, 1:2]\n",
+       "X-squared = 454.5, df = 1, p-value < 2.2e-16\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "chisq.test(titanic.table[1:2,1:2],correct = FALSE)\n",
+    "chisq.test(titanic.table[1:2,1:2])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "'data.frame':\t237 obs. of  12 variables:\n",
+      " $ Sex   : Factor w/ 2 levels \"Female\",\"Male\": 1 2 2 2 2 1 2 1 2 2 ...\n",
+      " $ Wr.Hnd: num  18.5 19.5 18 18.8 20 18 17.7 17 20 18.5 ...\n",
+      " $ NW.Hnd: num  18 20.5 13.3 18.9 20 17.7 17.7 17.3 19.5 18.5 ...\n",
+      " $ W.Hnd : Factor w/ 2 levels \"Left\",\"Right\": 2 1 2 2 2 2 2 2 2 2 ...\n",
+      " $ Fold  : Factor w/ 3 levels \"L on R\",\"Neither\",..: 3 3 1 3 2 1 1 3 3 3 ...\n",
+      " $ Pulse : int  92 104 87 NA 35 64 83 74 72 90 ...\n",
+      " $ Clap  : Factor w/ 3 levels \"Left\",\"Neither\",..: 1 1 2 2 3 3 3 3 3 3 ...\n",
+      " $ Exer  : Factor w/ 3 levels \"Freq\",\"None\",..: 3 2 2 2 3 3 1 1 3 3 ...\n",
+      " $ Smoke : Factor w/ 4 levels \"Heavy\",\"Never\",..: 2 4 3 2 2 2 2 2 2 2 ...\n",
+      " $ Height: num  173 178 NA 160 165 ...\n",
+      " $ M.I   : Factor w/ 2 levels \"Imperial\",\"Metric\": 2 1 NA 2 2 1 1 2 2 2 ...\n",
+      " $ Age   : num  18.2 17.6 16.9 20.3 23.7 ...\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "       Exer\n",
+       "Smoke   Freq None Some\n",
+       "  Heavy    7    1    3\n",
+       "  Never   87   18   84\n",
+       "  Occas   12    3    4\n",
+       "  Regul    9    1    7"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 5 × 4 of type int</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Freq</th><th scope=col>None</th><th scope=col>Some</th><th scope=col>Total</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>Heavy</th><td>  7</td><td> 1</td><td> 3</td><td> 11</td></tr>\n",
+       "\t<tr><th scope=row>Never</th><td> 87</td><td>18</td><td>84</td><td>189</td></tr>\n",
+       "\t<tr><th scope=row>Occas</th><td> 12</td><td> 3</td><td> 4</td><td> 19</td></tr>\n",
+       "\t<tr><th scope=row>Regul</th><td>  9</td><td> 1</td><td> 7</td><td> 17</td></tr>\n",
+       "\t<tr><th scope=row>Total</th><td>115</td><td>23</td><td>98</td><td>236</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 5 × 4 of type int\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Freq & None & Some & Total\\\\\n",
+       "\\hline\n",
+       "\tHeavy &   7 &  1 &  3 &  11\\\\\n",
+       "\tNever &  87 & 18 & 84 & 189\\\\\n",
+       "\tOccas &  12 &  3 &  4 &  19\\\\\n",
+       "\tRegul &   9 &  1 &  7 &  17\\\\\n",
+       "\tTotal & 115 & 23 & 98 & 236\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 5 × 4 of type int\n",
+       "\n",
+       "| <!--/--> | Freq | None | Some | Total |\n",
+       "|---|---|---|---|---|\n",
+       "| Heavy |   7 |  1 |  3 |  11 |\n",
+       "| Never |  87 | 18 | 84 | 189 |\n",
+       "| Occas |  12 |  3 |  4 |  19 |\n",
+       "| Regul |   9 |  1 |  7 |  17 |\n",
+       "| Total | 115 | 23 | 98 | 236 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "      Freq None Some Total\n",
+       "Heavy   7   1    3    11  \n",
+       "Never  87  18   84   189  \n",
+       "Occas  12   3    4    19  \n",
+       "Regul   9   1    7    17  \n",
+       "Total 115  23   98   236  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message in chisq.test(stdt.tab):\n",
+      "“Chi-squared approximation may be incorrect”\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "\tPearson's Chi-squared test\n",
+       "\n",
+       "data:  stdt.tab\n",
+       "X-squared = 5.4885, df = 6, p-value = 0.4828\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Contingency Tables: Independence\n",
+    "library(MASS)\n",
+    "str(survey)\n",
+    "(stdt.tab <- with(survey,table(Smoke,Exer)))\n",
+    "stdt.tot <- cbind(stdt.tab, \n",
+    "                  Total = apply(stdt.tab, 1, sum))\n",
+    "(stdt.tot <- rbind(stdt.tot, \n",
+    "                  Total = apply(stdt.tot, 2, sum)))\n",
+    "\n",
+    "chisq.test(stdt.tab)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Fisher's exact test\n",
+    "## Small samples: Fisher's exact test"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "\tFisher's Exact Test for Count Data\n",
+       "\n",
+       "data:  titanic.table[1:2, 1:2]\n",
+       "p-value < 2.2e-16\n",
+       "alternative hypothesis: true odds ratio is not equal to 1\n",
+       "95 percent confidence interval:\n",
+       "  7.97665 12.92916\n",
+       "sample estimates:\n",
+       "odds ratio \n",
+       "   10.1319 \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "\tFisher's Exact Test for Count Data\n",
+       "\n",
+       "data:  stdt.tab\n",
+       "p-value = 0.4138\n",
+       "alternative hypothesis: two.sided\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "fisher.test(titanic.table[1:2,1:2])\n",
+    "fisher.test(stdt.tab)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
