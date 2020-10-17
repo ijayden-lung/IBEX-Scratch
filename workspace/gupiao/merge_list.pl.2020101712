@@ -1,0 +1,96 @@
+#!/usr/bin/perl -w
+#
+open FILE,"沪深300指数历史数据.csv";
+<FILE>;
+my $day = 2698;
+my %dayOfDate;
+my %infoOf;
+my %dailyPriceOf;
+while(<FILE>){
+	chomp;
+	my ($date,$price,$open,$high,$low,$vol,$change) = split /\",\"/;
+	$date =~ s/\"//g;
+	$change =~ s/\"//g;
+	$price =~ s/,//g;
+	$dayOfDate{$date} = $day;
+	$infoOf{'CSI300'}->{$day} = "$date\t$price\t$open\t$high\t$low\t$vol\t$change";
+	$dailyPriceOf{'CSI300'}->{$day} = $price;
+	last if $day < 1001;
+	$day--;
+}
+
+my %net_worth_of_CSI300;
+my $CSI300_ref = $dailyPriceOf{'CSI300'};
+my $firstDayPriceOfCSI300 = $CSI300_ref->{1000};
+while(my ($day,$price) = each %$CSI300_ref){
+	$net_worth_of_CSI300{$day} = $price/$firstDayPriceOfCSI300;
+}
+
+
+	
+&OpenFile("000001历史数据.csv");    ####平安银行 稳定王
+&OpenFile("000002历史数据.csv");    ####万科 稳定王
+&OpenFile("000100历史数据.csv");    ###TCL科技2015年飙升3.5倍
+#&OpenFile("000333历史数据.csv");
+&OpenFile("001979历史数据.csv");    ####招商蛇口2016年才
+#&OpenFile("002007历史数据.csv");
+&OpenFile("002044历史数据.csv");    ###美年健康2015年飙升5倍
+#&OpenFile("002352历史数据.csv");
+&OpenFile("002558历史数据.csv");   ##巨人网络 2015年底借壳回归股价飙升	
+&OpenFile("300059历史数据.csv");  ##东方财富 2015年飙升15倍
+
+
+my %sum_Stock_price;
+my %stock_num;
+open OUT,">Merge_Stock_History.txt";
+print OUT "Stock\tDay\tNet_Value\tDate\tPrice\tOpen\tHigh\tLow\tVolumn\tChange\n";
+while(my ($stock,$val_ref) = each %infoOf){
+	print "$stock\n";
+	my $i = 0;
+	my $firstDayPrice = 1;
+	my $netWorthOfCSI300atThatTime = 1;
+	foreach my $day (sort{$a<=>$b} keys %$val_ref){
+		if($i == 0){
+			$firstDayPrice = $dailyPriceOf{$stock}->{$day};
+			$netWorthOfCSI300atThatTime = $net_worth_of_CSI300{$day};
+		}
+		my $net_value = $dailyPriceOf{$stock}->{$day}/$firstDayPrice*$netWorthOfCSI300atThatTime;
+		if($stock ne "CSI300"){
+			$sum_Stock_price{$day} += $net_value;
+			$stock_num{$day}++;
+		}
+		$i++;
+		print OUT "$stock\t$day\t$net_value\t$val_ref->{$day}\n"# if $stock eq "CSI300";;
+	}
+}
+
+foreach my $day (sort{$a<=>$b} keys %sum_Stock_price){
+	my $ave_net_value = $sum_Stock_price{$day}/$stock_num{$day};
+	print OUT "Average\t$day\t$ave_net_value\t$infoOf{'CSI300'}->{$day}\n";
+}
+
+sub OpenFile{
+	my ($file) = @_;
+	my ($stock_id) = split /\历/,$file;
+	open FILE, "$file";
+	<FILE>;
+	while(<FILE>){
+		chomp;
+		my ($date,$price,$open,$high,$low,$vol,$change) = split /\",\"/;
+		$date =~ s/\"//g;
+		$change =~ s/\"//g;
+		$price =~ s/,//g;
+		my $day = $dayOfDate{$date};
+		if(!defined  $day){
+			print "$stock_id $date not in CS300\n";
+		}
+		else{
+			$infoOf{$stock_id}->{$day} = "$date\t$price\t$open\t$high\t$low\t$vol\t$change";
+			$dailyPriceOf{$stock_id}->{$day} = $price;
+		}
+	}
+}
+
+
+$infoOf{$stock_id}->{$day} = "$date\t$price\t$open\t$high\t$low\t$vol\t$change";
+
