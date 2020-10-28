@@ -1,0 +1,429 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "n = 100\n",
+    "z = rnorm(n)\n",
+    "epsilon = rnorm(n)\n",
+    "delta = rnorm(n)\n",
+    "x = 10*z + epsilon\n",
+    "y = 10*z + delta"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 6 × 3 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th scope=col>x</th><th scope=col>y</th><th scope=col>z</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><td>  6.439138</td><td>  7.000313</td><td> 0.7686152</td></tr>\n",
+       "\t<tr><td>  3.005654</td><td>  3.604379</td><td> 0.4828414</td></tr>\n",
+       "\t<tr><td>  1.528523</td><td>  2.554331</td><td> 0.1671311</td></tr>\n",
+       "\t<tr><td>-12.034939</td><td>-14.304117</td><td>-1.3966699</td></tr>\n",
+       "\t<tr><td> 15.209240</td><td> 15.286289</td><td> 1.5143661</td></tr>\n",
+       "\t<tr><td> -4.126943</td><td> -3.400246</td><td>-0.4187940</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 6 × 3 of type dbl\n",
+       "\\begin{tabular}{lll}\n",
+       " x & y & z\\\\\n",
+       "\\hline\n",
+       "\t   6.439138 &   7.000313 &  0.7686152\\\\\n",
+       "\t   3.005654 &   3.604379 &  0.4828414\\\\\n",
+       "\t   1.528523 &   2.554331 &  0.1671311\\\\\n",
+       "\t -12.034939 & -14.304117 & -1.3966699\\\\\n",
+       "\t  15.209240 &  15.286289 &  1.5143661\\\\\n",
+       "\t  -4.126943 &  -3.400246 & -0.4187940\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 6 × 3 of type dbl\n",
+       "\n",
+       "| x | y | z |\n",
+       "|---|---|---|\n",
+       "|   6.439138 |   7.000313 |  0.7686152 |\n",
+       "|   3.005654 |   3.604379 |  0.4828414 |\n",
+       "|   1.528523 |   2.554331 |  0.1671311 |\n",
+       "| -12.034939 | -14.304117 | -1.3966699 |\n",
+       "|  15.209240 |  15.286289 |  1.5143661 |\n",
+       "|  -4.126943 |  -3.400246 | -0.4187940 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "     x          y          z         \n",
+       "[1,]   6.439138   7.000313  0.7686152\n",
+       "[2,]   3.005654   3.604379  0.4828414\n",
+       "[3,]   1.528523   2.554331  0.1671311\n",
+       "[4,] -12.034939 -14.304117 -1.3966699\n",
+       "[5,]  15.209240  15.286289  1.5143661\n",
+       "[6,]  -4.126943  -3.400246 -0.4187940"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "W = cbind(x,y,z)\n",
+    "head(W)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 3 × 3 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>x</th><th scope=col>y</th><th scope=col>z</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>x</th><td>108.15963</td><td>107.18089</td><td>10.823628</td></tr>\n",
+       "\t<tr><th scope=row>y</th><td>107.18089</td><td>108.12875</td><td>10.837006</td></tr>\n",
+       "\t<tr><th scope=row>z</th><td> 10.82363</td><td> 10.83701</td><td> 1.094452</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 3 × 3 of type dbl\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & x & y & z\\\\\n",
+       "\\hline\n",
+       "\tx & 108.15963 & 107.18089 & 10.823628\\\\\n",
+       "\ty & 107.18089 & 108.12875 & 10.837006\\\\\n",
+       "\tz &  10.82363 &  10.83701 &  1.094452\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 3 × 3 of type dbl\n",
+       "\n",
+       "| <!--/--> | x | y | z |\n",
+       "|---|---|---|---|\n",
+       "| x | 108.15963 | 107.18089 | 10.823628 |\n",
+       "| y | 107.18089 | 108.12875 | 10.837006 |\n",
+       "| z |  10.82363 |  10.83701 |  1.094452 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  x         y         z        \n",
+       "x 108.15963 107.18089 10.823628\n",
+       "y 107.18089 108.12875 10.837006\n",
+       "z  10.82363  10.83701  1.094452"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(sigma = cov(W))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 3 × 3 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>x</th><th scope=col>y</th><th scope=col>z</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>x</th><td> 0.893827373</td><td> -0.008491838</td><td> -8.755462</td></tr>\n",
+       "\t<tr><th scope=row>y</th><td>-0.008491838</td><td>  1.214838710</td><td>-11.945072</td></tr>\n",
+       "\t<tr><th scope=row>z</th><td>-8.755462451</td><td>-11.945072140</td><td>205.778594</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 3 × 3 of type dbl\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & x & y & z\\\\\n",
+       "\\hline\n",
+       "\tx &  0.893827373 &  -0.008491838 &  -8.755462\\\\\n",
+       "\ty & -0.008491838 &   1.214838710 & -11.945072\\\\\n",
+       "\tz & -8.755462451 & -11.945072140 & 205.778594\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 3 × 3 of type dbl\n",
+       "\n",
+       "| <!--/--> | x | y | z |\n",
+       "|---|---|---|---|\n",
+       "| x |  0.893827373 |  -0.008491838 |  -8.755462 |\n",
+       "| y | -0.008491838 |   1.214838710 | -11.945072 |\n",
+       "| z | -8.755462451 | -11.945072140 | 205.778594 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  x            y             z         \n",
+       "x  0.893827373  -0.008491838  -8.755462\n",
+       "y -0.008491838   1.214838710 -11.945072\n",
+       "z -8.755462451 -11.945072140 205.778594"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(omega <- solve(sigma))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "0.00814921146532424"
+      ],
+      "text/latex": [
+       "0.00814921146532424"
+      ],
+      "text/markdown": [
+       "0.00814921146532424"
+      ],
+      "text/plain": [
+       "[1] 0.008149211"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(theta_hat = -omega[1,2]/sqrt(omega[1,1]*omega[2,2]))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "partial_correlation = function(x,y,z){\n",
+    "    W = cbind(x,y,z)\n",
+    "    sigma= cov(W)\n",
+    "    omega = solve(sigma)\n",
+    "    theta_hat = -omega[1,2]/sqrt(omega[1,1]*omega[2,2])\n",
+    "    return(theta_hat)\n",
+    "    \n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 77,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "B = 1000\n",
+    "Tboot = rep(0,B)\n",
+    "for (i in 1:B){\n",
+    "    #xx = sample(x,n,replace=TRUE)\n",
+    "    #yy = sample(y,n,replace=TRUE)\n",
+    "    #zz = sample(z,n,replace=TRUE)\n",
+    "    index <- sample(1:n,n,replace=TRUE)\n",
+    "    xx = x[index]\n",
+    "    yy = y[index]\n",
+    "    zz = z[index]\n",
+    "    \n",
+    "    Tboot[i] = partial_correlation(xx,yy,zz)\n",
+    "    }"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 78,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "0.0941968725513588"
+      ],
+      "text/latex": [
+       "0.0941968725513588"
+      ],
+      "text/markdown": [
+       "0.0941968725513588"
+      ],
+      "text/plain": [
+       "[1] 0.09419687"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "(se <- sqrt(var(Tboot)))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 79,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Normal = c(theta_hat+se*qnorm(0.025),theta_hat+se*qnorm(0.975))\n",
+    "Percentile = c(quantile(Tboot,0.025),quantile(Tboot,0.975))\n",
+    "Pivoat = c(2*theta_hat-quantile(Tboot,0.975),2*theta_hat-quantile(Tboot,0.025))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 82,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>-0.176473266191649</li><li>0.192771689122297</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item -0.176473266191649\n",
+       "\\item 0.192771689122297\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. -0.176473266191649\n",
+       "2. 0.192771689122297\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] -0.1764733  0.1927717"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".dl-inline {width: auto; margin:0; padding: 0}\n",
+       ".dl-inline>dt, .dl-inline>dd {float: none; width: auto; display: inline-block}\n",
+       ".dl-inline>dt::after {content: \":\\0020\"; padding-right: .5ex}\n",
+       ".dl-inline>dt:not(:first-of-type) {padding-left: .5ex}\n",
+       "</style><dl class=dl-inline><dt>2.5%</dt><dd>-0.169707888738866</dd><dt>97.5%</dt><dd>0.191418431683318</dd></dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description*}\n",
+       "\\item[2.5\\textbackslash{}\\%] -0.169707888738866\n",
+       "\\item[97.5\\textbackslash{}\\%] 0.191418431683318\n",
+       "\\end{description*}\n"
+      ],
+      "text/markdown": [
+       "2.5%\n",
+       ":   -0.16970788873886697.5%\n",
+       ":   0.191418431683318\n",
+       "\n"
+      ],
+      "text/plain": [
+       "      2.5%      97.5% \n",
+       "-0.1697079  0.1914184 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".dl-inline {width: auto; margin:0; padding: 0}\n",
+       ".dl-inline>dt, .dl-inline>dd {float: none; width: auto; display: inline-block}\n",
+       ".dl-inline>dt::after {content: \":\\0020\"; padding-right: .5ex}\n",
+       ".dl-inline>dt:not(:first-of-type) {padding-left: .5ex}\n",
+       "</style><dl class=dl-inline><dt>97.5%</dt><dd>-0.175120008752669</dd><dt>2.5%</dt><dd>0.186006311669514</dd></dl>\n"
+      ],
+      "text/latex": [
+       "\\begin{description*}\n",
+       "\\item[97.5\\textbackslash{}\\%] -0.175120008752669\n",
+       "\\item[2.5\\textbackslash{}\\%] 0.186006311669514\n",
+       "\\end{description*}\n"
+      ],
+      "text/markdown": [
+       "97.5%\n",
+       ":   -0.1751200087526692.5%\n",
+       ":   0.186006311669514\n",
+       "\n"
+      ],
+      "text/plain": [
+       "     97.5%       2.5% \n",
+       "-0.1751200  0.1860063 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "######95% interval\n",
+    "Normal\n",
+    "Percentile\n",
+    "Pivoat"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
