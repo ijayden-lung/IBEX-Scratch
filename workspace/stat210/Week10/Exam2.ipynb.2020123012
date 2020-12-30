@@ -1,0 +1,116 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Yongkang Long 171022"
+   ]
+  },
+  {
+   "cell_type": "raw",
+   "metadata": {},
+   "source": [
+    "You are reminded to adhere to the academic integrity code established at KAUST. Faults willbe severely punished. This exam is open notes and open book but not open internet.Do not write comments in Rmarkdown chunks. Use chunks only for codeShow complete solutions to get full credit. Graphs must be correctly labeledYou need to load packagesHH,carandMASS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ERROR",
+     "evalue": "Error in library(\"HH\"): there is no package called ‘HH’\n",
+     "output_type": "error",
+     "traceback": [
+      "Error in library(\"HH\"): there is no package called ‘HH’\nTraceback:\n",
+      "1. library(\"HH\")"
+     ]
+    }
+   ],
+   "source": [
+    "library('HH')\n",
+    "library(car)\n",
+    "library(MASS)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "also installing the dependencies ‘TH.data’, ‘sandwich’, ‘gmp’, ‘multcomp’, ‘Rmpfr’\n",
+      "\n",
+      "\n",
+      "Warning message in install.packages(\"HH\"):\n",
+      "“installation of package ‘gmp’ had non-zero exit status”\n",
+      "Warning message in install.packages(\"HH\"):\n",
+      "“installation of package ‘Rmpfr’ had non-zero exit status”\n",
+      "Warning message in install.packages(\"HH\"):\n",
+      "“installation of package ‘HH’ had non-zero exit status”\n",
+      "Updating HTML index of packages in '.Library'\n",
+      "\n",
+      "Making 'packages.html' ...\n",
+      " done\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "install.packages('HH')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data1 <-data.frame(varX =c(44.88657, 47.50854, 42.65520, 39.78659, 35.21680, 34.83094, 31.49840,40.26644, 43.74769, 40.70925, 36.81988, 35.47477, 37.09535, 41.81317,30.33722, 31.26408, 40.47749, 44.94063, 30.52410, 35.83751, 32.55051,40.45046, 34.49412, 12.60000, 65.50000), varY =c(22.77396, 22.45083,25.37946, 27.84469, 29.41199, 30.55449, 32.58305, 26.29850, 24.79797,26.75081, 27.74509, 28.01930, 26.57008, 23.84777, 31.44095, 32.27941,25.50564, 22.18837, 31.99969, 27.46206, 31.01480, 24.84488, 29.43218,40.44475, 22.00000))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Question 1 (35 points)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### RegressvarYonvarX. Do a scatterplot of the data, including the regression line. Interpret the slope ofthe regression line. Make diagnostic plots andcomment."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

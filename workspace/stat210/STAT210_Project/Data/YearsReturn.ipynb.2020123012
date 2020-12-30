@@ -1,0 +1,1495 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Loading required package: xts\n",
+      "\n",
+      "Loading required package: zoo\n",
+      "\n",
+      "\n",
+      "Attaching package: ‘zoo’\n",
+      "\n",
+      "\n",
+      "The following objects are masked from ‘package:base’:\n",
+      "\n",
+      "    as.Date, as.Date.numeric\n",
+      "\n",
+      "\n",
+      "Loading required package: TTR\n",
+      "\n",
+      "Registered S3 method overwritten by 'quantmod':\n",
+      "  method            from\n",
+      "  as.zoo.data.frame zoo \n",
+      "\n",
+      "Version 0.4-0 included new data defaults. See ?getSymbols.\n",
+      "\n",
+      "\n",
+      "Attaching package: ‘lubridate’\n",
+      "\n",
+      "\n",
+      "The following objects are masked from ‘package:base’:\n",
+      "\n",
+      "    date, intersect, setdiff, union\n",
+      "\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "library(plyr)\n",
+    "library(quantmod)\n",
+    "library(lubridate)\n",
+    "library(scales)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SP500<-read.csv('sp500_history.txt',header=T)\n",
+    "####Select only added ticker\n",
+    "SP500.added = SP500[which(SP500$variable=='added_ticker'),]\n",
+    "#####New data frame\n",
+    "SP500.date = data.frame(\"Symbol\" = SP500.added$value, \n",
+    "                        \"Name\" = SP500.added$name, \"Date\" = as.Date(SP500.added$date))\n",
+    "names(SP500.date) = c(\"Symbol\",\"Name\",\"Date\")\n",
+    "####Selece date from 1993-02-1\n",
+    "SP500.1993 = SP500.date[which(SP500.date$Date>='1993-10-01'),]\n",
+    "SP500.1993 = SP500.1993[which(SP500.1993$Date<='2016-10-01'),]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "‘getSymbols’ currently uses auto.assign=TRUE by default, but will\n",
+      "use auto.assign=FALSE in 0.5-0. You will still be able to use\n",
+      "‘loadSymbols’ to automatically load data. getOption(\"getSymbols.env\")\n",
+      "and getOption(\"getSymbols.auto.assign\") will still be checked for\n",
+      "alternate defaults.\n",
+      "\n",
+      "This message is shown once per session and may be disabled by setting \n",
+      "options(\"getSymbols.warning4.0\"=FALSE). See ?getSymbols for details.\n",
+      "\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "####History price of SPY\n",
+    "SPY  = getSymbols(\"SPY\", src = \"yahoo\", from = \"1993-10-01\", to = Sys.Date()+1, auto.assign = FALSE)\n",
+    "SPY.price <- data.frame(\"Date\" = index(SPY), \"Price\" =  SPY$SPY.Adjusted)\n",
+    "names(SPY.price) = c('Date','Price')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 1 × 2</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Date</th><th scope=col>Price</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;date&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>1993-10-01</th><td>1993-10-01</td><td>27.89381</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 1 × 2\n",
+       "\\begin{tabular}{r|ll}\n",
+       "  & Date & Price\\\\\n",
+       "  & <date> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t1993-10-01 & 1993-10-01 & 27.89381\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 1 × 2\n",
+       "\n",
+       "| <!--/--> | Date &lt;date&gt; | Price &lt;dbl&gt; |\n",
+       "|---|---|---|\n",
+       "| 1993-10-01 | 1993-10-01 | 27.89381 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "           Date       Price   \n",
+       "1993-10-01 1993-10-01 27.89381"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[1] \"1993-01-01\"\n",
+      "[1] \"2043-01-01\"\n"
+     ]
+    }
+   ],
+   "source": [
+    "SPY.price['1993-10-01',]\n",
+    "Date = as.Date(\"1993-01-01\")\n",
+    "while (!(toString(Date) %in% row.names(SPY.price)) && FALSE){\n",
+    "    Date = Date+1\n",
+    "}\n",
+    "print(Date)\n",
+    "NewDate = seq(Date, length=2, by=\"+50 years\")[2]\n",
+    "print(NewDate)\n",
+    "if(NewDate < Sys.Date()){\n",
+    "    print('ffafa')   #####Skip less than 5 years stocks\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 1 × 3</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Symbol</th><th scope=col>Name</th><th scope=col>Date</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;date&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>194</th><td>COST</td><td>Costco Wholesale Corp.</td><td>1993-10-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 1 × 3\n",
+       "\\begin{tabular}{r|lll}\n",
+       "  & Symbol & Name & Date\\\\\n",
+       "  & <fct> & <fct> & <date>\\\\\n",
+       "\\hline\n",
+       "\t194 & COST & Costco Wholesale Corp. & 1993-10-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 1 × 3\n",
+       "\n",
+       "| <!--/--> | Symbol &lt;fct&gt; | Name &lt;fct&gt; | Date &lt;date&gt; |\n",
+       "|---|---|---|---|\n",
+       "| 194 | COST | Costco Wholesale Corp. | 1993-10-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "    Symbol Name                   Date      \n",
+       "194 COST   Costco Wholesale Corp. 1993-10-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "SP500.1993[1,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  COST At 1993-10-01 \n",
+      "Buying  CSCO At 1993-12-01 \n",
+      "Buying  EMN At 1994-01-03 \n",
+      "Buying  KEY At 1994-03-01 \n",
+      "Buying  UNM At 1994-03-01 \n",
+      "Buying  MSFT At 1994-06-01 \n",
+      "Buying  UNH At 1994-07-01 \n",
+      "Buying  LUV At 1994-07-01 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CBS download failed; trying again.”\n",
+      "Warning message:\n",
+      "“MU download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  MU At 1994-09-27 \n",
+      "Buying  BSX At 1995-02-24 \n",
+      "Buying  AMAT At 1995-03-16 \n",
+      "Buying  BK At 1995-03-31 \n",
+      "Buying  ALL At 1995-07-13 \n",
+      "Buying  CMA At 1995-12-01 \n",
+      "Buying  AON At 1996-04-23 \n",
+      "Buying  AZO At 1997-01-02 \n",
+      "Buying  ADBE At 1997-05-05 \n",
+      "Buying  CAH At 1997-05-27 \n",
+      "Buying  SCHW At 1997-06-02 \n",
+      "Buying  EFX At 1997-06-19 \n",
+      "Buying  APA At 1997-07-28 \n",
+      "Buying  PGR At 1997-08-04 \n",
+      "Buying  YUM At 1997-10-06 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“BBT download failed; trying again.”\n",
+      "Warning message:\n",
+      "“CINF download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  CINF At 1997-12-18 \n",
+      "Buying  COF At 1998-07-01 \n",
+      "Buying  RF At 1998-08-28 \n",
+      "Buying  AES At 1998-10-02 \n",
+      "Buying  CCL At 1998-12-22 \n",
+      "Ignore 5 years return for CTL \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“AGN download failed; trying again.”\n",
+      "Warning message:\n",
+      "“CMS download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  CMS At 1999-05-03 \n",
+      "Buying  AFL At 1999-05-28 \n",
+      "Buying  NTAP At 1999-06-25 \n",
+      "Buying  BBY At 1999-06-29 \n",
+      "Buying  VMC At 1999-06-30 \n",
+      "Buying  ADI At 1999-10-12 \n",
+      "Buying  XLNX At 1999-11-08 \n",
+      "Buying  CTXS At 1999-12-01 \n",
+      "Buying  A At 2000-06-05 \n",
+      "Buying  TIF At 2000-06-21 \n",
+      "Buying  DVN At 2000-08-30 \n",
+      "Buying  EOG At 2000-11-02 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“AYE contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  AYE At 2000-12-05 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“SBL contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for SBL \n",
+      "Buying  RHI At 2000-12-05 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“ABK contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  ABK At 2000-12-05 \n",
+      "Buying  INTU At 2000-12-05 \n",
+      "Buying  SYK At 2000-12-12 \n",
+      "Buying  CTAS At 2001-03-01 \n",
+      "Buying  FISV At 2001-04-02 \n",
+      "Buying  ZION At 2001-06-22 \n",
+      "Buying  ZBH At 2001-08-07 \n",
+      "Buying  ABC At 2001-08-30 \n",
+      "Buying  NVDA At 2001-11-30 \n",
+      "Buying  EQR At 2001-12-03 \n",
+      "Buying  SPG At 2002-06-26 \n",
+      "Buying  UPS At 2002-07-22 \n",
+      "Buying  EA At 2002-07-22 \n",
+      "Buying  PFG At 2002-07-22 \n",
+      "Buying  GS At 2002-07-22 \n",
+      "Buying  PRU At 2002-07-22 \n",
+      "Buying  ANTM At 2002-07-25 \n",
+      "Buying  TRV At 2002-08-21 \n",
+      "Buying  DGX At 2002-12-12 \n",
+      "Buying  AIV At 2003-03-14 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“SYMC download failed; trying again.”\n",
+      "Warning message:\n",
+      "“PLD download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  PLD At 2003-07-17 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“ESRX contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for ESRX \n",
+      "Buying  BIIB At 2003-11-13 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“ETFC contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  ETFC At 2004-03-31 \n",
+      "Buying  MYL At 2004-04-23 \n",
+      "Buying  GILD At 2004-07-01 \n",
+      "Buying  LH At 2004-11-01 \n",
+      "Buying  NOV At 2005-03-14 \n",
+      "Buying  STZ At 2005-07-01 \n",
+      "Buying  PSA At 2005-08-19 \n",
+      "Buying  AMP At 2005-10-03 \n",
+      "Buying  LEN At 2005-10-04 \n",
+      "Buying  AMZN At 2005-11-18 \n",
+      "Buying  EL At 2006-01-05 \n",
+      "Buying  VRSN At 2006-02-01 \n",
+      "Buying  BXP At 2006-04-03 \n",
+      "Buying  GOOG At 2006-04-03 \n",
+      "Buying  KIM At 2006-04-04 \n",
+      "Buying  CME At 2006-08-11 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CELG download failed; trying again.”\n",
+      "Warning message:\n",
+      "“FIS download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  FIS At 2006-11-10 \n",
+      "Buying  CBRE At 2006-11-10 \n",
+      "Buying  CTSH At 2006-11-17 \n",
+      "Buying  AVB At 2007-01-10 \n",
+      "Buying  RL At 2007-02-02 \n",
+      "Buying  VAR At 2007-02-12 \n",
+      "Buying  CHRW At 2007-03-02 \n",
+      "Buying  HST At 2007-03-20 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“KFT download failed; trying again.”\n",
+      "Warning message:\n",
+      "“AIZ download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  AIZ At 2007-04-10 \n",
+      "Buying  DFS At 2007-07-02 \n",
+      "Buying  AKAM At 2007-07-12 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“LUK download failed; trying again.”\n",
+      "Warning message:\n",
+      "“JEF download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  JEF At 2007-08-27 \n",
+      "Buying  MCHP At 2007-09-07 \n",
+      "Buying  ICE At 2007-09-26 \n",
+      "Buying  EXPE At 2007-10-02 \n",
+      "Buying  NBL At 2007-10-08 \n",
+      "Buying  EXPD At 2007-10-10 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“JEC download failed; trying again.”\n",
+      "Warning message:\n",
+      "“JEC download failed; trying again.”\n",
+      "Warning message:\n",
+      "“AMT download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  AMT At 2007-11-19 \n",
+      "Buying  GME At 2007-12-13 \n",
+      "Buying  RRC At 2007-12-20 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“TSS download failed; trying again.”\n",
+      "Warning message:\n",
+      "“PM download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  PM At 2008-03-31 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“HCP download failed; trying again.”\n",
+      "Warning message:\n",
+      "“ISRG download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  ISRG At 2008-06-02 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“LO download failed; trying again.”\n",
+      "Warning message:\n",
+      "“COG download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  COG At 2008-06-23 \n",
+      "Buying  MA At 2008-07-18 \n",
+      "Buying  DVA At 2008-07-31 \n",
+      "Buying  IVZ At 2008-08-21 \n",
+      "Buying  CF At 2008-08-27 \n",
+      "Buying  CRM At 2008-09-15 \n",
+      "Buying  PXD At 2008-09-24 \n",
+      "Buying  APH At 2008-09-30 \n",
+      "Buying  FLS At 2008-10-02 \n",
+      "Buying  NDAQ At 2008-10-22 \n",
+      "Buying  WEC At 2008-10-31 \n",
+      "Buying  SJM At 2008-11-06 \n",
+      "Buying  PBCT At 2008-11-13 \n",
+      "Buying  WYNN At 2008-11-14 \n",
+      "Buying  XRAY At 2008-11-14 \n",
+      "Buying  RSG At 2008-12-05 \n",
+      "Buying  FLIR At 2009-01-02 \n",
+      "Buying  IRM At 2009-01-06 \n",
+      "Buying  WELL At 2009-01-30 \n",
+      "Buying  VTR At 2009-03-03 \n",
+      "Buying  HRL At 2009-03-03 \n",
+      "Buying  HRL At 2009-03-04 \n",
+      "Buying  VTR At 2009-03-04 \n",
+      "Buying  ORLY At 2009-03-27 \n",
+      "Buying  FTI At 2009-06-05 \n",
+      "Buying  WDC At 2009-07-01 \n",
+      "Buying  PWR At 2009-07-01 \n",
+      "Buying  FMC At 2009-08-19 \n",
+      "Buying  FAST At 2009-09-15 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“ARG download failed; trying again.”\n",
+      "Warning message:\n",
+      "“PCLN download failed; trying again.”\n",
+      "Warning message:\n",
+      "“BKNG download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  BKNG At 2009-11-06 \n",
+      "Buying  ROST At 2009-12-21 \n",
+      "Buying  V At 2009-12-21 \n",
+      "Buying  ROP At 2009-12-23 \n",
+      "Buying  NRG At 2010-01-29 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“BRK.B download failed; trying again.”\n",
+      "Warning message:\n",
+      "“HP download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  HP At 2010-02-26 \n",
+      "Buying  HP At 2010-03-01 \n",
+      "Buying  DISCA At 2010-03-01 \n",
+      "Buying  OKE At 2010-03-15 \n",
+      "Buying  CERN At 2010-04-29 \n",
+      "Buying  CERN At 2010-04-30 \n",
+      "Buying  KMX At 2010-06-28 \n",
+      "Buying  QEP At 2010-06-30 \n",
+      "Buying  CB At 2010-07-14 \n",
+      "Buying  CB At 2010-07-15 \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“TYC download failed; trying again.”\n",
+      "Warning message:\n",
+      "“JCI download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  JCI At 2010-08-27 \n",
+      "Ignore 5 years return for IR \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“NFX contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for NFX \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CVC download failed; trying again.”\n",
+      "Warning message:\n",
+      "“FFIV download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  FFIV At 2010-12-17 \n",
+      "Ignore 10 years return for FFIV \n",
+      "Buying  NFLX At 2010-12-17 \n",
+      "Ignore 10 years return for NFLX \n",
+      "Buying  NFLX At 2010-12-20 \n",
+      "Ignore 10 years return for NFLX \n",
+      "Buying  FFIV At 2010-12-20 \n",
+      "Ignore 10 years return for FFIV \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“JOY download failed; trying again.”\n",
+      "Warning message:\n",
+      "“COV download failed; trying again.”\n",
+      "Warning message:\n",
+      "“COV contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for COV \n",
+      "Buying  EW At 2011-03-31 \n",
+      "Ignore 10 years return for EW \n",
+      "Buying  BLK At 2011-04-01 \n",
+      "Ignore 10 years return for BLK \n",
+      "Buying  EW At 2011-04-01 \n",
+      "Ignore 10 years return for EW \n",
+      "Buying  BLK At 2011-04-04 \n",
+      "Ignore 10 years return for BLK \n",
+      "Buying  CMG At 2011-04-27 \n",
+      "Ignore 10 years return for CMG \n",
+      "Buying  CMG At 2011-04-28 \n",
+      "Ignore 10 years return for CMG \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“ANR contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for ANR \n",
+      "Buying  MPC At 2011-06-30 \n",
+      "Ignore 10 years return for MPC \n",
+      "Buying  MPC At 2011-07-01 \n",
+      "Ignore 10 years return for MPC \n",
+      "Buying  ACN At 2011-07-05 \n",
+      "Ignore 10 years return for ACN \n",
+      "Buying  ACN At 2011-07-06 \n",
+      "Ignore 10 years return for ACN \n",
+      "Buying  MOS At 2011-09-23 \n",
+      "Ignore 10 years return for MOS \n",
+      "Buying  MOS At 2011-09-26 \n",
+      "Ignore 10 years return for MOS \n",
+      "Buying  TEL At 2011-10-14 \n",
+      "Ignore 10 years return for TEL \n",
+      "Buying  TEL At 2011-10-17 \n",
+      "Ignore 10 years return for TEL \n",
+      "Buying  XYL At 2011-10-31 \n",
+      "Ignore 10 years return for XYL \n",
+      "Buying  XYL At 2011-11-01 \n",
+      "Ignore 10 years return for XYL \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CBE contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  CBE At 2011-11-18 \n",
+      "Ignore 10 years return for CBE \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“GAS contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for GAS \n",
+      "Buying  BWA At 2011-12-16 \n",
+      "Ignore 10 years return for BWA \n",
+      "Buying  PRGO At 2011-12-16 \n",
+      "Ignore 10 years return for PRGO \n",
+      "Buying  DLTR At 2011-12-16 \n",
+      "Ignore 10 years return for DLTR \n",
+      "Buying  PRGO At 2011-12-19 \n",
+      "Ignore 10 years return for PRGO \n",
+      "Buying  BWA At 2011-12-19 \n",
+      "Ignore 10 years return for BWA \n",
+      "Buying  DLTR At 2011-12-19 \n",
+      "Ignore 10 years return for DLTR \n",
+      "Buying  TRIP At 2011-12-20 \n",
+      "Ignore 10 years return for TRIP \n",
+      "Buying  TRIP At 2011-12-21 \n",
+      "Ignore 10 years return for TRIP \n",
+      "Buying  WPX At 2012-01-03 \n",
+      "Ignore 10 years return for WPX \n",
+      "Buying  CCI At 2012-03-13 \n",
+      "Ignore 10 years return for CCI \n",
+      "Buying  CCI At 2012-03-14 \n",
+      "Ignore 10 years return for CCI \n",
+      "Buying  FOSL At 2012-04-03 \n",
+      "Ignore 10 years return for FOSL \n",
+      "Buying  PSX At 2012-04-23 \n",
+      "Ignore 10 years return for PSX \n",
+      "Buying  PSX At 2012-05-01 \n",
+      "Ignore 10 years return for PSX \n",
+      "Buying  KMI At 2012-05-17 \n",
+      "Ignore 10 years return for KMI \n",
+      "Buying  ALXN At 2012-05-21 \n",
+      "Ignore 10 years return for ALXN \n",
+      "Buying  ALXN At 2012-05-25 \n",
+      "Ignore 10 years return for ALXN \n",
+      "Buying  KMI At 2012-05-25 \n",
+      "Ignore 10 years return for KMI \n",
+      "Buying  LRCX At 2012-06-05 \n",
+      "Ignore 10 years return for LRCX \n",
+      "Buying  MNST At 2012-06-28 \n",
+      "Ignore 10 years return for MNST \n",
+      "Buying  MNST At 2012-06-29 \n",
+      "Ignore 10 years return for MNST \n",
+      "Buying  LRCX At 2012-06-29 \n",
+      "Ignore 10 years return for LRCX \n",
+      "Buying  STX At 2012-07-02 \n",
+      "Ignore 10 years return for STX \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“ESV download failed; trying again.”\n",
+      "Warning message:\n",
+      "“LYB download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  LYB At 2012-09-05 \n",
+      "Ignore 10 years return for LYB \n",
+      "Buying  PNR At 2012-10-01 \n",
+      "Ignore 10 years return for PNR \n",
+      "Ignore 5 years return for ADT \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“KRFT download failed; trying again.”\n",
+      "Warning message:\n",
+      "“MDLZ download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  MDLZ At 2012-10-02 \n",
+      "Ignore 10 years return for MDLZ \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“PETM contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for PETM \n",
+      "Buying  DG At 2012-12-03 \n",
+      "Ignore 10 years return for DG \n",
+      "Buying  GRMN At 2012-12-11 \n",
+      "Ignore 10 years return for GRMN \n",
+      "Buying  GRMN At 2012-12-12 \n",
+      "Ignore 10 years return for GRMN \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“DLPH contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for DLPH \n",
+      "Buying  APTV At 2012-12-24 \n",
+      "Ignore 10 years return for APTV \n",
+      "Buying  ABBV At 2013-01-02 \n",
+      "Ignore 10 years return for ABBV \n",
+      "Buying  PVH At 2013-02-15 \n",
+      "Ignore 10 years return for PVH \n",
+      "Buying  REGN At 2013-04-30 \n",
+      "Ignore 10 years return for REGN \n",
+      "Buying  REGN At 2013-05-01 \n",
+      "Ignore 10 years return for REGN \n",
+      "Buying  MAC At 2013-05-08 \n",
+      "Ignore 10 years return for MAC \n",
+      "Buying  MAC At 2013-05-09 \n",
+      "Ignore 10 years return for MAC \n",
+      "Buying  KSU At 2013-05-23 \n",
+      "Ignore 10 years return for KSU \n",
+      "Buying  KSU At 2013-05-24 \n",
+      "Ignore 10 years return for KSU \n",
+      "Buying  GM At 2013-06-06 \n",
+      "Ignore 10 years return for GM \n",
+      "Buying  ZTS At 2013-06-21 \n",
+      "Ignore 10 years return for ZTS \n",
+      "Ignore 5 years return for FOXA \n",
+      "Ignore 5 years return for FOXA \n",
+      "Buying  NLSN At 2013-07-08 \n",
+      "Ignore 10 years return for NLSN \n",
+      "Buying  NLSN At 2013-07-09 \n",
+      "Ignore 10 years return for NLSN \n",
+      "Buying  NWSA At 2013-08-01 \n",
+      "Ignore 10 years return for NWSA \n",
+      "Buying  DAL At 2013-09-10 \n",
+      "Ignore 10 years return for DAL \n",
+      "Buying  DAL At 2013-09-11 \n",
+      "Ignore 10 years return for DAL \n",
+      "Buying  VRTX At 2013-09-20 \n",
+      "Ignore 10 years return for VRTX \n",
+      "Buying  AME At 2013-09-20 \n",
+      "Ignore 10 years return for AME \n",
+      "Buying  AME At 2013-09-23 \n",
+      "Ignore 10 years return for AME \n",
+      "Buying  VRTX At 2013-09-23 \n",
+      "Ignore 10 years return for VRTX \n",
+      "Buying  RIG At 2013-10-29 \n",
+      "Ignore 10 years return for RIG \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“KORS download failed; trying again.”\n",
+      "Warning message:\n",
+      "“CPRI download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  CPRI At 2013-11-13 \n",
+      "Ignore 10 years return for CPRI \n",
+      "Buying  ALLE At 2013-12-02 \n",
+      "Ignore 10 years return for ALLE \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“GGP download failed; trying again.”\n",
+      "Warning message:\n",
+      "“MHK download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  MHK At 2013-12-23 \n",
+      "Ignore 10 years return for MHK \n",
+      "Buying  FB At 2013-12-23 \n",
+      "Ignore 10 years return for FB \n",
+      "Buying  ADS At 2013-12-23 \n",
+      "Ignore 10 years return for ADS \n",
+      "Buying  TSCO At 2014-01-24 \n",
+      "Ignore 10 years return for TSCO \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“GMCR download failed; trying again.”\n",
+      "Warning message:\n",
+      "“ESS download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  ESS At 2014-04-02 \n",
+      "Ignore 10 years return for ESS \n",
+      "Buying  GOOGL At 2014-04-03 \n",
+      "Ignore 10 years return for GOOGL \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“UA contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Ignore 5 years return for UA \n",
+      "Buying  NAVI At 2014-05-01 \n",
+      "Ignore 10 years return for NAVI \n",
+      "Buying  AVGO At 2014-05-08 \n",
+      "Ignore 10 years return for AVGO \n",
+      "Buying  XEC At 2014-06-20 \n",
+      "Ignore 10 years return for XEC \n",
+      "Buying  XEC At 2014-06-23 \n",
+      "Ignore 10 years return for XEC \n",
+      "Buying  AMG At 2014-07-01 \n",
+      "Ignore 10 years return for AMG \n",
+      "Buying  MLM At 2014-07-02 \n",
+      "Ignore 10 years return for MLM \n",
+      "Buying  DISCK At 2014-08-06 \n",
+      "Ignore 10 years return for DISCK \n",
+      "Buying  DISCK At 2014-08-07 \n",
+      "Ignore 10 years return for DISCK \n",
+      "Buying  MNK At 2014-08-18 \n",
+      "Ignore 10 years return for MNK \n",
+      "Buying  URI At 2014-09-22 \n",
+      "Ignore 10 years return for URI \n",
+      "Buying  UHS At 2014-09-22 \n",
+      "Ignore 10 years return for UHS \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“LVLT download failed; trying again.”\n",
+      "Warning message:\n",
+      "“RCL download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  RCL At 2014-12-05 \n",
+      "Ignore 10 years return for RCL \n",
+      "Buying  ENDP At 2015-01-27 \n",
+      "Ignore 10 years return for ENDP \n",
+      "Buying  HCA At 2015-01-27 \n",
+      "Ignore 10 years return for HCA \n",
+      "Buying  SWKS At 2015-03-12 \n",
+      "Ignore 10 years return for SWKS \n",
+      "Buying  HSIC At 2015-03-17 \n",
+      "Ignore 10 years return for HSIC \n",
+      "Buying  HSIC At 2015-03-18 \n",
+      "Ignore 10 years return for HSIC \n",
+      "Buying  HBI At 2015-03-20 \n",
+      "Ignore 10 years return for HBI \n",
+      "Buying  SLG At 2015-03-20 \n",
+      "Ignore 10 years return for SLG \n",
+      "Buying  EQIX At 2015-03-20 \n",
+      "Ignore 10 years return for EQIX \n",
+      "Buying  SLG At 2015-03-23 \n",
+      "Ignore 10 years return for SLG \n",
+      "Buying  EQIX At 2015-03-23 \n",
+      "Ignore 10 years return for EQIX \n",
+      "Buying  HBI At 2015-03-23 \n",
+      "Ignore 10 years return for HBI \n",
+      "Buying  AAL At 2015-03-23 \n",
+      "Ignore 10 years return for AAL \n",
+      "Buying  O At 2015-04-07 \n",
+      "Ignore 10 years return for O \n",
+      "Buying  QRVO At 2015-06-11 \n",
+      "Ignore 10 years return for QRVO \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“BXLT download failed; trying again.”\n",
+      "Warning message:\n",
+      "“JBHT download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  JBHT At 2015-07-01 \n",
+      "Ignore 10 years return for JBHT \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CPGX download failed; trying again.”\n",
+      "Warning message:\n",
+      "“KHC download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  KHC At 2015-07-06 \n",
+      "Ignore 10 years return for KHC \n",
+      "Buying  AAP At 2015-07-08 \n",
+      "Ignore 10 years return for AAP \n",
+      "Buying  AAP At 2015-07-09 \n",
+      "Ignore 10 years return for AAP \n",
+      "Buying  PYPL At 2015-07-20 \n",
+      "Ignore 10 years return for PYPL \n",
+      "Buying  SIG At 2015-07-29 \n",
+      "Ignore 10 years return for SIG \n",
+      "Buying  ATVI At 2015-08-28 \n",
+      "Ignore 10 years return for ATVI \n",
+      "Buying  ATVI At 2015-08-31 \n",
+      "Ignore 10 years return for ATVI \n",
+      "Buying  UAL At 2015-09-02 \n",
+      "Ignore 10 years return for UAL \n",
+      "Buying  UAL At 2015-09-03 \n",
+      "Ignore 10 years return for UAL \n",
+      "Ignore 5 years return for FOX \n",
+      "Buying  NWS At 2015-09-18 \n",
+      "Ignore 10 years return for NWS \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CMCSK download failed; trying again.”\n",
+      "Warning message:\n",
+      "“CMCSA download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  CMCSA At 2015-09-18 \n",
+      "Ignore 10 years return for CMCSA \n",
+      "Buying  VRSK At 2015-10-07 \n",
+      "Ignore 10 years return for VRSK \n",
+      "Buying  VRSK At 2015-10-08 \n",
+      "Ignore 10 years return for VRSK \n",
+      "Buying  HPE At 2015-11-02 \n",
+      "Ignore 10 years return for HPE \n",
+      "Buying  SYF At 2015-11-18 \n",
+      "Ignore 10 years return for SYF \n",
+      "Buying  ILMN At 2015-11-19 \n",
+      "Ignore 10 years return for ILMN \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“CSRA contains missing values. Some functions will not work if objects contain missing values in the middle of the series. Consider using na.omit(), na.approx(), na.fill(), etc to remove or replace them.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  CSRA At 2015-12-01 \n",
+      "Ignore 5 years return for CSRA \n",
+      "Buying  CHD At 2015-12-29 \n",
+      "Ignore 5 years return for CHD \n",
+      "Buying  WLTW At 2016-01-05 \n",
+      "Ignore 5 years return for WLTW \n",
+      "Buying  EXR At 2016-01-19 \n",
+      "Ignore 5 years return for EXR \n",
+      "Buying  CFG At 2016-01-29 \n",
+      "Ignore 5 years return for CFG \n",
+      "Buying  CFG At 2016-02-01 \n",
+      "Ignore 5 years return for CFG \n",
+      "Buying  FRT At 2016-02-01 \n",
+      "Ignore 5 years return for FRT \n",
+      "Buying  CXO At 2016-02-22 \n",
+      "Ignore 5 years return for CXO \n",
+      "Buying  AWK At 2016-03-04 \n",
+      "Ignore 5 years return for AWK \n",
+      "Buying  UDR At 2016-03-07 \n",
+      "Ignore 5 years return for UDR \n",
+      "Buying  UAA At 2016-03-28 \n",
+      "Ignore 5 years return for UAA \n",
+      "Buying  HOLX At 2016-03-30 \n",
+      "Ignore 5 years return for HOLX \n",
+      "Buying  CNC At 2016-03-30 \n",
+      "Ignore 5 years return for CNC \n",
+      "Buying  FL At 2016-04-04 \n",
+      "Ignore 5 years return for FL \n",
+      "Buying  ULTA At 2016-04-18 \n",
+      "Ignore 5 years return for ULTA \n",
+      "Buying  GPN At 2016-04-25 \n",
+      "Ignore 5 years return for GPN \n",
+      "Buying  AYI At 2016-05-03 \n",
+      "Ignore 5 years return for AYI \n",
+      "Buying  ALK At 2016-05-13 \n",
+      "Ignore 5 years return for ALK \n",
+      "Buying  DLR At 2016-05-18 \n",
+      "Ignore 5 years return for DLR \n",
+      "Buying  LKQ At 2016-05-23 \n",
+      "Ignore 5 years return for LKQ \n",
+      "Buying  AJG At 2016-05-31 \n",
+      "Ignore 5 years return for AJG \n",
+      "Buying  TDG At 2016-06-03 \n",
+      "Ignore 5 years return for TDG \n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Warning message:\n",
+      "“UA-C download failed; trying again.”\n",
+      "Warning message:\n",
+      "“FBHS download failed; trying again.”\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Buying  FBHS At 2016-06-22 \n",
+      "Ignore 5 years return for FBHS \n",
+      "Buying  ALB At 2016-07-01 \n",
+      "Ignore 5 years return for ALB \n",
+      "Buying  FTV At 2016-07-05 \n",
+      "Ignore 5 years return for FTV \n",
+      "Buying  LNT At 2016-07-01 \n",
+      "Ignore 5 years return for LNT \n",
+      "Buying  FTV At 2016-07-05 \n",
+      "Ignore 5 years return for FTV \n",
+      "Buying  MTD At 2016-09-06 \n",
+      "Ignore 5 years return for MTD \n",
+      "Buying  CHTR At 2016-09-08 \n",
+      "Ignore 5 years return for CHTR \n",
+      "Buying  COO At 2016-09-22 \n",
+      "Ignore 5 years return for COO \n",
+      "Buying  COO At 2016-09-23 \n",
+      "Ignore 5 years return for COO \n",
+      "Buying  COTY At 2016-09-30 \n",
+      "Ignore 5 years return for COTY \n"
+     ]
+    }
+   ],
+   "source": [
+    "InvRet5<-data.frame(company=NA,Date=NA,ROI5=NA,ROI5_SPY=NA)[numeric(0), ]\n",
+    "InvRet10<-data.frame(company=NA,Date=NA,ROI10=NA,ROI10_SPY=NA)[numeric(0), ]\n",
+    "for (row in 1:nrow(SP500.1993)){\n",
+    "#for (row in 1:5){\n",
+    "    tryCatch({\n",
+    "    Symbol = toString(SP500.1993[row,]$Symbol)\n",
+    "    Name = SP500.1993[row,]$Name\n",
+    "    Date = (SP500.1993[row,]$Date)\n",
+    "    Stock = getSymbols(Symbol, src = \"yahoo\", from = Date, to = Sys.Date()+1, auto.assign = FALSE)\n",
+    "    Stock.price = data.frame(\"Date\" = index(Stock), \"Price\" =  Stock[,6])\n",
+    "    names(Stock.price) = c(\"Date\",\"Price\")\n",
+    "    \n",
+    "    BuyDate = Date\n",
+    "    #####Ge the frist available trading date after the ticked added to SP500\n",
+    "    while ((!(toString(BuyDate) %in% row.names(SPY.price)) || \n",
+    "           !(toString(BuyDate) %in% row.names(Stock.price)) ||\n",
+    "            is.na(Stock.price[toString(BuyDate),2])) &&\n",
+    "            BuyDate<Date+30){  ######Ignore stocks with missing data more than a month,also speed up\n",
+    "                BuyDate = BuyDate +1 \n",
+    "    }\n",
+    "    if(BuyDate >= Date+30){\n",
+    "        cat(\"Ignore 5 years return for\",Symbol,\"\\n\")\n",
+    "        next\n",
+    "    }\n",
+    "    cat(\"Buying \", Symbol,\"At\",toString(BuyDate),\"\\n\")\n",
+    "           \n",
+    "        \n",
+    "    #We buy the ticket and SPY for control at the same time\n",
+    "    FirstPrice.Stock = Stock.price[toString(BuyDate),]$Price\n",
+    "    FirstPrice.SPY   = SPY.price[toString(BuyDate),]$Price\n",
+    "    \n",
+    "        \n",
+    "    #Price after 5 years    \n",
+    "    SellDate = seq(BuyDate, length=2, by=\"+5 years\")[2]\n",
+    "    AnchorDate = SellDate\n",
+    "    while ( (!(toString(SellDate) %in% row.names(SPY.price)) ||\n",
+    "           !(toString(SellDate) %in% row.names(Stock.price)) ||\n",
+    "           is.na(Stock.price[toString(SellDate),2])) &&\n",
+    "           SellDate<AnchorDate+30){\n",
+    "                SellDate = SellDate +1 \n",
+    "    }\n",
+    "    if(SellDate >= AnchorDate+30 || SellDate>=Sys.Date()-1){\n",
+    "        cat(\"Ignore 5 years return for\",Symbol,\"\\n\")\n",
+    "        next   #####Skip less than 5 years stocks\n",
+    "    }\n",
+    "        \n",
+    "    FivePrice.Stock = Stock.price[toString(SellDate),]$Price\n",
+    "    FivePrice.SPY   = SPY.price[toString(SellDate),]$Price\n",
+    "    \n",
+    "    ###ROI After 5 years\n",
+    "    ROI5.Stock  = FivePrice.Stock/FirstPrice.Stock -1\n",
+    "    ROI5.SPY    = FivePrice.SPY/FirstPrice.SPY -1\n",
+    "    \n",
+    "    \n",
+    "    de<-data.frame(Symbol,Date,ROI5.Stock,ROI5.SPY)\n",
+    "    names(de)<-names(InvRet5)\n",
+    "    InvRet5<-rbind(InvRet5,de)\n",
+    "        \n",
+    "    #Price after 10 years    \n",
+    "    SellDate = seq(BuyDate, length=2, by=\"+10 years\")[2]\n",
+    "    AnchorDate = SellDate\n",
+    "    while ((!(toString(SellDate) %in% row.names(SPY.price)) || \n",
+    "           !(toString(SellDate) %in% row.names(Stock.price)) ||\n",
+    "           is.na(Stock.price[toString(SellDate),2])) &&\n",
+    "           SellDate<AnchorDate+30){\n",
+    "                SellDate = SellDate +1 \n",
+    "    }\n",
+    "    if(SellDate >= AnchorDate+30 || SellDate>=Sys.Date()-1){\n",
+    "        cat(\"Ignore 10 years return for\",Symbol,\"\\n\")\n",
+    "        next   #####Skip less than 10 years stocks\n",
+    "    }\n",
+    "    TenPrice.Stock = Stock.price[toString(SellDate),]$Price\n",
+    "    TenPrice.SPY   = SPY.price[toString(SellDate),]$Price\n",
+    "    \n",
+    "    ###ROI After 10 years\n",
+    "    ROI10.Stock  = TenPrice.Stock/FirstPrice.Stock -1\n",
+    "    ROI10.SPY    = TenPrice.SPY/FirstPrice.SPY -1\n",
+    "    \n",
+    "    de<-data.frame(Symbol,Date,ROI10.Stock,ROI10.SPY)\n",
+    "    names(de)<-names(InvRet10)\n",
+    "    InvRet10<-rbind(InvRet10,de)\n",
+    "    \n",
+    "    }, error=function(e){}) #tryCatch is to skip error when downloading data      \n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "write.csv(InvRet5,'NewComp5YearsReturn.csv')\n",
+    "write.csv(InvRet10,'NewComp10YearsReturn.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A data.frame: 6 × 4</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>company</th><th scope=col>Date</th><th scope=col>ROI10</th><th scope=col>ROI10_SPY</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;date&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>1</th><td>COST</td><td>1993-10-01</td><td> 2.4338895</td><td>1.608241</td></tr>\n",
+       "\t<tr><th scope=row>2</th><td>CSCO</td><td>1993-12-01</td><td>13.4812174</td><td>1.734472</td></tr>\n",
+       "\t<tr><th scope=row>3</th><td>EMN </td><td>1994-01-01</td><td> 0.3374463</td><td>1.847620</td></tr>\n",
+       "\t<tr><th scope=row>4</th><td>KEY </td><td>1994-03-01</td><td> 2.4506855</td><td>1.931973</td></tr>\n",
+       "\t<tr><th scope=row>5</th><td>UNM </td><td>1994-03-01</td><td>-0.3084700</td><td>1.931973</td></tr>\n",
+       "\t<tr><th scope=row>6</th><td>MSFT</td><td>1994-06-01</td><td> 6.9519714</td><td>1.876079</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A data.frame: 6 × 4\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & company & Date & ROI10 & ROI10\\_SPY\\\\\n",
+       "  & <fct> & <date> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t1 & COST & 1993-10-01 &  2.4338895 & 1.608241\\\\\n",
+       "\t2 & CSCO & 1993-12-01 & 13.4812174 & 1.734472\\\\\n",
+       "\t3 & EMN  & 1994-01-01 &  0.3374463 & 1.847620\\\\\n",
+       "\t4 & KEY  & 1994-03-01 &  2.4506855 & 1.931973\\\\\n",
+       "\t5 & UNM  & 1994-03-01 & -0.3084700 & 1.931973\\\\\n",
+       "\t6 & MSFT & 1994-06-01 &  6.9519714 & 1.876079\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A data.frame: 6 × 4\n",
+       "\n",
+       "| <!--/--> | company &lt;fct&gt; | Date &lt;date&gt; | ROI10 &lt;dbl&gt; | ROI10_SPY &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|\n",
+       "| 1 | COST | 1993-10-01 |  2.4338895 | 1.608241 |\n",
+       "| 2 | CSCO | 1993-12-01 | 13.4812174 | 1.734472 |\n",
+       "| 3 | EMN  | 1994-01-01 |  0.3374463 | 1.847620 |\n",
+       "| 4 | KEY  | 1994-03-01 |  2.4506855 | 1.931973 |\n",
+       "| 5 | UNM  | 1994-03-01 | -0.3084700 | 1.931973 |\n",
+       "| 6 | MSFT | 1994-06-01 |  6.9519714 | 1.876079 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "  company Date       ROI10      ROI10_SPY\n",
+       "1 COST    1993-10-01  2.4338895 1.608241 \n",
+       "2 CSCO    1993-12-01 13.4812174 1.734472 \n",
+       "3 EMN     1994-01-01  0.3374463 1.847620 \n",
+       "4 KEY     1994-03-01  2.4506855 1.931973 \n",
+       "5 UNM     1994-03-01 -0.3084700 1.931973 \n",
+       "6 MSFT    1994-06-01  6.9519714 1.876079 "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "head(InvRet10)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

@@ -1,0 +1,1510 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Loading required package: e1071\n",
+      "\n",
+      "Loading required package: MASS\n",
+      "\n",
+      "Loading required package: lattice\n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "'data.frame':\t78 obs. of  9 variables:\n",
+      " $ AGE    : int  18 15 17 17 17 14 14 17 15 14 ...\n",
+      " $ HT     : num  65.8 65.5 64 72 69.5 ...\n",
+      " $ WT     : num  134 129 121 145 299 ...\n",
+      " $ ABS    : num  8 10 6 11 54 40 6 11 9 19 ...\n",
+      " $ TRICEPS: num  6 8 6 10 42 25 8 7 6 13 ...\n",
+      " $ SUBSCAP: num  10.5 9 8 10 37 26 7 8 8 11.5 ...\n",
+      " $ HWFAT  : num  10.71 8.53 6.78 9.32 41.89 ...\n",
+      " $ TANFAT : num  11.9 10 8.3 8.2 41.6 29.9 12.4 11.1 10.1 15.5 ...\n",
+      " $ SKFAT  : num  9.8 10.56 8.43 11.77 41.09 ...\n"
+     ]
+    }
+   ],
+   "source": [
+    "# | Applied Statistics and Data Analysis\n",
+    "# | Multiple Linear Regression 3    \n",
+    "# | Model Selection \n",
+    "\n",
+    "\n",
+    "# Example\n",
+    "\n",
+    "library(PASWR)\n",
+    "attach(HSwrestler)\n",
+    "str(HSwrestler)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 7 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td>13.29369860</td><td>9.63026704</td><td> 1.3804081</td><td>1.717917e-01</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.32893403</td><td>0.32157778</td><td>-1.0228755</td><td>3.098393e-01</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td>-0.06730905</td><td>0.16050751</td><td>-0.4193514</td><td>6.762255e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td>-0.01365183</td><td>0.02590783</td><td>-0.5269385</td><td>5.998789e-01</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.37141976</td><td>0.08836595</td><td> 4.2032001</td><td>7.548985e-05</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.38742647</td><td>0.13761017</td><td> 2.8153912</td><td>6.301113e-03</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 0.11405213</td><td>0.14192779</td><td> 0.8035927</td><td>4.243145e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 7 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) & 13.29369860 & 9.63026704 &  1.3804081 & 1.717917e-01\\\\\n",
+       "\tAGE & -0.32893403 & 0.32157778 & -1.0228755 & 3.098393e-01\\\\\n",
+       "\tHT & -0.06730905 & 0.16050751 & -0.4193514 & 6.762255e-01\\\\\n",
+       "\tWT & -0.01365183 & 0.02590783 & -0.5269385 & 5.998789e-01\\\\\n",
+       "\tABS &  0.37141976 & 0.08836595 &  4.2032001 & 7.548985e-05\\\\\n",
+       "\tTRICEPS &  0.38742647 & 0.13761017 &  2.8153912 & 6.301113e-03\\\\\n",
+       "\tSUBSCAP &  0.11405213 & 0.14192779 &  0.8035927 & 4.243145e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 7 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) | 13.29369860 | 9.63026704 |  1.3804081 | 1.717917e-01 |\n",
+       "| AGE | -0.32893403 | 0.32157778 | -1.0228755 | 3.098393e-01 |\n",
+       "| HT | -0.06730905 | 0.16050751 | -0.4193514 | 6.762255e-01 |\n",
+       "| WT | -0.01365183 | 0.02590783 | -0.5269385 | 5.998789e-01 |\n",
+       "| ABS |  0.37141976 | 0.08836595 |  4.2032001 | 7.548985e-05 |\n",
+       "| TRICEPS |  0.38742647 | 0.13761017 |  2.8153912 | 6.301113e-03 |\n",
+       "| SUBSCAP |  0.11405213 | 0.14192779 |  0.8035927 | 4.243145e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate    Std. Error t value    Pr(>|t|)    \n",
+       "(Intercept) 13.29369860 9.63026704  1.3804081 1.717917e-01\n",
+       "AGE         -0.32893403 0.32157778 -1.0228755 3.098393e-01\n",
+       "HT          -0.06730905 0.16050751 -0.4193514 6.762255e-01\n",
+       "WT          -0.01365183 0.02590783 -0.5269385 5.998789e-01\n",
+       "ABS          0.37141976 0.08836595  4.2032001 7.548985e-05\n",
+       "TRICEPS      0.38742647 0.13761017  2.8153912 6.301113e-03\n",
+       "SUBSCAP      0.11405213 0.14192779  0.8035927 4.243145e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 6 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td> 9.69230054</td><td>4.33250597</td><td> 2.2371119</td><td>2.837559e-02</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.33352357</td><td>0.31954680</td><td>-1.0437393</td><td>3.000978e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td>-0.02084061</td><td>0.01931391</td><td>-1.0790465</td><td>2.841686e-01</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.38259027</td><td>0.08377184</td><td> 4.5670510</td><td>1.996022e-05</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.39737898</td><td>0.13477014</td><td> 2.9485685</td><td>4.302189e-03</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 0.11175170</td><td>0.14100772</td><td> 0.7925218</td><td>4.306601e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 6 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) &  9.69230054 & 4.33250597 &  2.2371119 & 2.837559e-02\\\\\n",
+       "\tAGE & -0.33352357 & 0.31954680 & -1.0437393 & 3.000978e-01\\\\\n",
+       "\tWT & -0.02084061 & 0.01931391 & -1.0790465 & 2.841686e-01\\\\\n",
+       "\tABS &  0.38259027 & 0.08377184 &  4.5670510 & 1.996022e-05\\\\\n",
+       "\tTRICEPS &  0.39737898 & 0.13477014 &  2.9485685 & 4.302189e-03\\\\\n",
+       "\tSUBSCAP &  0.11175170 & 0.14100772 &  0.7925218 & 4.306601e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 6 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) |  9.69230054 | 4.33250597 |  2.2371119 | 2.837559e-02 |\n",
+       "| AGE | -0.33352357 | 0.31954680 | -1.0437393 | 3.000978e-01 |\n",
+       "| WT | -0.02084061 | 0.01931391 | -1.0790465 | 2.841686e-01 |\n",
+       "| ABS |  0.38259027 | 0.08377184 |  4.5670510 | 1.996022e-05 |\n",
+       "| TRICEPS |  0.39737898 | 0.13477014 |  2.9485685 | 4.302189e-03 |\n",
+       "| SUBSCAP |  0.11175170 | 0.14100772 |  0.7925218 | 4.306601e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate    Std. Error t value    Pr(>|t|)    \n",
+       "(Intercept)  9.69230054 4.33250597  2.2371119 2.837559e-02\n",
+       "AGE         -0.33352357 0.31954680 -1.0437393 3.000978e-01\n",
+       "WT          -0.02084061 0.01931391 -1.0790465 2.841686e-01\n",
+       "ABS          0.38259027 0.08377184  4.5670510 1.996022e-05\n",
+       "TRICEPS      0.39737898 0.13477014  2.9485685 4.302189e-03\n",
+       "SUBSCAP      0.11175170 0.14100772  0.7925218 4.306601e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 5 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td> 9.94025577</td><td>4.31017288</td><td> 2.3062313</td><td>2.393916e-02</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.38382444</td><td>0.31238134</td><td>-1.2287048</td><td>2.231289e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td>-0.01585418</td><td>0.01821376</td><td>-0.8704507</td><td>3.869075e-01</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.39968360</td><td>0.08074124</td><td> 4.9501789</td><td>4.621329e-06</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.46942072</td><td>0.09924414</td><td> 4.7299591</td><td>1.068468e-05</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 5 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) &  9.94025577 & 4.31017288 &  2.3062313 & 2.393916e-02\\\\\n",
+       "\tAGE & -0.38382444 & 0.31238134 & -1.2287048 & 2.231289e-01\\\\\n",
+       "\tWT & -0.01585418 & 0.01821376 & -0.8704507 & 3.869075e-01\\\\\n",
+       "\tABS &  0.39968360 & 0.08074124 &  4.9501789 & 4.621329e-06\\\\\n",
+       "\tTRICEPS &  0.46942072 & 0.09924414 &  4.7299591 & 1.068468e-05\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 5 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) |  9.94025577 | 4.31017288 |  2.3062313 | 2.393916e-02 |\n",
+       "| AGE | -0.38382444 | 0.31238134 | -1.2287048 | 2.231289e-01 |\n",
+       "| WT | -0.01585418 | 0.01821376 | -0.8704507 | 3.869075e-01 |\n",
+       "| ABS |  0.39968360 | 0.08074124 |  4.9501789 | 4.621329e-06 |\n",
+       "| TRICEPS |  0.46942072 | 0.09924414 |  4.7299591 | 1.068468e-05 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate    Std. Error t value    Pr(>|t|)    \n",
+       "(Intercept)  9.94025577 4.31017288  2.3062313 2.393916e-02\n",
+       "AGE         -0.38382444 0.31238134 -1.2287048 2.231289e-01\n",
+       "WT          -0.01585418 0.01821376 -0.8704507 3.869075e-01\n",
+       "ABS          0.39968360 0.08074124  4.9501789 4.621329e-06\n",
+       "TRICEPS      0.46942072 0.09924414  4.7299591 1.068468e-05"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td>10.6160623</td><td>4.23272425</td><td> 2.508092</td><td>1.433001e-02</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.5330948</td><td>0.26067474</td><td>-2.045057</td><td>4.440545e-02</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.3564311</td><td>0.06353588</td><td> 5.609918</td><td>3.323075e-07</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.4656071</td><td>0.09898493</td><td> 4.703819</td><td>1.158514e-05</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 4 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) & 10.6160623 & 4.23272425 &  2.508092 & 1.433001e-02\\\\\n",
+       "\tAGE & -0.5330948 & 0.26067474 & -2.045057 & 4.440545e-02\\\\\n",
+       "\tABS &  0.3564311 & 0.06353588 &  5.609918 & 3.323075e-07\\\\\n",
+       "\tTRICEPS &  0.4656071 & 0.09898493 &  4.703819 & 1.158514e-05\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 4 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) | 10.6160623 | 4.23272425 |  2.508092 | 1.433001e-02 |\n",
+       "| AGE | -0.5330948 | 0.26067474 | -2.045057 | 4.440545e-02 |\n",
+       "| ABS |  0.3564311 | 0.06353588 |  5.609918 | 3.323075e-07 |\n",
+       "| TRICEPS |  0.4656071 | 0.09898493 |  4.703819 | 1.158514e-05 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate   Std. Error t value   Pr(>|t|)    \n",
+       "(Intercept) 10.6160623 4.23272425  2.508092 1.433001e-02\n",
+       "AGE         -0.5330948 0.26067474 -2.045057 4.440545e-02\n",
+       "ABS          0.3564311 0.06353588  5.609918 3.323075e-07\n",
+       "TRICEPS      0.4656071 0.09898493  4.703819 1.158514e-05"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## Example: Backward elimination\n",
+    "\n",
+    "reg.all <- lm(HWFAT ~ AGE + HT + WT + ABS +\n",
+    "                TRICEPS + SUBSCAP)\n",
+    "summary(reg.all)$coefficients\n",
+    "\n",
+    "reg.m1 <- lm(HWFAT ~ AGE + WT + ABS + TRICEPS + SUBSCAP)\n",
+    "summary(reg.m1)$coefficients\n",
+    "\n",
+    "reg.m2 <- lm(HWFAT ~ AGE + WT + ABS + TRICEPS)\n",
+    "summary(reg.m2)$coefficients\n",
+    "\n",
+    "reg.m3 <- lm(HWFAT ~ AGE + ABS + TRICEPS)\n",
+    "summary(reg.m3)$coefficients"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 7 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>        NA</td><td>651.0499</td><td>179.5064</td><td>        NA</td><td>          NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td>  9.594038</td><td>660.6439</td><td>178.6475</td><td> 1.0462743</td><td>3.098393e-01</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td> 1</td><td>  1.612546</td><td>652.6624</td><td>177.6994</td><td> 0.1758556</td><td>6.762255e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td>  2.546101</td><td>653.5960</td><td>177.8109</td><td> 0.2776641</td><td>5.998789e-01</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 1</td><td>162.000380</td><td>813.0503</td><td>194.8386</td><td>17.6668908</td><td>7.548985e-05</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 1</td><td> 72.683094</td><td>723.7330</td><td>185.7617</td><td> 7.9264275</td><td>6.301113e-03</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 1</td><td>  5.921447</td><td>656.9713</td><td>178.2127</td><td> 0.6457612</td><td>4.243145e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 7 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &         NA & 651.0499 & 179.5064 &         NA &           NA\\\\\n",
+       "\tAGE &  1 &   9.594038 & 660.6439 & 178.6475 &  1.0462743 & 3.098393e-01\\\\\n",
+       "\tHT &  1 &   1.612546 & 652.6624 & 177.6994 &  0.1758556 & 6.762255e-01\\\\\n",
+       "\tWT &  1 &   2.546101 & 653.5960 & 177.8109 &  0.2776641 & 5.998789e-01\\\\\n",
+       "\tABS &  1 & 162.000380 & 813.0503 & 194.8386 & 17.6668908 & 7.548985e-05\\\\\n",
+       "\tTRICEPS &  1 &  72.683094 & 723.7330 & 185.7617 &  7.9264275 & 6.301113e-03\\\\\n",
+       "\tSUBSCAP &  1 &   5.921447 & 656.9713 & 178.2127 &  0.6457612 & 4.243145e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 7 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |         NA | 651.0499 | 179.5064 |         NA |           NA |\n",
+       "| AGE |  1 |   9.594038 | 660.6439 | 178.6475 |  1.0462743 | 3.098393e-01 |\n",
+       "| HT |  1 |   1.612546 | 652.6624 | 177.6994 |  0.1758556 | 6.762255e-01 |\n",
+       "| WT |  1 |   2.546101 | 653.5960 | 177.8109 |  0.2776641 | 5.998789e-01 |\n",
+       "| ABS |  1 | 162.000380 | 813.0503 | 194.8386 | 17.6668908 | 7.548985e-05 |\n",
+       "| TRICEPS |  1 |  72.683094 | 723.7330 | 185.7617 |  7.9264275 | 6.301113e-03 |\n",
+       "| SUBSCAP |  1 |   5.921447 | 656.9713 | 178.2127 |  0.6457612 | 4.243145e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq  RSS      AIC      F value    Pr(>F)      \n",
+       "<none>  NA         NA 651.0499 179.5064         NA           NA\n",
+       "AGE      1   9.594038 660.6439 178.6475  1.0462743 3.098393e-01\n",
+       "HT       1   1.612546 652.6624 177.6994  0.1758556 6.762255e-01\n",
+       "WT       1   2.546101 653.5960 177.8109  0.2776641 5.998789e-01\n",
+       "ABS      1 162.000380 813.0503 194.8386 17.6668908 7.548985e-05\n",
+       "TRICEPS  1  72.683094 723.7330 185.7617  7.9264275 6.301113e-03\n",
+       "SUBSCAP  1   5.921447 656.9713 178.2127  0.6457612 4.243145e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## Example: Backward elimination\n",
+    "\n",
+    "# Alternately, the function `drop1()` can be used in `R`:\n",
+    "drop1(lm(HWFAT ~ AGE + HT + WT + ABS + TRICEPS + \n",
+    "           SUBSCAP), test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 6 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>        NA</td><td>652.6624</td><td>177.6994</td><td>        NA</td><td>          NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td>  9.875071</td><td>662.5375</td><td>176.8707</td><td> 1.0893918</td><td>3.000978e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td> 10.554470</td><td>663.2169</td><td>176.9507</td><td> 1.1643414</td><td>2.841686e-01</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 1</td><td>189.072269</td><td>841.7347</td><td>195.5430</td><td>20.8579550</td><td>1.996022e-05</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 1</td><td> 78.809495</td><td>731.4719</td><td>184.5913</td><td> 8.6940561</td><td>4.302189e-03</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 1</td><td>  5.693490</td><td>658.3559</td><td>176.3769</td><td> 0.6280909</td><td>4.306601e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 6 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &         NA & 652.6624 & 177.6994 &         NA &           NA\\\\\n",
+       "\tAGE &  1 &   9.875071 & 662.5375 & 176.8707 &  1.0893918 & 3.000978e-01\\\\\n",
+       "\tWT &  1 &  10.554470 & 663.2169 & 176.9507 &  1.1643414 & 2.841686e-01\\\\\n",
+       "\tABS &  1 & 189.072269 & 841.7347 & 195.5430 & 20.8579550 & 1.996022e-05\\\\\n",
+       "\tTRICEPS &  1 &  78.809495 & 731.4719 & 184.5913 &  8.6940561 & 4.302189e-03\\\\\n",
+       "\tSUBSCAP &  1 &   5.693490 & 658.3559 & 176.3769 &  0.6280909 & 4.306601e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 6 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |         NA | 652.6624 | 177.6994 |         NA |           NA |\n",
+       "| AGE |  1 |   9.875071 | 662.5375 | 176.8707 |  1.0893918 | 3.000978e-01 |\n",
+       "| WT |  1 |  10.554470 | 663.2169 | 176.9507 |  1.1643414 | 2.841686e-01 |\n",
+       "| ABS |  1 | 189.072269 | 841.7347 | 195.5430 | 20.8579550 | 1.996022e-05 |\n",
+       "| TRICEPS |  1 |  78.809495 | 731.4719 | 184.5913 |  8.6940561 | 4.302189e-03 |\n",
+       "| SUBSCAP |  1 |   5.693490 | 658.3559 | 176.3769 |  0.6280909 | 4.306601e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq  RSS      AIC      F value    Pr(>F)      \n",
+       "<none>  NA         NA 652.6624 177.6994         NA           NA\n",
+       "AGE      1   9.875071 662.5375 176.8707  1.0893918 3.000978e-01\n",
+       "WT       1  10.554470 663.2169 176.9507  1.1643414 2.841686e-01\n",
+       "ABS      1 189.072269 841.7347 195.5430 20.8579550 1.996022e-05\n",
+       "TRICEPS  1  78.809495 731.4719 184.5913  8.6940561 4.302189e-03\n",
+       "SUBSCAP  1   5.693490 658.3559 176.3769  0.6280909 4.306601e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "drop1(lm(HWFAT ~ AGE + WT + ABS + TRICEPS + \n",
+    "           SUBSCAP), test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 5 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>        NA</td><td>658.3559</td><td>176.3769</td><td>        NA</td><td>          NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td> 13.615480</td><td>671.9714</td><td>175.9735</td><td> 1.5097154</td><td>2.231289e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td>  6.833234</td><td>665.1891</td><td>175.1823</td><td> 0.7576845</td><td>3.869075e-01</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 1</td><td>220.993585</td><td>879.3495</td><td>196.9529</td><td>24.5042712</td><td>4.621329e-06</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 1</td><td>201.768165</td><td>860.1241</td><td>195.2287</td><td>22.3725129</td><td>1.068468e-05</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 5 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &         NA & 658.3559 & 176.3769 &         NA &           NA\\\\\n",
+       "\tAGE &  1 &  13.615480 & 671.9714 & 175.9735 &  1.5097154 & 2.231289e-01\\\\\n",
+       "\tWT &  1 &   6.833234 & 665.1891 & 175.1823 &  0.7576845 & 3.869075e-01\\\\\n",
+       "\tABS &  1 & 220.993585 & 879.3495 & 196.9529 & 24.5042712 & 4.621329e-06\\\\\n",
+       "\tTRICEPS &  1 & 201.768165 & 860.1241 & 195.2287 & 22.3725129 & 1.068468e-05\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 5 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |         NA | 658.3559 | 176.3769 |         NA |           NA |\n",
+       "| AGE |  1 |  13.615480 | 671.9714 | 175.9735 |  1.5097154 | 2.231289e-01 |\n",
+       "| WT |  1 |   6.833234 | 665.1891 | 175.1823 |  0.7576845 | 3.869075e-01 |\n",
+       "| ABS |  1 | 220.993585 | 879.3495 | 196.9529 | 24.5042712 | 4.621329e-06 |\n",
+       "| TRICEPS |  1 | 201.768165 | 860.1241 | 195.2287 | 22.3725129 | 1.068468e-05 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq  RSS      AIC      F value    Pr(>F)      \n",
+       "<none>  NA         NA 658.3559 176.3769         NA           NA\n",
+       "AGE      1  13.615480 671.9714 175.9735  1.5097154 2.231289e-01\n",
+       "WT       1   6.833234 665.1891 175.1823  0.7576845 3.869075e-01\n",
+       "ABS      1 220.993585 879.3495 196.9529 24.5042712 4.621329e-06\n",
+       "TRICEPS  1 201.768165 860.1241 195.2287 22.3725129 1.068468e-05"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 4 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>       NA</td><td>665.1891</td><td>175.1823</td><td>       NA</td><td>          NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td> 37.59451</td><td>702.7837</td><td>177.4705</td><td> 4.182259</td><td>4.440545e-02</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 1</td><td>282.89573</td><td>948.0849</td><td>200.8233</td><td>31.471176</td><td>3.323075e-07</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 1</td><td>198.89075</td><td>864.0799</td><td>193.5866</td><td>22.125911</td><td>1.158514e-05</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 4 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &        NA & 665.1891 & 175.1823 &        NA &           NA\\\\\n",
+       "\tAGE &  1 &  37.59451 & 702.7837 & 177.4705 &  4.182259 & 4.440545e-02\\\\\n",
+       "\tABS &  1 & 282.89573 & 948.0849 & 200.8233 & 31.471176 & 3.323075e-07\\\\\n",
+       "\tTRICEPS &  1 & 198.89075 & 864.0799 & 193.5866 & 22.125911 & 1.158514e-05\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 4 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |        NA | 665.1891 | 175.1823 |        NA |           NA |\n",
+       "| AGE |  1 |  37.59451 | 702.7837 | 177.4705 |  4.182259 | 4.440545e-02 |\n",
+       "| ABS |  1 | 282.89573 | 948.0849 | 200.8233 | 31.471176 | 3.323075e-07 |\n",
+       "| TRICEPS |  1 | 198.89075 | 864.0799 | 193.5866 | 22.125911 | 1.158514e-05 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq RSS      AIC      F value   Pr(>F)      \n",
+       "<none>  NA        NA 665.1891 175.1823        NA           NA\n",
+       "AGE      1  37.59451 702.7837 177.4705  4.182259 4.440545e-02\n",
+       "ABS      1 282.89573 948.0849 200.8233 31.471176 3.323075e-07\n",
+       "TRICEPS  1 198.89075 864.0799 193.5866 22.125911 1.158514e-05"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "drop1(lm(HWFAT ~ AGE + WT + ABS +TRICEPS), \n",
+    "      test=\"F\")\n",
+    "\n",
+    "drop1(lm(HWFAT ~ AGE + ABS +TRICEPS), test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 7 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>       NA</td><td>6017.7917</td><td>340.9698</td><td>        NA</td><td>          NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td> 175.0162</td><td>5842.7755</td><td>340.6677</td><td>  2.276526</td><td>1.354920e-01</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td> 1</td><td> 117.8029</td><td>5899.9888</td><td>341.4278</td><td>  1.517465</td><td>2.218014e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td>3237.6122</td><td>2780.1795</td><td>282.7378</td><td> 88.504546</td><td>2.219255e-14</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 1</td><td>5072.8354</td><td> 944.9564</td><td>198.5655</td><td>407.992906</td><td>2.774606e-32</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 1</td><td>5056.2533</td><td> 961.5385</td><td>199.9224</td><td>399.646244</td><td>5.382426e-32</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 1</td><td>4938.9927</td><td>1078.7991</td><td>208.8978</td><td>347.945644</td><td>4.314454e-30</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 7 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &        NA & 6017.7917 & 340.9698 &         NA &           NA\\\\\n",
+       "\tAGE &  1 &  175.0162 & 5842.7755 & 340.6677 &   2.276526 & 1.354920e-01\\\\\n",
+       "\tHT &  1 &  117.8029 & 5899.9888 & 341.4278 &   1.517465 & 2.218014e-01\\\\\n",
+       "\tWT &  1 & 3237.6122 & 2780.1795 & 282.7378 &  88.504546 & 2.219255e-14\\\\\n",
+       "\tABS &  1 & 5072.8354 &  944.9564 & 198.5655 & 407.992906 & 2.774606e-32\\\\\n",
+       "\tTRICEPS &  1 & 5056.2533 &  961.5385 & 199.9224 & 399.646244 & 5.382426e-32\\\\\n",
+       "\tSUBSCAP &  1 & 4938.9927 & 1078.7991 & 208.8978 & 347.945644 & 4.314454e-30\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 7 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |        NA | 6017.7917 | 340.9698 |         NA |           NA |\n",
+       "| AGE |  1 |  175.0162 | 5842.7755 | 340.6677 |   2.276526 | 1.354920e-01 |\n",
+       "| HT |  1 |  117.8029 | 5899.9888 | 341.4278 |   1.517465 | 2.218014e-01 |\n",
+       "| WT |  1 | 3237.6122 | 2780.1795 | 282.7378 |  88.504546 | 2.219255e-14 |\n",
+       "| ABS |  1 | 5072.8354 |  944.9564 | 198.5655 | 407.992906 | 2.774606e-32 |\n",
+       "| TRICEPS |  1 | 5056.2533 |  961.5385 | 199.9224 | 399.646244 | 5.382426e-32 |\n",
+       "| SUBSCAP |  1 | 4938.9927 | 1078.7991 | 208.8978 | 347.945644 | 4.314454e-30 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq RSS       AIC      F value    Pr(>F)      \n",
+       "<none>  NA        NA 6017.7917 340.9698         NA           NA\n",
+       "AGE      1  175.0162 5842.7755 340.6677   2.276526 1.354920e-01\n",
+       "HT       1  117.8029 5899.9888 341.4278   1.517465 2.218014e-01\n",
+       "WT       1 3237.6122 2780.1795 282.7378  88.504546 2.219255e-14\n",
+       "ABS      1 5072.8354  944.9564 198.5655 407.992906 2.774606e-32\n",
+       "TRICEPS  1 5056.2533  961.5385 199.9224 399.646244 5.382426e-32\n",
+       "SUBSCAP  1 4938.9927 1078.7991 208.8978 347.945644 4.314454e-30"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## Example: Forward selection\n",
+    "add1(lm(HWFAT~1), scope=(~.+ AGE + HT + WT + \n",
+    "                           ABS + TRICEPS + \n",
+    "                           SUBSCAP), test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 6 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>       NA</td><td>944.9564</td><td>198.5655</td><td>       NA</td><td>          NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td> 80.87646</td><td>864.0799</td><td>193.5866</td><td> 7.019877</td><td>9.825518e-03</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td> 1</td><td> 61.59770</td><td>883.3587</td><td>195.3078</td><td> 5.229843</td><td>2.502498e-02</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td> 43.73412</td><td>901.2222</td><td>196.8694</td><td> 3.639568</td><td>6.024982e-02</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 1</td><td>242.17270</td><td>702.7837</td><td>177.4705</td><td>25.844302</td><td>2.638708e-06</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 1</td><td>132.57961</td><td>812.3767</td><td>188.7739</td><td>12.239974</td><td>7.903716e-04</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 6 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &        NA & 944.9564 & 198.5655 &        NA &           NA\\\\\n",
+       "\tAGE &  1 &  80.87646 & 864.0799 & 193.5866 &  7.019877 & 9.825518e-03\\\\\n",
+       "\tHT &  1 &  61.59770 & 883.3587 & 195.3078 &  5.229843 & 2.502498e-02\\\\\n",
+       "\tWT &  1 &  43.73412 & 901.2222 & 196.8694 &  3.639568 & 6.024982e-02\\\\\n",
+       "\tTRICEPS &  1 & 242.17270 & 702.7837 & 177.4705 & 25.844302 & 2.638708e-06\\\\\n",
+       "\tSUBSCAP &  1 & 132.57961 & 812.3767 & 188.7739 & 12.239974 & 7.903716e-04\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 6 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |        NA | 944.9564 | 198.5655 |        NA |           NA |\n",
+       "| AGE |  1 |  80.87646 | 864.0799 | 193.5866 |  7.019877 | 9.825518e-03 |\n",
+       "| HT |  1 |  61.59770 | 883.3587 | 195.3078 |  5.229843 | 2.502498e-02 |\n",
+       "| WT |  1 |  43.73412 | 901.2222 | 196.8694 |  3.639568 | 6.024982e-02 |\n",
+       "| TRICEPS |  1 | 242.17270 | 702.7837 | 177.4705 | 25.844302 | 2.638708e-06 |\n",
+       "| SUBSCAP |  1 | 132.57961 | 812.3767 | 188.7739 | 12.239974 | 7.903716e-04 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq RSS      AIC      F value   Pr(>F)      \n",
+       "<none>  NA        NA 944.9564 198.5655        NA           NA\n",
+       "AGE      1  80.87646 864.0799 193.5866  7.019877 9.825518e-03\n",
+       "HT       1  61.59770 883.3587 195.3078  5.229843 2.502498e-02\n",
+       "WT       1  43.73412 901.2222 196.8694  3.639568 6.024982e-02\n",
+       "TRICEPS  1 242.17270 702.7837 177.4705 25.844302 2.638708e-06\n",
+       "SUBSCAP  1 132.57961 812.3767 188.7739 12.239974 7.903716e-04"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "add1(lm(HWFAT~ABS), \n",
+    "     scope=(~.+ AGE + HT + WT + TRICEPS + SUBSCAP),\n",
+    "     test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 5 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>       NA</td><td>702.7837</td><td>177.4705</td><td>       NA</td><td>        NA</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td> 1</td><td>37.594508</td><td>665.1891</td><td>175.1823</td><td>4.1822595</td><td>0.04440545</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td> 1</td><td>25.246070</td><td>677.5376</td><td>176.6170</td><td>2.7573514</td><td>0.10104021</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td>30.812262</td><td>671.9714</td><td>175.9735</td><td>3.3931614</td><td>0.06947377</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 1</td><td> 2.243634</td><td>700.5400</td><td>179.2211</td><td>0.2370014</td><td>0.62781919</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 5 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &        NA & 702.7837 & 177.4705 &        NA &         NA\\\\\n",
+       "\tAGE &  1 & 37.594508 & 665.1891 & 175.1823 & 4.1822595 & 0.04440545\\\\\n",
+       "\tHT &  1 & 25.246070 & 677.5376 & 176.6170 & 2.7573514 & 0.10104021\\\\\n",
+       "\tWT &  1 & 30.812262 & 671.9714 & 175.9735 & 3.3931614 & 0.06947377\\\\\n",
+       "\tSUBSCAP &  1 &  2.243634 & 700.5400 & 179.2211 & 0.2370014 & 0.62781919\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 5 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |        NA | 702.7837 | 177.4705 |        NA |         NA |\n",
+       "| AGE |  1 | 37.594508 | 665.1891 | 175.1823 | 4.1822595 | 0.04440545 |\n",
+       "| HT |  1 | 25.246070 | 677.5376 | 176.6170 | 2.7573514 | 0.10104021 |\n",
+       "| WT |  1 | 30.812262 | 671.9714 | 175.9735 | 3.3931614 | 0.06947377 |\n",
+       "| SUBSCAP |  1 |  2.243634 | 700.5400 | 179.2211 | 0.2370014 | 0.62781919 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq RSS      AIC      F value   Pr(>F)    \n",
+       "<none>  NA        NA 702.7837 177.4705        NA         NA\n",
+       "AGE      1 37.594508 665.1891 175.1823 4.1822595 0.04440545\n",
+       "HT       1 25.246070 677.5376 176.6170 2.7573514 0.10104021\n",
+       "WT       1 30.812262 671.9714 175.9735 3.3931614 0.06947377\n",
+       "SUBSCAP  1  2.243634 700.5400 179.2211 0.2370014 0.62781919"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "add1(lm(HWFAT~ABS+TRICEPS),\n",
+    "     scope=(~.+ AGE + HT + WT + SUBSCAP),\n",
+    "     test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A anova: 4 × 6</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Df</th><th scope=col>Sum of Sq</th><th scope=col>RSS</th><th scope=col>AIC</th><th scope=col>F value</th><th scope=col>Pr(&gt;F)</th></tr>\n",
+       "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>&lt;none&gt;</th><td>NA</td><td>      NA</td><td>665.1891</td><td>175.1823</td><td>       NA</td><td>       NA</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td> 1</td><td>7.029074</td><td>658.1601</td><td>176.3537</td><td>0.7796316</td><td>0.3801523</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td> 1</td><td>6.833234</td><td>658.3559</td><td>176.3769</td><td>0.7576845</td><td>0.3869075</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 1</td><td>1.972254</td><td>663.2169</td><td>176.9507</td><td>0.2170851</td><td>0.6426572</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A anova: 4 × 6\n",
+       "\\begin{tabular}{r|llllll}\n",
+       "  & Df & Sum of Sq & RSS & AIC & F value & Pr(>F)\\\\\n",
+       "  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n",
+       "\\hline\n",
+       "\t<none> & NA &       NA & 665.1891 & 175.1823 &        NA &        NA\\\\\n",
+       "\tHT &  1 & 7.029074 & 658.1601 & 176.3537 & 0.7796316 & 0.3801523\\\\\n",
+       "\tWT &  1 & 6.833234 & 658.3559 & 176.3769 & 0.7576845 & 0.3869075\\\\\n",
+       "\tSUBSCAP &  1 & 1.972254 & 663.2169 & 176.9507 & 0.2170851 & 0.6426572\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A anova: 4 × 6\n",
+       "\n",
+       "| <!--/--> | Df &lt;dbl&gt; | Sum of Sq &lt;dbl&gt; | RSS &lt;dbl&gt; | AIC &lt;dbl&gt; | F value &lt;dbl&gt; | Pr(&gt;F) &lt;dbl&gt; |\n",
+       "|---|---|---|---|---|---|---|\n",
+       "| &lt;none&gt; | NA |       NA | 665.1891 | 175.1823 |        NA |        NA |\n",
+       "| HT |  1 | 7.029074 | 658.1601 | 176.3537 | 0.7796316 | 0.3801523 |\n",
+       "| WT |  1 | 6.833234 | 658.3559 | 176.3769 | 0.7576845 | 0.3869075 |\n",
+       "| SUBSCAP |  1 | 1.972254 | 663.2169 | 176.9507 | 0.2170851 | 0.6426572 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "        Df Sum of Sq RSS      AIC      F value   Pr(>F)   \n",
+       "<none>  NA       NA  665.1891 175.1823        NA        NA\n",
+       "HT       1 7.029074  658.1601 176.3537 0.7796316 0.3801523\n",
+       "WT       1 6.833234  658.3559 176.3769 0.7576845 0.3869075\n",
+       "SUBSCAP  1 1.972254  663.2169 176.9507 0.2170851 0.6426572"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "add1(lm(HWFAT~ABS+TRICEPS+AGE), \n",
+    "     scope=(~.+ HT + WT + SUBSCAP), test=\"F\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 5 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td>15.6108355</td><td>7.06886737</td><td> 2.2083928</td><td>3.035723e-02</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.3701823</td><td>0.06550886</td><td> 5.6508735</td><td>2.902965e-07</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.4554293</td><td>0.09980055</td><td> 4.5633949</td><td>1.990682e-05</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.4236659</td><td>0.28898736</td><td>-1.4660361</td><td>1.469329e-01</td></tr>\n",
+       "\t<tr><th scope=row>HT</th><td>-0.1020099</td><td>0.11553071</td><td>-0.8829675</td><td>3.801523e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 5 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) & 15.6108355 & 7.06886737 &  2.2083928 & 3.035723e-02\\\\\n",
+       "\tABS &  0.3701823 & 0.06550886 &  5.6508735 & 2.902965e-07\\\\\n",
+       "\tTRICEPS &  0.4554293 & 0.09980055 &  4.5633949 & 1.990682e-05\\\\\n",
+       "\tAGE & -0.4236659 & 0.28898736 & -1.4660361 & 1.469329e-01\\\\\n",
+       "\tHT & -0.1020099 & 0.11553071 & -0.8829675 & 3.801523e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 5 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) | 15.6108355 | 7.06886737 |  2.2083928 | 3.035723e-02 |\n",
+       "| ABS |  0.3701823 | 0.06550886 |  5.6508735 | 2.902965e-07 |\n",
+       "| TRICEPS |  0.4554293 | 0.09980055 |  4.5633949 | 1.990682e-05 |\n",
+       "| AGE | -0.4236659 | 0.28898736 | -1.4660361 | 1.469329e-01 |\n",
+       "| HT | -0.1020099 | 0.11553071 | -0.8829675 | 3.801523e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate   Std. Error t value    Pr(>|t|)    \n",
+       "(Intercept) 15.6108355 7.06886737  2.2083928 3.035723e-02\n",
+       "ABS          0.3701823 0.06550886  5.6508735 2.902965e-07\n",
+       "TRICEPS      0.4554293 0.09980055  4.5633949 1.990682e-05\n",
+       "AGE         -0.4236659 0.28898736 -1.4660361 1.469329e-01\n",
+       "HT          -0.1020099 0.11553071 -0.8829675 3.801523e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "summary(lm(HWFAT~ABS+TRICEPS+AGE+HT))$coefficients"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 5 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td> 9.94025577</td><td>4.31017288</td><td> 2.3062313</td><td>2.393916e-02</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.39968360</td><td>0.08074124</td><td> 4.9501789</td><td>4.621329e-06</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.46942072</td><td>0.09924414</td><td> 4.7299591</td><td>1.068468e-05</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.38382444</td><td>0.31238134</td><td>-1.2287048</td><td>2.231289e-01</td></tr>\n",
+       "\t<tr><th scope=row>WT</th><td>-0.01585418</td><td>0.01821376</td><td>-0.8704507</td><td>3.869075e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 5 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) &  9.94025577 & 4.31017288 &  2.3062313 & 2.393916e-02\\\\\n",
+       "\tABS &  0.39968360 & 0.08074124 &  4.9501789 & 4.621329e-06\\\\\n",
+       "\tTRICEPS &  0.46942072 & 0.09924414 &  4.7299591 & 1.068468e-05\\\\\n",
+       "\tAGE & -0.38382444 & 0.31238134 & -1.2287048 & 2.231289e-01\\\\\n",
+       "\tWT & -0.01585418 & 0.01821376 & -0.8704507 & 3.869075e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 5 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) |  9.94025577 | 4.31017288 |  2.3062313 | 2.393916e-02 |\n",
+       "| ABS |  0.39968360 | 0.08074124 |  4.9501789 | 4.621329e-06 |\n",
+       "| TRICEPS |  0.46942072 | 0.09924414 |  4.7299591 | 1.068468e-05 |\n",
+       "| AGE | -0.38382444 | 0.31238134 | -1.2287048 | 2.231289e-01 |\n",
+       "| WT | -0.01585418 | 0.01821376 | -0.8704507 | 3.869075e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate    Std. Error t value    Pr(>|t|)    \n",
+       "(Intercept)  9.94025577 4.31017288  2.3062313 2.393916e-02\n",
+       "ABS          0.39968360 0.08074124  4.9501789 4.621329e-06\n",
+       "TRICEPS      0.46942072 0.09924414  4.7299591 1.068468e-05\n",
+       "AGE         -0.38382444 0.31238134 -1.2287048 2.231289e-01\n",
+       "WT          -0.01585418 0.01821376 -0.8704507 3.869075e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "<caption>A matrix: 5 × 4 of type dbl</caption>\n",
+       "<thead>\n",
+       "\t<tr><th></th><th scope=col>Estimate</th><th scope=col>Std. Error</th><th scope=col>t value</th><th scope=col>Pr(&gt;|t|)</th></tr>\n",
+       "</thead>\n",
+       "<tbody>\n",
+       "\t<tr><th scope=row>(Intercept)</th><td>10.59636278</td><td>4.25550451</td><td> 2.490037</td><td>1.504963e-02</td></tr>\n",
+       "\t<tr><th scope=row>ABS</th><td> 0.33934952</td><td>0.07364815</td><td> 4.607713</td><td>1.688668e-05</td></tr>\n",
+       "\t<tr><th scope=row>TRICEPS</th><td> 0.42485168</td><td>0.13249227</td><td> 3.206615</td><td>1.994247e-03</td></tr>\n",
+       "\t<tr><th scope=row>AGE</th><td>-0.53122920</td><td>0.26209533</td><td>-2.026855</td><td>4.633009e-02</td></tr>\n",
+       "\t<tr><th scope=row>SUBSCAP</th><td> 0.06218487</td><td>0.13346571</td><td> 0.465924</td><td>6.426572e-01</td></tr>\n",
+       "</tbody>\n",
+       "</table>\n"
+      ],
+      "text/latex": [
+       "A matrix: 5 × 4 of type dbl\n",
+       "\\begin{tabular}{r|llll}\n",
+       "  & Estimate & Std. Error & t value & Pr(>\\textbar{}t\\textbar{})\\\\\n",
+       "\\hline\n",
+       "\t(Intercept) & 10.59636278 & 4.25550451 &  2.490037 & 1.504963e-02\\\\\n",
+       "\tABS &  0.33934952 & 0.07364815 &  4.607713 & 1.688668e-05\\\\\n",
+       "\tTRICEPS &  0.42485168 & 0.13249227 &  3.206615 & 1.994247e-03\\\\\n",
+       "\tAGE & -0.53122920 & 0.26209533 & -2.026855 & 4.633009e-02\\\\\n",
+       "\tSUBSCAP &  0.06218487 & 0.13346571 &  0.465924 & 6.426572e-01\\\\\n",
+       "\\end{tabular}\n"
+      ],
+      "text/markdown": [
+       "\n",
+       "A matrix: 5 × 4 of type dbl\n",
+       "\n",
+       "| <!--/--> | Estimate | Std. Error | t value | Pr(&gt;|t|) |\n",
+       "|---|---|---|---|---|\n",
+       "| (Intercept) | 10.59636278 | 4.25550451 |  2.490037 | 1.504963e-02 |\n",
+       "| ABS |  0.33934952 | 0.07364815 |  4.607713 | 1.688668e-05 |\n",
+       "| TRICEPS |  0.42485168 | 0.13249227 |  3.206615 | 1.994247e-03 |\n",
+       "| AGE | -0.53122920 | 0.26209533 | -2.026855 | 4.633009e-02 |\n",
+       "| SUBSCAP |  0.06218487 | 0.13346571 |  0.465924 | 6.426572e-01 |\n",
+       "\n"
+      ],
+      "text/plain": [
+       "            Estimate    Std. Error t value   Pr(>|t|)    \n",
+       "(Intercept) 10.59636278 4.25550451  2.490037 1.504963e-02\n",
+       "ABS          0.33934952 0.07364815  4.607713 1.688668e-05\n",
+       "TRICEPS      0.42485168 0.13249227  3.206615 1.994247e-03\n",
+       "AGE         -0.53122920 0.26209533 -2.026855 4.633009e-02\n",
+       "SUBSCAP      0.06218487 0.13346571  0.465924 6.426572e-01"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "summary(lm(HWFAT~ABS+TRICEPS+AGE+WT))$coefficients\n",
+    "\n",
+    "summary(lm(HWFAT~ABS+TRICEPS+AGE+SUBSCAP))$coefficients"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "'data.frame':\t78 obs. of  7 variables:\n",
+      " $ AGE    : int  18 15 17 17 17 14 14 17 15 14 ...\n",
+      " $ HT     : num  65.8 65.5 64 72 69.5 ...\n",
+      " $ WT     : num  134 129 121 145 299 ...\n",
+      " $ ABS    : num  8 10 6 11 54 40 6 11 9 19 ...\n",
+      " $ TRICEPS: num  6 8 6 10 42 25 8 7 6 13 ...\n",
+      " $ SUBSCAP: num  10.5 9 8 10 37 26 7 8 8 11.5 ...\n",
+      " $ HWFAT  : num  10.71 8.53 6.78 9.32 41.89 ...\n"
+     ]
+    }
+   ],
+   "source": [
+    "## Example: Adjusted $R^2$\n",
+    "str(HSwrestler[,-c(8,9)])\n",
+    "library(leaps)\n",
+    "a <- regsubsets(as.matrix(HSwrestler[,-c(7,8,9)]), \n",
+    "                HSwrestler[,7])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Updating HTML index of packages in '.Library'\n",
+      "\n",
+      "Making 'packages.html' ...\n",
+      " done\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "install.packages('leaps')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Subset selection object\n",
+       "6 Variables  (and intercept)\n",
+       "        Forced in Forced out\n",
+       "AGE         FALSE      FALSE\n",
+       "HT          FALSE      FALSE\n",
+       "WT          FALSE      FALSE\n",
+       "ABS         FALSE      FALSE\n",
+       "TRICEPS     FALSE      FALSE\n",
+       "SUBSCAP     FALSE      FALSE\n",
+       "1 subsets of each size up to 6\n",
+       "Selection Algorithm: exhaustive\n",
+       "         AGE HT  WT  ABS TRICEPS SUBSCAP\n",
+       "1  ( 1 ) \" \" \" \" \" \" \"*\" \" \"     \" \"    \n",
+       "2  ( 1 ) \" \" \" \" \" \" \"*\" \"*\"     \" \"    \n",
+       "3  ( 1 ) \"*\" \" \" \" \" \"*\" \"*\"     \" \"    \n",
+       "4  ( 1 ) \"*\" \"*\" \" \" \"*\" \"*\"     \" \"    \n",
+       "5  ( 1 ) \"*\" \" \" \"*\" \"*\" \"*\"     \"*\"    \n",
+       "6  ( 1 ) \"*\" \"*\" \"*\" \"*\" \"*\"     \"*\"    "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>0.840906759184775</li><li>0.880101442766541</li><li>0.884981684455487</li><li>0.884638142510715</li><li>0.884012902554101</li><li>0.88266988926589</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 0.840906759184775\n",
+       "\\item 0.880101442766541\n",
+       "\\item 0.884981684455487\n",
+       "\\item 0.884638142510715\n",
+       "\\item 0.884012902554101\n",
+       "\\item 0.88266988926589\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 0.840906759184775\n",
+       "2. 0.880101442766541\n",
+       "3. 0.884981684455487\n",
+       "4. 0.884638142510715\n",
+       "5. 0.884012902554101\n",
+       "6. 0.88266988926589\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 0.8409068 0.8801014 0.8849817 0.8846381 0.8840129 0.8826699"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "0.884981684455487"
+      ],
+      "text/latex": [
+       "0.884981684455487"
+      ],
+      "text/markdown": [
+       "0.884981684455487"
+      ],
+      "text/plain": [
+       "[1] 0.8849817"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "3"
+      ],
+      "text/latex": [
+       "3"
+      ],
+      "text/markdown": [
+       "3"
+      ],
+      "text/plain": [
+       "[1] 3"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "summary(a)\n",
+    "summary(a)$adjr2\n",
+    "max(summary(a)$adjr2)\n",
+    "which.max(summary(a)$adjr2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Subset selection object\n",
+       "6 Variables  (and intercept)\n",
+       "        Forced in Forced out\n",
+       "AGE         FALSE      FALSE\n",
+       "HT          FALSE      FALSE\n",
+       "WT          FALSE      FALSE\n",
+       "ABS         FALSE      FALSE\n",
+       "TRICEPS     FALSE      FALSE\n",
+       "SUBSCAP     FALSE      FALSE\n",
+       "1 subsets of each size up to 6\n",
+       "Selection Algorithm: exhaustive\n",
+       "         AGE HT  WT  ABS TRICEPS SUBSCAP\n",
+       "1  ( 1 ) \" \" \" \" \" \" \"*\" \" \"     \" \"    \n",
+       "2  ( 1 ) \" \" \" \" \" \" \"*\" \"*\"     \" \"    \n",
+       "3  ( 1 ) \"*\" \" \" \" \" \"*\" \"*\"     \" \"    \n",
+       "4  ( 1 ) \"*\" \"*\" \" \" \"*\" \"*\"     \" \"    \n",
+       "5  ( 1 ) \"*\" \" \" \"*\" \"*\" \"*\"     \"*\"    \n",
+       "6  ( 1 ) \"*\" \"*\" \"*\" \"*\" \"*\"     \"*\"    "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<style>\n",
+       ".list-inline {list-style: none; margin:0; padding: 0}\n",
+       ".list-inline>li {display: inline-block}\n",
+       ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+       "</style>\n",
+       "<ol class=list-inline><li>29.0518613364091</li><li>4.64180776993967</li><li>2.54195276080605</li><li>3.77539971646456</li><li>5.17585557410422</li><li>7</li></ol>\n"
+      ],
+      "text/latex": [
+       "\\begin{enumerate*}\n",
+       "\\item 29.0518613364091\n",
+       "\\item 4.64180776993967\n",
+       "\\item 2.54195276080605\n",
+       "\\item 3.77539971646456\n",
+       "\\item 5.17585557410422\n",
+       "\\item 7\n",
+       "\\end{enumerate*}\n"
+      ],
+      "text/markdown": [
+       "1. 29.0518613364091\n",
+       "2. 4.64180776993967\n",
+       "3. 2.54195276080605\n",
+       "4. 3.77539971646456\n",
+       "5. 5.17585557410422\n",
+       "6. 7\n",
+       "\n",
+       "\n"
+      ],
+      "text/plain": [
+       "[1] 29.051861  4.641808  2.541953  3.775400  5.175856  7.000000"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## Example Mallows Cp\n",
+    "summary(a)\n",
+    "summary(a)$cp"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAA0gAAANICAMAAADKOT/pAAAC5VBMVEUAAAAAAFkAAFsAAFwA\nAGIAAGkAAPwBAQECAgIDAwMDA/8EBAQFBQUGBgYHBwcICAgJCQkKCgoLCwsMDAwNDQ0ODg4P\nDw8QEBARERESEhITExMUFBQVFRUWFhYXFxcYGBgZGRkaGhobGxscHBwdHR0eHh4fHx8gICAh\nISEiIiIjIyMkJCQlJSUmJiYnJycoKCgpKSkqKiosLCwtLS0uLi4vLy8wMDAxMTEyMjIzMzM0\nNDQ1NTU2NjY4ODg6Ojo7Ozs8PDw9PT0+Pj4/Pz9AQEBBQUFCQkJDQ0NERERFRUVGRkZHR0dI\nSEhJSUlKSkpLS0tMTExNTU1OTk5PT09QUFBRUVFSUlJTU1NUVFRVVVVWVlZXV1dYWFhZWVla\nWlpbW1tcXFxdXV1eXl5fX19gYGBhYWFiYmJjY2NlZWVmZmZnZ2doaGhpaWlqampra2tsbGxt\nbW1ubm5vb29wcHBxcXFycnJzc3N0dHR3d3d4eHh5eXl6enp7e3t8fHx9fX1+fn5/f3+BgYGD\ng4OEhISGhoaHh4eIiIiKioqLi4uOjo6Pj4+QkJCRkZGSkpKSkvuTk5OUlJSVlZWWlpaWlv+X\nl5eYmJiZmZmZmfuampqbm5ucnJycnP+dnf+enp6fn5+goKChoaGioqKjo6OkpKSlpaWmpqan\np6eoqKirq6usrKytra2urq6vr6+wsLCxsbGysrKzs7O0tLS2tra3t7e4uLi5ubm6urq7u7u9\nvb2+vr6/v7/AwMDBwcHCwsLDw8PExMTFxcXGxsbHx8fIyMjJycnKysrLy8vMzMzNzc3Ozs7P\nz8/Q0NDR0dHS0tLV1dXW1tbX19fY2NjZ2dnb29vc3Nzd3d3e3t7f39/h4eHi4uLj4+Pk5OTl\n5eXm5ubo6Ojp6enq6urr6+vs7Ozt7e3u7u7v7+/w8PDx8fHy8vLz8/P09PT19fX29vb39/f4\n+Pj5+fn6+vr7+/v8/Pz9/f3+/v7/AAD///8d6ehCAAAACXBIWXMAABJ0AAASdAHeZh94AAAa\ngElEQVR4nO3dfbxlVXnY8W3fhpGZAWYQRpykihEiMTY24ktDg6EmjNqgREhqR4QGI2JDqpAi\nwWAwxjQlpom0tLWx1FhTA6aKNo0yNQalDr5FqKOoWKpGQIUIMjPZf/eee+ftztw597w8e+21\n9vp+/9h7fz5nMc+ac+5vOC935jYtMLem7w3AEAgJAggJAggJAggJAggJAggJAggJAggJAggJ\nAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJ\nAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJ\nAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJ\nAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJ\nAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAggJAmQS0mfugCQ+081X\ncB4h7Wggicf8jR2dfAnnEdJtzSN9b4Eq/P5jH3NbJ7+wkKjIOx77bxohwXze8dh/+4iQYD4L\nHbVCgvmMOhISzGexIyHBXJY6EhLMY29HQoI57OtISDC7/R0JCWZ2oCMhwawO6khIMKODOxIS\nzGZZR0KCmSzvSEgwi0M6EhLM4NCOygzpS9+ccKGQ6MRhHZUZUnPMmycLREgEW/x75Yd3VGhI\np679ke2TLBQSsRY7+lt/57COCg3pqh3Pbs7+6OoLhUSspY7+9uFf3oWG1O66bktz1jsfWOHG\n3ds/tN9vC4lI+zoaTkht++BbTmrW/tglb/6dQ268e8vm/Y5rHuxyH9RmX0dDCqltH3rXuRtX\n+j0dcEPznS73QW32dTSskBY88un3XD9moZCItbejwYW0CiER6h1H6qjMkDZcM+FCIRFp9PnR\nEV5MFBnSxIREoBU+h91PSDCZcR0JCSYztiMhwUTGdyQkmMQqHQkJJrBaR0KC1a3akZBgVat3\nJCRYzQQdCQlWMUlHQoLxJupISDDWZB0JCcaZsCMhwRiTdiQkOLKJOxISHNHkHQkJjmSKjoQE\nRzBNR0KClU3VkZBgRdN1JCRYyZQdCQlWMG1HQoLDTd2RkOAw03ckJDjUDB0JCQ4xS0dCguVm\n6khIsMxsHQkJDjZjR0KCg8zakZDggJk7EhLsN3tHQoJ95uhISLDXPB0JCZbM1ZGQYNF8HQkJ\nRubsSEjQzt+RkCCgIyFBQEdCgoCOhET1IjoSErUL6UhIVC6mIyFRt6COhETVojoSEjUL60hI\n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\nMvx6wpntB8/adMJPbk83b8O+Hz2R7K8w5hvSN09tXvzGC48+5i/Sjfw/J62/6NoL1637WLqR\nC3asTRrSdc0FV43cmnDmf25Ou+b1W9Z385OJVnLN4m/xqlOP+WaqifmG9EvN7y4cb27OSTfy\nBWs+snB8b/NP041s20efdXrSkK7t6AcEjfG1Tc9+sG13bros8dw71r452ax8Q7ri7O8tHPcc\ne0q6kddcPTruWnd6upFt+5tr/kfSkC5vdiactui3mj8ZnfYkHrvr2T/ySLJh+Ya05OF1Z6Ye\n+dXmvITTvnDsL96fNKSLm2/suucbCQe27YuO/V778LeSjhy5rkn4qiz3kN66+AQvoYe2P/P4\nlM99zn7iA2lDOq/51c1N88PvTjjylGd86sw1zWk3Jhy54MEtZyeclnlI/2v98x5NOvCEprno\niwnn3djc1KYN6fnNU9/yB1c/rrkh3cjjT3nilTe99SlNyngXnjM3f5ZwWt4h/eGG5yR722XJ\nr1z640c9L11JX3v8S9rEIX34poUX/u3nNjw+3euHDc07F473bvq7u5KNbNu/esJZCadlHdKe\nX2v+8bfTj92+8ZnJ/mnBl2/6cuqQ9jq/+USyWSetfWh0elmT8KOM9r8u1ptMxiHteVXz2pR/\nhO33iubORJM+2Lzxnnvu+VxzwT3JX4q/pkn3QdJz147egG0va9J9kNS25669P+G0nEO6vPmN\ntAO/+sx/tnj+2WSftFy57wP45qpEE9vvXP+Hi+fnNemewP6L5vbR6YXNV5KNbB/Z+A/SDWtz\nDunm5vLUI5+8fvSAf37Tpu8mGnjnLSPvaV54y12JJra7T940mvXfm2enmti2d6z5qYfbdsdR\nz0w3sv104ufL+YZ0WvPape/zSPfPr//x2nUv/9VXbmx+L9nERWlfI71vzcZL3nj+msd9MuHM\nK5pnvenVx65P+LFO+54m3Xc1jOQbUpP8+w7b9vbztqw9cev70w1clPjNho/99IlHP+nnk357\nw54bTj/mhHPSvbux4N81b005LuOQoCBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBC\nggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBCggBC\nggBCggBCggBCggBCggBCggBCggBCggBCKtR5zb2XfN/6p1/f9z5YIqRCbWvOuOq2j76geXvf\nG2GRkAq1rblg4fjAhlP73giLhFSobc37Rqetzb1974QRIRVqW3PX6HRx86m+d8KIkAq1rfny\n6HRZc2vfO2FESIXa1tw5Ol3YfLbvnTAipEJta24enc5ovt73ThgRUqG2NS9eOH5+zdP73giL\nhFSobc3Wl9xw/anNu/veCIuEVKhtzc4rnrT+Gf+l732wREiF2tbc0/cWOIiQCiWkvAipUELK\ni5AKJaS8CAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkC\nCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkCCAkC/H+lRsIfLOpOcQAAAABJRU5ErkJg\ngg==",
+      "text/plain": [
+       "plot without title"
+      ]
+     },
+     "metadata": {
+      "image/png": {
+       "height": 420,
+       "width": 420
+      }
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "par(pty=\"s\")\n",
+    "plot(2:7, summary(a)$cp, ylim=c(2,7), xlab=\"p\",\n",
+    "     ylab=\"Cp\", pch=16); abline(a=0, b=1, col='blue');\n",
+    "points(4,summary(a)$cp[3], col='red', pch=16)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Start:  AIC=179.51\n",
+      "HWFAT ~ AGE + HT + WT + ABS + TRICEPS + SUBSCAP\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- HT       1     1.613 652.66 177.70\n",
+      "- WT       1     2.546 653.60 177.81\n",
+      "- SUBSCAP  1     5.921 656.97 178.21\n",
+      "- AGE      1     9.594 660.64 178.65\n",
+      "<none>                 651.05 179.51\n",
+      "- TRICEPS  1    72.683 723.73 185.76\n",
+      "- ABS      1   162.000 813.05 194.84\n",
+      "\n",
+      "Step:  AIC=177.7\n",
+      "HWFAT ~ AGE + WT + ABS + TRICEPS + SUBSCAP\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- SUBSCAP  1     5.693 658.36 176.38\n",
+      "- AGE      1     9.875 662.54 176.87\n",
+      "- WT       1    10.554 663.22 176.95\n",
+      "<none>                 652.66 177.70\n",
+      "+ HT       1     1.613 651.05 179.51\n",
+      "- TRICEPS  1    78.809 731.47 184.59\n",
+      "- ABS      1   189.072 841.73 195.54\n",
+      "\n",
+      "Step:  AIC=176.38\n",
+      "HWFAT ~ AGE + WT + ABS + TRICEPS\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- WT       1     6.833 665.19 175.18\n",
+      "- AGE      1    13.615 671.97 175.97\n",
+      "<none>                 658.36 176.38\n",
+      "+ SUBSCAP  1     5.693 652.66 177.70\n",
+      "+ HT       1     1.385 656.97 178.21\n",
+      "- TRICEPS  1   201.768 860.12 195.23\n",
+      "- ABS      1   220.994 879.35 196.95\n",
+      "\n",
+      "Step:  AIC=175.18\n",
+      "HWFAT ~ AGE + ABS + TRICEPS\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "<none>                 665.19 175.18\n",
+      "+ HT       1     7.029 658.16 176.35\n",
+      "+ WT       1     6.833 658.36 176.38\n",
+      "+ SUBSCAP  1     1.972 663.22 176.95\n",
+      "- AGE      1    37.595 702.78 177.47\n",
+      "- TRICEPS  1   198.891 864.08 193.59\n",
+      "- ABS      1   282.896 948.08 200.82\n"
+     ]
+    }
+   ],
+   "source": [
+    "## Example: AIC\n",
+    "library(MASS) # For function stepAIC()\n",
+    "reg.all <- lm(HWFAT ~ AGE + HT + WT + ABS + \n",
+    "                TRICEPS + SUBSCAP)\n",
+    "mod.aic <- stepAIC(reg.all, direction=\"both\",\n",
+    "                   scope=(~.+SUBSCAP+TRICEPS+\n",
+    "                            ABS+WT+HT+AGE), k=2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "Call:\n",
+       "lm(formula = HWFAT ~ AGE + ABS + TRICEPS)\n",
+       "\n",
+       "Coefficients:\n",
+       "(Intercept)          AGE          ABS      TRICEPS  \n",
+       "    10.6161      -0.5331       0.3564       0.4656  \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "mod.aic"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Start:  AIC=196\n",
+      "HWFAT ~ AGE + HT + WT + ABS + TRICEPS + SUBSCAP\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- HT       1     1.613 652.66 191.84\n",
+      "- WT       1     2.546 653.60 191.95\n",
+      "- SUBSCAP  1     5.921 656.97 192.35\n",
+      "- AGE      1     9.594 660.64 192.79\n",
+      "<none>                 651.05 196.00\n",
+      "- TRICEPS  1    72.683 723.73 199.90\n",
+      "- ABS      1   162.000 813.05 208.98\n",
+      "\n",
+      "Step:  AIC=191.84\n",
+      "HWFAT ~ AGE + WT + ABS + TRICEPS + SUBSCAP\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- SUBSCAP  1     5.693 658.36 188.16\n",
+      "- AGE      1     9.875 662.54 188.65\n",
+      "- WT       1    10.554 663.22 188.73\n",
+      "<none>                 652.66 191.84\n",
+      "+ HT       1     1.613 651.05 196.00\n",
+      "- TRICEPS  1    78.809 731.47 196.38\n",
+      "- ABS      1   189.072 841.73 207.33\n",
+      "\n",
+      "Step:  AIC=188.16\n",
+      "HWFAT ~ AGE + WT + ABS + TRICEPS\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- WT       1     6.833 665.19 184.61\n",
+      "- AGE      1    13.615 671.97 185.40\n",
+      "<none>                 658.36 188.16\n",
+      "+ SUBSCAP  1     5.693 652.66 191.84\n",
+      "+ HT       1     1.385 656.97 192.35\n",
+      "- TRICEPS  1   201.768 860.12 204.66\n",
+      "- ABS      1   220.994 879.35 206.38\n",
+      "\n",
+      "Step:  AIC=184.61\n",
+      "HWFAT ~ AGE + ABS + TRICEPS\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "- AGE      1    37.595 702.78 184.54\n",
+      "<none>                 665.19 184.61\n",
+      "+ HT       1     7.029 658.16 188.14\n",
+      "+ WT       1     6.833 658.36 188.16\n",
+      "+ SUBSCAP  1     1.972 663.22 188.73\n",
+      "- TRICEPS  1   198.891 864.08 200.66\n",
+      "- ABS      1   282.896 948.08 207.89\n",
+      "\n",
+      "Step:  AIC=184.54\n",
+      "HWFAT ~ ABS + TRICEPS\n",
+      "\n",
+      "          Df Sum of Sq    RSS    AIC\n",
+      "<none>                 702.78 184.54\n",
+      "+ AGE      1    37.595 665.19 184.61\n",
+      "+ WT       1    30.812 671.97 185.40\n",
+      "+ HT       1    25.246 677.54 186.04\n",
+      "+ SUBSCAP  1     2.244 700.54 188.65\n",
+      "- TRICEPS  1   242.173 944.96 203.28\n",
+      "- ABS      1   258.755 961.54 204.64\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "\n",
+       "Call:\n",
+       "lm(formula = HWFAT ~ ABS + TRICEPS)\n",
+       "\n",
+       "Coefficients:\n",
+       "(Intercept)          ABS      TRICEPS  \n",
+       "     2.0590       0.3371       0.5043  \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "## Example: BIC\n",
+    "mod.bic <- stepAIC(reg.all, direction=\"both\",\n",
+    "                   scope=(~.+SUBSCAP+TRICEPS+\n",
+    "                            ABS+WT+HT+AGE),\n",
+    "                   k=log(length(HWFAT)))\n",
+    "\n",
+    "mod.bic"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
