@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+#my ($count1,$count2,$out) = @ARGV;
+my $count1 = "human_brain.hg38.rep1.bed";
+my $count2 = "human_brain.hg38.rep2.bed";
+my $out = "human_brain.hg38.union.bed.info";
+
+
+my %hash;
+my %hash1;
+open FILE,"$count1";
+while(<FILE>){
+	chomp;
+	my ($chr,$pre,$end,undef,$readCount,$strand) = split;
+	$hash1{"$chr:$end:$strand"} = $readCount;
+	$hash{"$chr:$end:$strand"} = $readCount;
+}
+
+
+open OUT,">$out";
+open FILE,"$count2";
+print OUT "pas_id\tchr\tstart\tend\tposition\tstrand\trep1\trep2\n";
+my %hash2;
+while(<FILE>){
+	chomp;
+	my ($chr,$pre,$end,undef,$readCount,$strand) = split;
+	$hash{"$chr:$end:$strand"} = $readCount;
+	$hash2{"$chr:$end:$strand"} = $readCount;
+}
+
+foreach my $pas_id (keys %hash){
+	$hash1{$pas_id} = 0 if !exists $hash1{$pas_id};
+	$hash2{$pas_id} = 0 if !exists $hash2{$pas_id};
+	my $ave = ($hash1{$pas_id}+$hash2{$pas_id})/2;
+	next if $ave < 5;
+	my ($chr,$end,$strand) = split /:/,$pas_id;
+	my $pre = $end-1;
+	print OUT "$pas_id\t$chr\t$pre\t$end\t$end\t$strand\t$hash1{$pas_id}\t$hash2{$pas_id}\n";
+}
