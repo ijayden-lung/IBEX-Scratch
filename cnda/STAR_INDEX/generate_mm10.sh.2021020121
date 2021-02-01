@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH --job-name=mm10_generate
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --time=4:00:00
+#SBATCH --output=log.mmm10
+#SBATCH --mem=128G
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+
+dir='/ibex/scratch/longy/cnda/STAR_INDEX/mm10len100'
+if [ ! -d $dir ];then
+	mkdir $dir
+fi
+STAR --runMode genomeGenerate --runThreadN 16 --genomeDir $dir --genomeFastaFiles /ibex/scratch/longy/cnda/ensembl/Mus_musculus.GRCm38.dna.primary_assembly.fa --sjdbGTFfile /ibex/scratch/longy/cnda/ensembl/Mus_musculus.GRCm38.102.gtf --sjdbOverhang 100
