@@ -1,0 +1,119 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Loading required package: xts\n",
+      "\n",
+      "Loading required package: zoo\n",
+      "\n",
+      "\n",
+      "Attaching package: ‘zoo’\n",
+      "\n",
+      "\n",
+      "The following objects are masked from ‘package:base’:\n",
+      "\n",
+      "    as.Date, as.Date.numeric\n",
+      "\n",
+      "\n",
+      "Loading required package: TTR\n",
+      "\n",
+      "Registered S3 method overwritten by 'quantmod':\n",
+      "  method            from\n",
+      "  as.zoo.data.frame zoo \n",
+      "\n",
+      "Version 0.4-0 included new data defaults. See ?getSymbols.\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "library(quantmod)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "GUSH  = getSymbols('GUSH', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(GUSH,'GUSH.csv')\n",
+    "DRIP  = getSymbols('DRIP', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(DRIP,'DRIP.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "JNUG  = getSymbols('JNUG', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(JNUG,'JNUG.csv')\n",
+    "JDST  = getSymbols('JDST', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(JDST,'JDST.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "USO  = getSymbols('USO', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(USO,'USO.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "           JNUG.Open JNUG.High JNUG.Low JNUG.Close JNUG.Volume JNUG.Adjusted\n",
+       "2016-09-23      4150      4240     3650       3778       71576      3714.292"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "JNUG[750,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
