@@ -1,0 +1,227 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Loading required package: xts\n",
+      "\n",
+      "Loading required package: zoo\n",
+      "\n",
+      "\n",
+      "Attaching package: ‘zoo’\n",
+      "\n",
+      "\n",
+      "The following objects are masked from ‘package:base’:\n",
+      "\n",
+      "    as.Date, as.Date.numeric\n",
+      "\n",
+      "\n",
+      "Loading required package: TTR\n",
+      "\n",
+      "Registered S3 method overwritten by 'quantmod':\n",
+      "  method            from\n",
+      "  as.zoo.data.frame zoo \n",
+      "\n",
+      "Version 0.4-0 included new data defaults. See ?getSymbols.\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "library(quantmod)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "GUSH  = getSymbols('GUSH', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(GUSH,'GUSH.csv')\n",
+    "DRIP  = getSymbols('DRIP', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(DRIP,'DRIP.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "JNUG  = getSymbols('JNUG', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(JNUG,'JNUG.csv')\n",
+    "JDST  = getSymbols('JDST', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(JDST,'JDST.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "USO  = getSymbols('USO', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(USO,'USO.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "           JNUG.Open JNUG.High JNUG.Low JNUG.Close JNUG.Volume JNUG.Adjusted\n",
+       "2016-09-23      4150      4240     3650       3778       71576      3714.292"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "JNUG[750,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "NDX  = getSymbols('^NDX', src = \"yahoo\", from = '1956-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(NDX,'NDX.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "           NDX.Open NDX.High NDX.Low NDX.Close NDX.Volume NDX.Adjusted\n",
+       "2000-05-04  3561.72  3627.35 3518.12   3570.73 1287850000      3570.73"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "NDX[3689,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SPX  = getSymbols('^GSPC', src = \"yahoo\", from = '1900-01-01', to = Sys.Date(), auto.assign = FALSE)\n",
+    "write.csv(SPX[c(10000:nrow(SPX)),],'GSPC.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "           GSPC.Open GSPC.High GSPC.Low GSPC.Close GSPC.Volume GSPC.Adjusted\n",
+       "2000-08-31   1502.59   1525.21  1502.59    1517.68  1056600000       1517.68"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "SPX[18247,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "           GSPC.Open GSPC.High GSPC.Low GSPC.Close GSPC.Volume GSPC.Adjusted\n",
+       "2003-12-26   1094.04   1098.47  1094.04    1095.89   356070000       1095.89"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "SPX[19079,]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "23449"
+      ],
+      "text/latex": [
+       "23449"
+      ],
+      "text/markdown": [
+       "23449"
+      ],
+      "text/plain": [
+       "[1] 23449"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "nrow(SPX)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
