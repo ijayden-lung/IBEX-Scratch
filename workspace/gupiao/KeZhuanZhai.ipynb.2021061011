@@ -1,0 +1,209 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# -*- coding:utf-8 -*-\n",
+    "import json\n",
+    "import requests\n",
+    "import csv\n",
+    "import re\n",
+    "from lxml import etree"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_dat():\n",
+    "    headers = {\n",
+    "        \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\",\n",
+    "    }\n",
+    "\n",
+    "    newUrl =\"https://www.jisilu.cn/data/cbnew/cb_list/?___jsl=LST___t=1584777951900\"\n",
+    "    #最简单的爬虫请求.也可以加上headers字段，防止部分网址的反爬虫机制\n",
+    "    response = requests.get(newUrl)\n",
+    "    #当爬取的界面需要用户名密码登录时候，构建的请求需要包含auth字段\n",
+    "    data = response.content.decode(\"utf-8\")\n",
+    "    dat = json.loads(data)\n",
+    "\n",
+    "    # 所有数据\n",
+    "    lst_data = []\n",
+    "    for one in dat['rows']:\n",
+    "        # 每一条数据\n",
+    "        lst_dat = []\n",
+    "        # 转债id\n",
+    "        id = one[\"id\"]\n",
+    "        dat_cell = one[\"cell\"]\n",
+    "        # 是否赎回\n",
+    "        is_shui = dat_cell['force_redeem']\n",
+    "        print(id)\n",
+    "        if is_shui == None:\n",
+    "            # 转债名称\n",
+    "            name = dat_cell['bond_nm']\n",
+    "            # 现价\n",
+    "            price = dat_cell['price']\n",
+    "            # 溢价率\n",
+    "            premium_rt = dat_cell['premium_rt']\n",
+    "            # 评级\n",
+    "            rating_cd = dat_cell['rating_cd']\n",
+    "            # 回售触发价\n",
+    "            put_convert_price = dat_cell['put_convert_price']\n",
+    "            # 强赎触发价\n",
+    "            force_redeem_price = dat_cell['force_redeem_price']\n",
+    "            # 剩余时间\n",
+    "            last_time = dat_cell['year_left']\n",
+    "            # 双低\n",
+    "            dblow = dat_cell['dblow']\n",
+    "\n",
+    "            # 获取赎回价\n",
+    "            xiangqing_url = 'https://www.jisilu.cn/data/convert_bond_detail/' + id\n",
+    "            xiangqing_response = requests.get(xiangqing_url)\n",
+    "            html = xiangqing_response.content.decode(\"utf-8\")\n",
+    "            html = etree.HTML(html)\n",
+    "            lixi = html.xpath('.//td[@id=\"cpn_desc\"]/text()')\n",
+    "            pattern = re.compile(r'\\d+\\.\\d+?')  # 查找数字\n",
+    "            lixi = pattern.findall(lixi[0])\n",
+    "            shuhuijia = html.xpath('.//td[@id=\"redeem_price\"]/text()')\n",
+    "            li_price = 0\n",
+    "            for li in lixi:\n",
+    "                li_price = li_price + float(li)\n",
+    "            try:\n",
+    "                jiancang = float(shuhuijia[0]) + (li_price - float(lixi[-1])) * 0.8\n",
+    "            except:\n",
+    "                jiancang = 0\n",
+    "\n",
+    "            # 是否可操作\n",
+    "            if jiancang != 0 and float(price) - jiancang < 3:\n",
+    "                is_oper = '建仓'\n",
+    "                if jiancang != 0 and float(price) - float(shuhuijia[0]) < 3:\n",
+    "                    is_oper = '加仓'\n",
+    "            else:\n",
+    "                is_oper = ''\n",
+    "            lst_dat.append(id)\n",
+    "            lst_dat.append(name)\n",
+    "            lst_dat.append(price)\n",
+    "            lst_dat.append(jiancang)\n",
+    "            lst_dat.append(shuhuijia[0])\n",
+    "            lst_dat.append('')\n",
+    "            lst_dat.append(premium_rt)\n",
+    "            lst_dat.append(rating_cd)\n",
+    "            lst_dat.append(put_convert_price)\n",
+    "            lst_dat.append(force_redeem_price)\n",
+    "            lst_dat.append(last_time)\n",
+    "            lst_dat.append(dblow)\n",
+    "            lst_dat.append(is_oper)\n",
+    "            lst_data.append(lst_dat)\n",
+    "        else:\n",
+    "            continue\n",
+    "    return lst_data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def wirte_csv(data):\n",
+    "    # 1. 创建文件对象\n",
+    "    f = open('可转债.csv', 'w', encoding='utf-8', newline='')\n",
+    "    # 2. 基于文件对象构建 csv写入对象\n",
+    "    csv_writer = csv.writer(f)\n",
+    "    # 3. 构建列表头\n",
+    "    csv_writer.writerow([\"代 码\", \"转债名称\", \"现 价\", \"建仓线\", \"加仓线\", \"重仓线\", \"溢价率\", \"评级\",\n",
+    "                     \"回售触发价\", \"强赎触发价\", \"剩余年限\", \"双低\", \"操作\"])\n",
+    "    # 4. 写入csv文件内容\n",
+    "    for dat in data:\n",
+    "        csv_writer.writerow(dat)\n",
+    "    # 5. 关闭文件\n",
+    "    f.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#if __name__ == '__main__':\n",
+    "#    data = get_dat()\n",
+    "#    wirte_csv(data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = get_dat()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['123116',\n",
+       " '万兴转债',\n",
+       " '100.000',\n",
+       " 120.12,\n",
+       " '\\n                    115.00                                    ',\n",
+       " '',\n",
+       " '-18.00%',\n",
+       " 'A+',\n",
+       " '34.85',\n",
+       " '64.71',\n",
+       " '5.997',\n",
+       " '82.00',\n",
+       " '加仓']"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data[0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
