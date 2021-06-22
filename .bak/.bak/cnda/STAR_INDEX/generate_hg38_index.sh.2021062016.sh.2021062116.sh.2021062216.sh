@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=STAR
+#SBATCH --partition=batch
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --time=4:00:00
+#SBATCH --output=log.%J
+#SBATCH --mail-user=yongkang.long@kaust.edu.sa
+#SBATCH --mail-type=END
+#SBATCH --mem=310G
+
+#module load star
+
+dir='/ibex/scratch/longy/cnda/STAR_INDEX/hg38len75'
+if [ ! -d $dir ];then
+	mkdir $dir
+fi
+STAR --runMode genomeGenerate --runThreadN 16 --genomeDir $dir --genomeFastaFiles /ibex/scratch/longy/cnda/ensembl/Homo_sapiens.GRCh38.dna.primary_assembly.fa --sjdbGTFfile /ibex/scratch/longy/cnda/ensembl/Homo_sapiens.GRCh38.103.gtf --sjdbOverhang 75 --limitGenomeGenerateRAM 310000000000
